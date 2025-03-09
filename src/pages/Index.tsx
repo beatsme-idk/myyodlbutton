@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { UserConfig } from "@/types";
 import ConfigurationForm from "@/components/ConfigurationForm";
@@ -5,7 +6,7 @@ import PreviewCard from "@/components/PreviewCard";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
-import { ReceiptIcon } from "lucide-react";
+import { ReceiptIcon, ExternalLink } from "lucide-react";
 
 const DEFAULT_BUTTON_STYLE = {
   backgroundColor: "#6366F1",
@@ -65,7 +66,7 @@ const Index = ({ savedConfig, onConfigSave }: IndexProps) => {
   return (
     <Layout>
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16 space-y-4">
+        <div className="text-center mb-12 space-y-4">
           <div className="flex justify-center mb-6">
             <div className="animate-pulse-subtle inline-flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 shadow-glow">
               <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -79,17 +80,27 @@ const Index = ({ savedConfig, onConfigSave }: IndexProps) => {
           </h1>
           
           <p className="text-xl text-slate-300 max-w-2xl mx-auto animate-fade-in-up delay-150">
-            Design a sleek "Buy Me a Coffee" button in minutes and start accepting crypto payments without any technical knowledge.
+            Design and share a sleek donation button in minutes and start accepting crypto tips and donations without any technical knowledge. Instantly shareable.
           </p>
           
-          <div className="mt-6">
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Button 
               onClick={() => navigate("/payment-history")}
-              variant="outline" 
-              className="flex items-center gap-2 bg-indigo-950/30 border-indigo-500/30 hover:bg-indigo-900/50"
+              variant="default" 
+              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 shadow-md"
+              size="lg"
             >
-              <ReceiptIcon className="w-4 h-4 text-indigo-400" />
+              <ReceiptIcon className="w-5 h-5" />
               View Payment History
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2 border-indigo-500/50 hover:bg-indigo-900/50 shadow-md"
+              size="lg"
+            >
+              <ExternalLink className="w-5 h-5 text-indigo-400" />
+              Live Demos
             </Button>
           </div>
         </div>
