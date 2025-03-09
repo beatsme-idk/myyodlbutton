@@ -8,10 +8,11 @@ import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { SiweMessage } from 'siwe';
 import { useToast } from '@/hooks/use-toast';
+import * as buffer from 'buffer';
 
 // Polyfill Buffer for browser environment which is needed by some WalletConnect dependencies
-if (typeof window !== 'undefined' && typeof window.Buffer === 'undefined') {
-  window.Buffer = require('buffer/').Buffer;
+if (typeof window !== 'undefined') {
+  window.Buffer = window.Buffer || buffer.Buffer;
 }
 
 // Use a verified working WalletConnect project ID
