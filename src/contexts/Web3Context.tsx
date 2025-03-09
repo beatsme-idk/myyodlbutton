@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { WalletKit } from '@reown/walletkit';
 import { SiweMessage } from 'siwe';
@@ -52,7 +53,6 @@ const Web3DataProvider = ({ children }: { children: ReactNode }) => {
         // Create WalletKit instance with correct options
         const kit = new WalletKit({
           name: "Buy Me A Coffee",
-          description: "Support creators with crypto",
           url: window.location.origin,
           icons: [`${window.location.origin}/favicon.ico`],
           projectId
@@ -60,11 +60,11 @@ const Web3DataProvider = ({ children }: { children: ReactNode }) => {
         
         setWalletKit(kit);
         
-        // Set up event listeners
-        kit.on("auth", (event) => {
+        // Set up event listeners with string event names
+        kit.on("authRequest", (event: any) => {
           try {
-            const validation = event.verified?.validation; // can be VALID, INVALID or UNKNOWN
-            const isScam = event.verified?.isScam; // true if the domain is flagged as malicious
+            const validation = event.verification?.validation; // can be VALID, INVALID or UNKNOWN
+            const isScam = event.verification?.isScam; // true if the domain is flagged as malicious
             
             // If the domain is flagged as malicious, warn the user
             if (isScam) {
@@ -89,7 +89,7 @@ const Web3DataProvider = ({ children }: { children: ReactNode }) => {
           }
         });
         
-        kit.on("connect", (event) => {
+        kit.on("walletConnected", (event: any) => {
           try {
             if (event.address) {
               setWalletAddress(event.address);
@@ -103,17 +103,17 @@ const Web3DataProvider = ({ children }: { children: ReactNode }) => {
           }
         });
         
-        kit.on("disconnect", () => {
+        kit.on("walletDisconnected", () => {
           setWalletAddress(undefined);
           setEnsNameOrAddress('');
           setIsConnected(false);
           setIsAuthenticated(false);
         });
         
-        // Check if already connected
-        if (kit.isConnected() && kit.getAddress()) {
-          setWalletAddress(kit.getAddress());
-          setEnsNameOrAddress(kit.getAddress() || '');
+        // Check if already connected - adjust method calls to match WalletKit API
+        if (kit.connected && kit.address) {
+          setWalletAddress(kit.address);
+          setEnsNameOrAddress(kit.address || '');
           setIsConnected(true);
         }
         
@@ -128,7 +128,9 @@ const Web3DataProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       // Clean up any listeners when component unmounts
       if (walletKit) {
-        walletKit.removeAllListeners();
+        walletKit.off("authRequest");
+        walletKit.off("walletConnected");
+        walletKit.off("walletDisconnected");
       }
     };
   }, []);
@@ -162,7 +164,8 @@ const Web3DataProvider = ({ children }: { children: ReactNode }) => {
     
     try {
       setIsConnecting(true);
-      await walletKit.connect();
+      // Updated connect method to match WalletKit API
+      await walletKit.connectWallet();
     } catch (error) {
       console.error("Error connecting wallet:", error);
       setConnectionError(error instanceof Error ? error : new Error('Failed to connect wallet'));
@@ -175,7 +178,8 @@ const Web3DataProvider = ({ children }: { children: ReactNode }) => {
     if (!walletKit) return;
     
     try {
-      await walletKit.disconnect();
+      // Updated disconnect method to match WalletKit API
+      await walletKit.disconnectWallet();
       setIsAuthenticated(false);
       localStorage.removeItem('siwe_auth');
     } catch (error) {
@@ -215,7 +219,7 @@ const Web3DataProvider = ({ children }: { children: ReactNode }) => {
       // Generate the message string
       const messageString = message.prepareMessage();
       
-      // Request user signature
+      // Request user signature - update to use the correct signMessage method
       const signature = await walletKit.signMessage(messageString);
       
       // Store auth in localStorage (expires in 7 days)
