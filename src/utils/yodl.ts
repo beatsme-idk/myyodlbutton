@@ -6,7 +6,7 @@ export const generateYodlPaymentLink = (address: string, config?: YodlPaymentCon
     return "";
   }
 
-  // Base URL
+  // Base URL - format is https://yodl.me/{address}
   let url = `https://yodl.me/${address}`;
   
   // Build query parameters
