@@ -84,7 +84,7 @@ const PaymentPage = () => {
       <Card className="max-w-md w-full animate-fade-in">
         <CardHeader className="pb-6">
           <div className="flex items-center gap-4">
-            <AvatarGenerator ensNameOrAddress={config.ensNameOrAddress} size="lg" />
+            <AvatarGenerator ensNameOrAddress={config.ensNameOrAddress} size="large" />
             <div>
               <CardTitle className="text-2xl font-medium">
                 Support {config.ensNameOrAddress}
