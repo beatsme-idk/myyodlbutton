@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { WalletKit, initWalletKit } from '@reown/walletkit';
+import { WalletKit } from '@reown/walletkit';
 import { SiweMessage } from 'siwe';
 
 // Create context with additional connection management states and SIWE auth
@@ -50,7 +50,8 @@ const Web3DataProvider = ({ children }: { children: ReactNode }) => {
         // Project ID from your WalletConnect dashboard
         const projectId = "ca70dcf9165c21ca431481f45879e239";
         
-        const kit = await initWalletKit({
+        // Using the correct import for WalletKit initialization
+        const kit = new WalletKit({
           projectId,
           metadata: {
             name: "Buy Me A Coffee",
