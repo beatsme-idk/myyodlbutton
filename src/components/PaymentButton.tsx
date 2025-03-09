@@ -64,7 +64,13 @@ const PaymentButton = ({
     >
       {yodlConfig && yodlConfig.enabled ? (
         <>
-          <ExternalLink className="mr-2" size={20} />
+          <div className="relative mr-2 w-5 h-5">
+            <img 
+              src="https://yodl.me/_next/static/media/new_logo.be0c2fdb.svg" 
+              alt="Yodl"
+              className="w-full h-full drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]"
+            />
+          </div>
           <span>{style.buttonText} with Yodl</span>
         </>
       ) : (

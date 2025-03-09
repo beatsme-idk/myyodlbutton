@@ -21,10 +21,19 @@ const PaymentHistoryPage = () => {
             Back to Home
           </Button>
           
-          <h1 className="text-3xl font-bold tracking-tight text-gradient">
-            Payment Analytics
-          </h1>
-          <p className="text-slate-400 mt-2">
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-bold tracking-tight text-gradient">
+              Payment Analytics
+            </h1>
+            <div className="w-6 h-6">
+              <img 
+                src="https://yodl.me/_next/static/media/new_logo.be0c2fdb.svg" 
+                alt="Yodl"
+                className="w-full h-full drop-shadow-[0_0_3px_rgba(255,255,255,0.4)]"
+              />
+            </div>
+          </div>
+          <p className="text-slate-400 mt-1">
             Track goals, view transaction details, and manage your payment history
           </p>
         </div>

@@ -1,13 +1,13 @@
+
 import { useState, useEffect } from "react";
 import { YodlPaymentConfig } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { ChevronDown, Plus, Trash2, AlertTriangle, Wallet, ExternalLink, Check } from "lucide-react";
+import { ChevronDown, Plus, Trash2, AlertTriangle, ExternalLink, Check } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useAccount } from "wagmi";
 import { parseYodlConfigFromENS } from "@/utils/yodl";
@@ -146,9 +146,15 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Yodl is now always enabled, so we remove the toggle */}
+      {/* Yodl is now always enabled, showing info with new logo */}
       <div className="flex items-center bg-green-900/20 border border-green-500/20 p-3 rounded-lg">
-        <Wallet className="h-5 w-5 text-green-500 mr-2" />
+        <div className="w-5 h-5 mr-2 relative">
+          <img 
+            src="https://yodl.me/_next/static/media/new_logo.be0c2fdb.svg" 
+            alt="Yodl Logo"
+            className="w-full h-full drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]"
+          />
+        </div>
         <span className="text-green-400 text-sm">Yodl payments enabled</span>
       </div>
 
