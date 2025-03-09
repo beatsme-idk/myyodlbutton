@@ -1,10 +1,11 @@
-
 import { useState, useEffect } from "react";
 import { UserConfig } from "@/types";
 import ConfigurationForm from "@/components/ConfigurationForm";
 import PreviewCard from "@/components/PreviewCard";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
+import { Button } from "@/components/ui/button";
+import { Wallet } from "lucide-react";
 
 const DEFAULT_BUTTON_STYLE = {
   backgroundColor: "#6366F1",
@@ -80,6 +81,17 @@ const Index = ({ savedConfig, onConfigSave }: IndexProps) => {
           <p className="text-xl text-slate-300 max-w-2xl mx-auto animate-fade-in-up delay-150">
             Design a sleek "Buy Me a Coffee" button in minutes and start accepting crypto payments without any technical knowledge.
           </p>
+          
+          <div className="mt-6">
+            <Button 
+              onClick={() => navigate("/yodl-config")}
+              variant="outline" 
+              className="flex items-center gap-2 bg-indigo-950/30 border-indigo-500/30 hover:bg-indigo-900/50"
+            >
+              <Wallet className="w-4 h-4 text-indigo-400" />
+              Configure Yodl Payments
+            </Button>
+          </div>
         </div>
         
         <div className="neo-blur rounded-3xl shadow-xl overflow-hidden border border-indigo-500/30 animate-slide-up">
