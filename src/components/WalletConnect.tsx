@@ -1,11 +1,8 @@
 
 import { useState } from 'react';
 import { useAccount, useConnect, useDisconnect, useBalance } from 'wagmi';
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
-import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
-import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { Button } from "./ui/button";
-import { LogOut, CreditCard } from 'lucide-react';
+import { LogOut, CreditCard, Wallet } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,13 +13,9 @@ import {
 } from "./ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 
-// WalletConnect requires a valid project ID
-// This is a public ID that can safely be in the codebase
-const WALLET_CONNECT_PROJECT_ID = "c6bcb444ed883de790bc73184b7fe1bc";
-
 const WalletConnect = () => {
   const { address, isConnected } = useAccount();
-  const { connect, connectors, error, isLoading } = useConnect();
+  const { connect, connectors, error: connectError, isLoading } = useConnect();
   const { disconnect } = useDisconnect();
   const { data: balanceData } = useBalance({
     address,
@@ -34,10 +27,18 @@ const WalletConnect = () => {
     return `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
   };
 
-  const connectWallet = async (connector: MetaMaskConnector | WalletConnectConnector | CoinbaseWalletConnector) => {
+  const connectWallet = async (connectorId: string) => {
     try {
       setIsConnecting(true);
+      const connector = connectors.find(c => c.id === connectorId);
+      
+      if (!connector) {
+        throw new Error(`Connector '${connectorId}' not found`);
+      }
+      
+      console.log("Connecting with connector:", connector.id);
       await connect({ connector });
+      
       toast({
         title: "Wallet Connected",
         description: "Your wallet has been connected successfully",
@@ -54,16 +55,12 @@ const WalletConnect = () => {
     }
   };
 
-  // Ensure all connectors are properly initialized
-  const metaMaskConnector = connectors.find(c => c.id === 'metaMask') || new MetaMaskConnector();
-  const coinbaseConnector = connectors.find(c => c.id === 'coinbaseWallet') || 
-    new CoinbaseWalletConnector({
-      options: { appName: 'Buy Me A Coffee' }
-    });
-  const walletConnectConnector = connectors.find(c => c.id === 'walletConnect') || 
-    new WalletConnectConnector({
-      options: { projectId: WALLET_CONNECT_PROJECT_ID }
-    });
+  // Debug connectors
+  console.log("Available connectors:", connectors.map(c => ({ id: c.id, name: c.name })));
+  
+  if (connectError) {
+    console.error("Wallet connection error:", connectError);
+  }
 
   if (isConnected && address) {
     return (
@@ -93,39 +90,28 @@ const WalletConnect = () => {
     );
   }
 
-  // Connection error display
-  if (error) {
-    console.error("Wallet connection error:", error);
-  }
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" disabled={isConnecting || isLoading}>
+          <Wallet className="mr-2 h-4 w-4" />
           {isConnecting || isLoading ? "Connecting..." : "Connect Wallet"}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>Connect Wallet</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem 
-          onClick={() => connectWallet(metaMaskConnector as MetaMaskConnector)}
-          className="cursor-pointer"
-        >
-          MetaMask
-        </DropdownMenuItem>
-        <DropdownMenuItem 
-          onClick={() => connectWallet(coinbaseConnector as CoinbaseWalletConnector)}
-          className="cursor-pointer"
-        >
-          Coinbase Wallet
-        </DropdownMenuItem>
-        <DropdownMenuItem 
-          onClick={() => connectWallet(walletConnectConnector as WalletConnectConnector)}
-          className="cursor-pointer"
-        >
-          WalletConnect
-        </DropdownMenuItem>
+        {connectors.map((connector) => (
+          <DropdownMenuItem
+            key={connector.id}
+            onClick={() => connectWallet(connector.id)}
+            className="cursor-pointer"
+            disabled={!connector.ready}
+          >
+            {connector.name}
+            {!connector.ready && " (unsupported)"}
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );

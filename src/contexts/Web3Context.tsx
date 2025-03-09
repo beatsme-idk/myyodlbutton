@@ -7,34 +7,43 @@ import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 
+// Set up wagmi config
+const projectId = "c6bcb444ed883de790bc73184b7fe1bc";
+
 // Configure chains & providers
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [mainnet, optimism, polygon, base],
   [publicProvider()]
 );
 
-// WalletConnect requires a valid project ID
-// This is a public ID that can safely be in the codebase
-const WALLET_CONNECT_PROJECT_ID = "c6bcb444ed883de790bc73184b7fe1bc";
+// Set up connectors
+const connectors = [
+  new MetaMaskConnector({ 
+    chains,
+    options: {
+      shimDisconnect: true,
+    },
+  }),
+  new CoinbaseWalletConnector({
+    chains,
+    options: {
+      appName: 'Buy Me A Coffee',
+      headlessMode: false,
+    },
+  }),
+  new WalletConnectConnector({
+    chains,
+    options: {
+      projectId,
+      showQrModal: true,
+    },
+  }),
+];
 
-// Set up wagmi config
+// Create wagmi config
 const config = createConfig({
   autoConnect: true,
-  connectors: [
-    new MetaMaskConnector({ chains }),
-    new CoinbaseWalletConnector({
-      chains,
-      options: {
-        appName: 'Buy Me A Coffee',
-      },
-    }),
-    new WalletConnectConnector({
-      chains,
-      options: {
-        projectId: WALLET_CONNECT_PROJECT_ID,
-      },
-    }),
-  ],
+  connectors,
   publicClient,
   webSocketPublicClient,
 });
