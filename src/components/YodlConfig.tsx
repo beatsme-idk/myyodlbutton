@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { YodlPaymentConfig } from "@/types";
 import { Input } from "@/components/ui/input";
@@ -13,10 +12,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { useAccount } from "wagmi";
 import { parseYodlConfigFromENS } from "@/utils/yodl";
 import { Badge } from "@/components/ui/badge";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Predefined lists of tokens and chains
 const SUPPORTED_TOKENS = [
@@ -61,10 +57,6 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
     config.chains ? config.chains.split(',').map(chain => chain.trim()) : []
   );
   
-  // Open state for dropdowns
-  const [tokensOpen, setTokensOpen] = useState(false);
-  const [chainsOpen, setChainsOpen] = useState(false);
-
   // Fetch Yodl preferences from ENS
   useEffect(() => {
     if (isConnected && address) {
@@ -171,46 +163,25 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
             <Label htmlFor="tokens">
               Accepted Tokens
             </Label>
-            <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={tokensOpen}
-                  className="w-full justify-between"
-                >
-                  {selectedTokens.length > 0 
-                    ? `${selectedTokens.length} token${selectedTokens.length > 1 ? 's' : ''} selected`
-                    : "Select tokens..."}
-                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0">
-                <Command>
-                  <CommandInput placeholder="Search tokens..." />
-                  <CommandEmpty>No tokens found.</CommandEmpty>
-                  <CommandGroup>
-                    <ScrollArea className="h-[200px]">
-                      {SUPPORTED_TOKENS.map((token) => (
-                        <CommandItem
-                          key={token.value}
-                          value={token.value}
-                          onSelect={() => toggleToken(token.value)}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              selectedTokens.includes(token.value) ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                          {token.label}
-                        </CommandItem>
-                      ))}
-                    </ScrollArea>
-                  </CommandGroup>
-                </Command>
-              </PopoverContent>
-            </Popover>
+            <div className="border border-input bg-background rounded-md p-3">
+              <div className="grid grid-cols-3 gap-2">
+                {SUPPORTED_TOKENS.map((token) => (
+                  <div key={token.value} className="flex items-center space-x-2">
+                    <Checkbox 
+                      id={`token-${token.value}`}
+                      checked={selectedTokens.includes(token.value)}
+                      onCheckedChange={() => toggleToken(token.value)}
+                    />
+                    <Label 
+                      htmlFor={`token-${token.value}`}
+                      className="text-sm cursor-pointer"
+                    >
+                      {token.label}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
             {selectedTokens.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-2">
                 {selectedTokens.map(token => (
@@ -236,46 +207,25 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
             <Label htmlFor="chains">
               Supported Chains
             </Label>
-            <Popover open={chainsOpen} onOpenChange={setChainsOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={chainsOpen}
-                  className="w-full justify-between"
-                >
-                  {selectedChains.length > 0 
-                    ? `${selectedChains.length} chain${selectedChains.length > 1 ? 's' : ''} selected`
-                    : "Select chains..."}
-                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0">
-                <Command>
-                  <CommandInput placeholder="Search chains..." />
-                  <CommandEmpty>No chains found.</CommandEmpty>
-                  <CommandGroup>
-                    <ScrollArea className="h-[200px]">
-                      {SUPPORTED_CHAINS.map((chain) => (
-                        <CommandItem
-                          key={chain.value}
-                          value={chain.value}
-                          onSelect={() => toggleChain(chain.value)}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              selectedChains.includes(chain.value) ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                          {chain.label}
-                        </CommandItem>
-                      ))}
-                    </ScrollArea>
-                  </CommandGroup>
-                </Command>
-              </PopoverContent>
-            </Popover>
+            <div className="border border-input bg-background rounded-md p-3">
+              <div className="grid grid-cols-2 gap-2">
+                {SUPPORTED_CHAINS.map((chain) => (
+                  <div key={chain.value} className="flex items-center space-x-2">
+                    <Checkbox 
+                      id={`chain-${chain.value}`}
+                      checked={selectedChains.includes(chain.value)}
+                      onCheckedChange={() => toggleChain(chain.value)}
+                    />
+                    <Label 
+                      htmlFor={`chain-${chain.value}`}
+                      className="text-sm cursor-pointer"
+                    >
+                      {chain.label}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
             {selectedChains.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-2">
                 {selectedChains.map(chain => (
