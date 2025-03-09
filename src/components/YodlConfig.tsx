@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { YodlPaymentConfig } from "@/types";
 import { Input } from "@/components/ui/input";
@@ -18,12 +19,12 @@ const SUPPORTED_TOKENS = [
   { value: "USDC", label: "USDC" },
   { value: "USDT", label: "USDT" },
   { value: "ETH", label: "ETH" },
-  { value: "WETH", label: "WETH" },
   { value: "DAI", label: "DAI" },
-  { value: "WBTC", label: "WBTC" },
-  { value: "MATIC", label: "MATIC" },
-  { value: "OP", label: "OP" },
-  { value: "ARB", label: "ARB" },
+  { value: "USDGLO", label: "USDGLO" },
+  { value: "USDM", label: "USDM" },
+  { value: "CRVUSD", label: "CRVUSD" },
+  { value: "XDAI", label: "XDAI" },
+  { value: "WXDAI", label: "WXDAI" },
 ];
 
 const SUPPORTED_CHAINS = [
