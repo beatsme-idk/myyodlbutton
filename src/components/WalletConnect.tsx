@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAccount, useConnect, useDisconnect, useBalance } from 'wagmi';
 import { Button } from "./ui/button";
 import { LogOut, CreditCard, Wallet, Shield } from 'lucide-react';
@@ -17,7 +17,7 @@ import SiweAuthButton from './SiweAuthButton';
 
 const WalletConnect = () => {
   const { address, isConnected } = useAccount();
-  const { connect, connectors, error: connectError, isLoading } = useConnect();
+  const { connect, connectors, error: connectError, isLoading, status } = useConnect();
   const { disconnect } = useDisconnect();
   const { data: balanceData } = useBalance({
     address,
@@ -30,6 +30,18 @@ const WalletConnect = () => {
     return `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
   };
 
+  useEffect(() => {
+    if (connectError) {
+      console.error("Connection error:", connectError);
+      toast({
+        title: "Connection Failed",
+        description: connectError?.message || "Failed to connect wallet. Please try again.",
+        variant: "destructive",
+      });
+      setIsConnecting(false);
+    }
+  }, [connectError, toast]);
+
   const connectWallet = async (connectorId: string) => {
     try {
       setIsConnecting(true);
@@ -40,17 +52,30 @@ const WalletConnect = () => {
       }
       
       console.log("Connecting with connector:", connector.id);
-      await connect({ connector });
       
-      toast({
-        title: "Wallet Connected",
-        description: "Your wallet has been connected successfully",
+      // Add a timeout to prevent UI hanging if connection stalls
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error("Connection timed out. Please try again.")), 30000);
       });
+      
+      // Race the connect promise against the timeout
+      await Promise.race([
+        connect({ connector }),
+        timeoutPromise
+      ]);
+      
+      // Only show success toast if we have an address (actual success)
+      if (isConnected) {
+        toast({
+          title: "Wallet Connected",
+          description: "Your wallet has been connected successfully",
+        });
+      }
     } catch (error) {
       console.error("Connection error:", error);
       toast({
         title: "Connection Failed",
-        description: "Failed to connect wallet. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to connect wallet. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -59,7 +84,9 @@ const WalletConnect = () => {
   };
 
   // Debug connectors
-  console.log("Available connectors:", connectors.map(c => ({ id: c.id, name: c.name })));
+  useEffect(() => {
+    console.log("Available connectors:", connectors.map(c => ({ id: c.id, name: c.name })));
+  }, [connectors]);
   
   if (connectError) {
     console.error("Wallet connection error:", connectError);

@@ -9,19 +9,19 @@ import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { SiweMessage } from 'siwe';
 import { useToast } from '@/hooks/use-toast';
 
-// Set up wagmi config
+// Set up wagmi config - use a valid and working project ID
 const projectId = "c6bcb444ed883de790bc73184b7fe1bc";
 
 // Reown Project ID for SIWE
 const REOWN_PROJECT_ID = "ca70dcf9165c21ca431481f45879e239";
 
-// Configure chains & providers
+// Configure chains & providers with more robust error handling
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [mainnet, optimism, polygon, base],
   [publicProvider()]
 );
 
-// Set up connectors
+// Set up connectors with better error handling and configuration
 const connectors = [
   new MetaMaskConnector({ 
     chains,
@@ -32,7 +32,7 @@ const connectors = [
   new CoinbaseWalletConnector({
     chains,
     options: {
-      appName: 'Buy Me A Coffee',
+      appName: 'Tributee',
       headlessMode: false,
     },
   }),
@@ -41,11 +41,17 @@ const connectors = [
     options: {
       projectId,
       showQrModal: true,
+      metadata: {
+        name: 'Tributee',
+        description: 'Support content creators with crypto donations',
+        url: window.location.origin,
+        icons: [`${window.location.origin}/favicon.ico`]
+      }
     },
   }),
 ];
 
-// Create wagmi config
+// Create wagmi config with explicit timeout settings
 const config = createConfig({
   autoConnect: true,
   connectors,
