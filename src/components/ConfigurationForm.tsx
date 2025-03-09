@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { UserConfig, ButtonStyle, ThankYouPageStyle, SocialPreviewStyle, YodlPaymentConfig } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { validateHexColor, isValidEnsOrAddress, isValidSlug } from "@/utils/validation";
-import { Check, ChevronsUpDown, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload, ExternalLink, Book } from "lucide-react";
+import { Check, ChevronsUpDown, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload, ExternalLink, Book, Wallet } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useWeb3 } from "@/contexts/Web3Context";
 import ColorPicker from "./ColorPicker";
@@ -53,7 +52,7 @@ const DEFAULT_CONFIG: UserConfig = {
   socialPreview: DEFAULT_SOCIAL_PREVIEW,
   slug: "",
   yodlConfig: {
-    enabled: true, // Always enabled
+    enabled: true,
     tokens: "USDC,USDT",
     chains: "base,oeth",
     currency: "USD",
@@ -87,7 +86,6 @@ const ConfigurationForm = ({
         newConfig.slug = autoSlug;
       }
       
-      // Ensure Yodl is always enabled
       if (newConfig.yodlConfig) {
         newConfig.yodlConfig.enabled = true;
       } else {
@@ -105,7 +103,6 @@ const ConfigurationForm = ({
   const updateConfig = (key: keyof UserConfig, value: any) => {
     const newConfig = { ...config, [key]: value };
     
-    // Ensure Yodl is always enabled
     if (key === 'yodlConfig' && newConfig.yodlConfig) {
       newConfig.yodlConfig.enabled = true;
     }
