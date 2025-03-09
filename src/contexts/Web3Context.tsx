@@ -7,8 +7,14 @@ import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 
+// Polyfill Buffer for browser environment
+// This resolves the "Buffer is not defined" error
+import { Buffer } from 'buffer';
+// Make Buffer available globally to fix dependency issues
+window.Buffer = window.Buffer || Buffer;
+
 // Set up wagmi config
-const projectId = "c6bcb444ed883de790bc73184b7fe1bc";
+const PROJECT_ID = "c6bcb444ed883de790bc73184b7fe1bc";
 
 // Configure chains & providers
 const { chains, publicClient, webSocketPublicClient } = configureChains(
@@ -16,7 +22,7 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
   [publicProvider()]
 );
 
-// Set up connectors
+// Set up connectors with better error handling
 const connectors = [
   new MetaMaskConnector({ 
     chains,
@@ -34,51 +40,72 @@ const connectors = [
   new WalletConnectConnector({
     chains,
     options: {
-      projectId,
+      projectId: PROJECT_ID,
       showQrModal: true,
+      metadata: {
+        name: 'Buy Me A Coffee',
+        description: 'Support creators with crypto',
+        url: window.location.origin,
+        icons: [`${window.location.origin}/favicon.ico`]
+      }
     },
   }),
 ];
 
-// Create wagmi config
+// Create wagmi config with better connection management
 const config = createConfig({
-  autoConnect: true,
+  autoConnect: false, // Changed to false to give more control
   connectors,
   publicClient,
   webSocketPublicClient,
 });
 
-// Create context
+// Create context with additional connection management states
 export const Web3Context = createContext<{
   walletAddress: string | undefined;
   ensNameOrAddress: string;
   isConnected: boolean;
+  isConnecting: boolean;
+  connectionError: Error | null;
 }>({
   walletAddress: undefined,
   ensNameOrAddress: '',
   isConnected: false,
+  isConnecting: false,
+  connectionError: null
 });
 
 // Hook to use Web3 context
 export const useWeb3 = () => useContext(Web3Context);
 
-// Web3 data provider component
+// Web3 data provider component with improved state handling
 const Web3DataProvider = ({ children }: { children: ReactNode }) => {
   const { address, isConnected } = useAccount();
   const { data: ensName } = useEnsName({ address });
   const [ensNameOrAddress, setEnsNameOrAddress] = useState<string>('');
+  const [isConnecting, setIsConnecting] = useState<boolean>(false);
+  const [connectionError, setConnectionError] = useState<Error | null>(null);
 
   useEffect(() => {
     if (isConnected && address) {
       // Use ENS name if available, otherwise use address
       setEnsNameOrAddress(ensName || address);
+      setConnectionError(null);
     } else {
       setEnsNameOrAddress('');
     }
   }, [isConnected, address, ensName]);
 
   return (
-    <Web3Context.Provider value={{ walletAddress: address, ensNameOrAddress, isConnected }}>
+    <Web3Context.Provider 
+      value={{ 
+        walletAddress: address, 
+        ensNameOrAddress, 
+        isConnected,
+        isConnecting,
+        connectionError 
+      }}
+    >
       {children}
     </Web3Context.Provider>
   );
