@@ -1,32 +1,24 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 import GoalTracker from "@/components/GoalTracker";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { 
   ReceiptIcon, ClockIcon, CalendarIcon, WalletIcon, 
   ArrowDownIcon, CheckIcon, ExternalLinkIcon, 
-  Hash, DollarSign, TrendingUp, InfoIcon
+  Hash, DollarSign, TrendingUp, InfoIcon, AlertCircle
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
+import { Payment } from "@/types";
+import { fetchUserPaymentHistory } from "@/utils/yodlApi";
 
-interface Payment {
-  id: string;
-  date: Date;
-  amount: string;
-  currency: string;
-  sender: string;
-  status: "completed" | "pending" | "failed";
-  transactionHash?: string;
-  token: string;
-  chain: string;
-  memo?: string;
-}
-
+// Fallback mock data if API fails
 const mockPayments: Payment[] = [
   {
     id: "1",
@@ -101,6 +93,8 @@ const PaymentHistory = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
   
   const monthlyGoal = 100; // $100 monthly goal
   const currentMonth = new Date().toLocaleString('default', { month: 'long' });
@@ -114,18 +108,39 @@ const PaymentHistory = () => {
   useEffect(() => {
     const loadPayments = async () => {
       setLoading(true);
+      setError(null);
+      
       try {
-        await new Promise(resolve => setTimeout(resolve, 800));
-        setPayments(mockPayments);
+        // This would use the connected wallet address in a real app
+        // For demo purposes we're using a placeholder address
+        const userAddress = "0xa1833B1A4DC461D3C025DbC99B71b127AEdbA45c";
+        const paymentData = await fetchUserPaymentHistory(userAddress);
+        
+        if (paymentData.length > 0) {
+          setPayments(paymentData);
+        } else {
+          // If no payments found from the API, use mock data for demo purposes
+          console.log("No payments found from API, using mock data");
+          setPayments(mockPayments);
+        }
       } catch (error) {
         console.error("Error loading payment history:", error);
+        setError("Failed to load payment data. Using demo data instead.");
+        toast({
+          title: "API Error",
+          description: "Could not load payment data. Showing demo data instead.",
+          variant: "destructive"
+        });
+        
+        // Fallback to mock data
+        setPayments(mockPayments);
       } finally {
         setLoading(false);
       }
     };
 
     loadPayments();
-  }, []);
+  }, [toast]);
 
   const getStatusBadge = (status: Payment["status"]) => {
     switch (status) {
@@ -163,6 +178,15 @@ const PaymentHistory = () => {
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="bg-red-900/20 border border-red-800 rounded-lg p-4 mb-4 flex items-start">
+          <AlertCircle className="text-red-400 w-5 h-5 mt-0.5 mr-2 flex-shrink-0" />
+          <div>
+            <p className="text-sm text-red-300">{error}</p>
+          </div>
+        </div>
+      )}
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <GoalTracker 
           title={`${currentMonth} Goal`}

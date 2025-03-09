@@ -59,3 +59,16 @@ export interface ThankYouProps {
     textColor: string;
   };
 }
+
+export interface Payment {
+  id: string;
+  date: Date;
+  amount: string;
+  currency: string;
+  sender: string;
+  status: "completed" | "pending" | "failed";
+  transactionHash?: string;
+  token: string;
+  chain: string;
+  memo?: string;
+}
