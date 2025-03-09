@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { YodlPaymentConfig } from "@/types";
 import { Input } from "@/components/ui/input";
@@ -33,8 +32,6 @@ const SUPPORTED_CHAINS = [
   { value: "optimism", label: "Optimism" },
   { value: "arbitrum", label: "Arbitrum" },
   { value: "polygon", label: "Polygon" },
-  { value: "avalanche", label: "Avalanche" },
-  { value: "zora", label: "Zora" },
   { value: "oeth", label: "Optimism ETH" },
 ];
 
