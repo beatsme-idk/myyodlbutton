@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { UserConfig } from "@/types";
 import ConfigurationForm from "@/components/ConfigurationForm";
@@ -21,10 +22,18 @@ const DEFAULT_THANK_YOU_STYLE = {
   showConfetti: true
 };
 
+const DEFAULT_SOCIAL_PREVIEW = {
+  title: "Support My Work",
+  description: "Every contribution helps me continue creating awesome content for you!",
+  imageUrl: "",
+  useCustomImage: false
+};
+
 const DEFAULT_CONFIG: UserConfig = {
   ensNameOrAddress: "vitalik.eth",
   buttonStyle: DEFAULT_BUTTON_STYLE,
   thankYouPage: DEFAULT_THANK_YOU_STYLE,
+  socialPreview: DEFAULT_SOCIAL_PREVIEW,
   slug: "demo"
 };
 
@@ -102,7 +111,8 @@ const Index = ({ savedConfig, onConfigSave }: IndexProps) => {
                   preview={{
                     buttonStyle: userConfig.buttonStyle,
                     slug: userConfig.slug,
-                    ensNameOrAddress: userConfig.ensNameOrAddress
+                    ensNameOrAddress: userConfig.ensNameOrAddress,
+                    socialPreview: userConfig.socialPreview
                   }}
                 />
               </div>

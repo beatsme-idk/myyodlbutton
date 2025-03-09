@@ -15,10 +15,18 @@ export interface ThankYouPageStyle {
   showConfetti: boolean;
 }
 
+export interface SocialPreviewStyle {
+  title: string;
+  description: string;
+  imageUrl: string;
+  useCustomImage: boolean;
+}
+
 export interface UserConfig {
   ensNameOrAddress: string;
   buttonStyle: ButtonStyle;
   thankYouPage: ThankYouPageStyle;
+  socialPreview: SocialPreviewStyle;
   slug: string;
 }
 
@@ -27,6 +35,7 @@ export interface PreviewProps {
     buttonStyle: ButtonStyle;
     slug: string;
     ensNameOrAddress: string;
+    socialPreview?: SocialPreviewStyle;
   };
 }
 

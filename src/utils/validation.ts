@@ -1,5 +1,5 @@
 
-import { UserConfig, ButtonStyle, ThankYouPageStyle } from "@/types";
+import { UserConfig, ButtonStyle, ThankYouPageStyle, SocialPreviewStyle } from "@/types";
 
 export const validateButtonStyle = (style: ButtonStyle): boolean => {
   if (!style) return false;
@@ -25,6 +25,17 @@ export const validateThankYouPageStyle = (style: ThankYouPageStyle): boolean => 
   );
 };
 
+export const validateSocialPreviewStyle = (style: SocialPreviewStyle): boolean => {
+  if (!style) return false;
+  
+  return (
+    typeof style.title === "string" &&
+    typeof style.description === "string" &&
+    typeof style.imageUrl === "string" &&
+    typeof style.useCustomImage === "boolean"
+  );
+};
+
 export const validateUserConfig = (config: UserConfig): boolean => {
   if (!config) return false;
   
@@ -34,7 +45,8 @@ export const validateUserConfig = (config: UserConfig): boolean => {
     typeof config.slug === "string" &&
     config.slug.trim() !== "" &&
     validateButtonStyle(config.buttonStyle) &&
-    validateThankYouPageStyle(config.thankYouPage)
+    validateThankYouPageStyle(config.thankYouPage) &&
+    validateSocialPreviewStyle(config.socialPreview)
   );
 };
 
@@ -50,8 +62,8 @@ export const isValidEnsOrAddress = (ensNameOrAddress: string): boolean => {
   // Basic validation for Ethereum address
   const isEthAddress = /^0x[a-fA-F0-9]{40}$/.test(ensNameOrAddress);
   
-  // Basic validation for ENS name
-  const isEns = /^[a-zA-Z0-9-]+\.eth$/.test(ensNameOrAddress);
+  // Updated validation for ENS name with subdomain support
+  const isEns = /^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+eth$/.test(ensNameOrAddress);
   
   return isEthAddress || isEns;
 };

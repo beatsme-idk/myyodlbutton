@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { UserConfig, ButtonStyle, ThankYouPageStyle } from "@/types";
+import { UserConfig, ButtonStyle, ThankYouPageStyle, SocialPreviewStyle } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -9,10 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { validateHexColor, isValidEnsOrAddress, isValidSlug } from "@/utils/validation";
-import { Check, ChevronsUpDown, AlertCircle, Lightbulb, Settings, Palette, Heart } from "lucide-react";
+import { Check, ChevronsUpDown, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import ColorPicker from "./ColorPicker";
 import LoadingSpinner from "./LoadingSpinner";
+import SocialPreviewCard from "./SocialPreviewCard";
 
 interface ConfigurationFormProps {
   initialConfig?: UserConfig;
@@ -36,10 +36,18 @@ const DEFAULT_THANK_YOU_STYLE: ThankYouPageStyle = {
   showConfetti: true
 };
 
+const DEFAULT_SOCIAL_PREVIEW: SocialPreviewStyle = {
+  title: "Support My Work",
+  description: "Every contribution helps me continue creating awesome content for you!",
+  imageUrl: "",
+  useCustomImage: false
+};
+
 const DEFAULT_CONFIG: UserConfig = {
   ensNameOrAddress: "",
   buttonStyle: DEFAULT_BUTTON_STYLE,
   thankYouPage: DEFAULT_THANK_YOU_STYLE,
+  socialPreview: DEFAULT_SOCIAL_PREVIEW,
   slug: ""
 };
 
@@ -84,6 +92,14 @@ const ConfigurationForm = ({
     setConfig(newConfig);
     onConfigChange(newConfig);
     validateField(`thankYouPage.${key}`, value);
+  };
+
+  const updateSocialPreviewStyle = (key: keyof SocialPreviewStyle, value: any) => {
+    const newSocialPreviewStyle = { ...config.socialPreview, [key]: value };
+    const newConfig = { ...config, socialPreview: newSocialPreviewStyle };
+    setConfig(newConfig);
+    onConfigChange(newConfig);
+    validateField(`socialPreview.${key}`, value);
   };
   
   const validateField = (key: string, value: any) => {
@@ -136,6 +152,26 @@ const ConfigurationForm = ({
         }
       }
     }
+
+    if (key.startsWith("socialPreview.")) {
+      const styleKey = key.split(".")[1];
+      
+      if (styleKey === "title") {
+        if (!value.trim()) {
+          newErrors[key] = "Title is required";
+        } else {
+          delete newErrors[key];
+        }
+      }
+      
+      if (styleKey === "description") {
+        if (!value.trim()) {
+          newErrors[key] = "Description is required";
+        } else {
+          delete newErrors[key];
+        }
+      }
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -150,7 +186,9 @@ const ConfigurationForm = ({
       "buttonStyle.buttonText": validateField("buttonStyle.buttonText", config.buttonStyle.buttonText),
       "thankYouPage.backgroundColor": validateField("thankYouPage.backgroundColor", config.thankYouPage.backgroundColor),
       "thankYouPage.textColor": validateField("thankYouPage.textColor", config.thankYouPage.textColor),
-      "thankYouPage.message": validateField("thankYouPage.message", config.thankYouPage.message)
+      "thankYouPage.message": validateField("thankYouPage.message", config.thankYouPage.message),
+      "socialPreview.title": validateField("socialPreview.title", config.socialPreview.title),
+      "socialPreview.description": validateField("socialPreview.description", config.socialPreview.description)
     };
     
     return Object.values(fieldValidations).every(valid => valid);
@@ -192,6 +230,22 @@ const ConfigurationForm = ({
     const randomString = Math.random().toString(36).substring(2, 10);
     updateConfig("slug", randomString);
   };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // In a real app, you would upload this to a server and get a URL back
+      // For now, we'll create a data URL for demo purposes
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          updateSocialPreviewStyle('imageUrl', reader.result);
+          updateSocialPreviewStyle('useCustomImage', true);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
   
   return (
     <form onSubmit={handleSubmit}>
@@ -207,18 +261,22 @@ const ConfigurationForm = ({
         
         <CardContent>
           <Tabs defaultValue="general" className="w-full">
-            <TabsList className="grid grid-cols-3 mb-6">
+            <TabsList className="grid grid-cols-4 mb-6">
               <TabsTrigger value="general" className="flex items-center gap-2">
                 <Settings className="w-4 h-4" />
                 <span className="hidden sm:inline">General</span>
               </TabsTrigger>
               <TabsTrigger value="button" className="flex items-center gap-2">
                 <Palette className="w-4 h-4" />
-                <span className="hidden sm:inline">Button Style</span>
+                <span className="hidden sm:inline">Button</span>
               </TabsTrigger>
               <TabsTrigger value="thankYou" className="flex items-center gap-2">
                 <Heart className="w-4 h-4" />
-                <span className="hidden sm:inline">Thank You Page</span>
+                <span className="hidden sm:inline">Thank You</span>
+              </TabsTrigger>
+              <TabsTrigger value="social" className="flex items-center gap-2">
+                <Share2 className="w-4 h-4" />
+                <span className="hidden sm:inline">Social</span>
               </TabsTrigger>
             </TabsList>
             
@@ -237,6 +295,10 @@ const ConfigurationForm = ({
                     <span className="mr-2 text-indigo-400">•</span>
                     Create a memorable slug for easy sharing
                   </li>
+                  <li className="flex items-center">
+                    <span className="mr-2 text-indigo-400">•</span>
+                    Subdomains are supported (e.g., donations.vitalik.eth)
+                  </li>
                 </ul>
               </div>
               
@@ -248,7 +310,7 @@ const ConfigurationForm = ({
                   id="ensNameOrAddress"
                   value={config.ensNameOrAddress}
                   onChange={(e) => updateConfig("ensNameOrAddress", e.target.value)}
-                  placeholder="vitalik.eth or 0x123..."
+                  placeholder="vitalik.eth or donations.vitalik.eth or 0x123..."
                   className={errors.ensNameOrAddress ? "border-destructive" : ""}
                 />
                 {errors.ensNameOrAddress && (
@@ -481,6 +543,114 @@ const ConfigurationForm = ({
                   onCheckedChange={(checked) => updateThankYouStyle("showConfetti", checked)}
                 />
                 <Label htmlFor="showConfetti">Show confetti animation</Label>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="social" className="space-y-6">
+              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-4">
+                <h3 className="text-lg font-semibold mb-4 flex items-center">
+                  <Share2 className="w-5 h-5 text-indigo-400 mr-2" />
+                  Social Media Preview
+                </h3>
+                <p className="text-sm text-slate-300 mb-4">
+                  Customize how your payment link appears when shared on social media platforms 
+                  like Twitter, Facebook, and LinkedIn.
+                </p>
+                <SocialPreviewCard 
+                  ensNameOrAddress={config.ensNameOrAddress || "your.name.eth"}
+                  socialPreview={config.socialPreview}
+                />
+              </div>
+
+              <div className="space-y-3">
+                <Label htmlFor="socialTitle">Title</Label>
+                <Input
+                  id="socialTitle"
+                  value={config.socialPreview.title}
+                  onChange={(e) => updateSocialPreviewStyle("title", e.target.value)}
+                  placeholder="Support My Work"
+                  className={errors["socialPreview.title"] ? "border-destructive" : ""}
+                />
+                {errors["socialPreview.title"] && (
+                  <div className="text-destructive text-sm flex items-center gap-1 mt-1">
+                    <AlertCircle size={14} />
+                    {errors["socialPreview.title"]}
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <Label htmlFor="socialDescription">Description</Label>
+                <Textarea
+                  id="socialDescription"
+                  value={config.socialPreview.description}
+                  onChange={(e) => updateSocialPreviewStyle("description", e.target.value)}
+                  placeholder="Every contribution helps me continue creating awesome content for you!"
+                  className={errors["socialPreview.description"] ? "border-destructive" : ""}
+                />
+                {errors["socialPreview.description"] && (
+                  <div className="text-destructive text-sm flex items-center gap-1 mt-1">
+                    <AlertCircle size={14} />
+                    {errors["socialPreview.description"]}
+                  </div>
+                )}
+                <p className="text-xs text-slate-400">
+                  Keep it under 155 characters for optimal display on social platforms
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Switch
+                    id="useCustomImage"
+                    checked={config.socialPreview.useCustomImage}
+                    onCheckedChange={(checked) => updateSocialPreviewStyle("useCustomImage", checked)}
+                  />
+                  <Label htmlFor="useCustomImage">Use custom image</Label>
+                </div>
+                
+                {config.socialPreview.useCustomImage && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      {config.socialPreview.imageUrl && (
+                        <div className="w-12 h-12 rounded overflow-hidden">
+                          <img 
+                            src={config.socialPreview.imageUrl} 
+                            alt="Preview" 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-2"
+                        asChild
+                      >
+                        <label className="cursor-pointer">
+                          <Upload size={14} />
+                          {config.socialPreview.imageUrl ? "Change image" : "Upload image"}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleImageUpload}
+                          />
+                        </label>
+                      </Button>
+                    </div>
+                    <p className="text-xs text-slate-400">
+                      Best size is 1200x630 pixels for optimal display across platforms
+                    </p>
+                  </div>
+                )}
+                
+                {!config.socialPreview.useCustomImage && (
+                  <p className="text-sm text-slate-400">
+                    Your ENS avatar or a generated one will be used as the image
+                  </p>
+                )}
               </div>
             </TabsContent>
           </Tabs>

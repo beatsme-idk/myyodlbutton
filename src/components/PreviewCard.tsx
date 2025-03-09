@@ -4,12 +4,14 @@ import PaymentButton from "./PaymentButton";
 import { PreviewProps } from "@/types";
 import SocialShareButtons from "./SocialShareButtons";
 import AvatarGenerator from "./AvatarGenerator";
-import { Sparkles, Link as LinkIcon, CopyIcon, Check } from "lucide-react";
+import SocialPreviewCard from "./SocialPreviewCard";
+import { Sparkles, Link as LinkIcon, CopyIcon, Check, Share2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 
 const PreviewCard = ({ preview }: PreviewProps) => {
   const [copied, setCopied] = useState(false);
+  const [showSocialPreview, setShowSocialPreview] = useState(false);
   const baseUrl = window.location.origin;
   const paymentUrl = `${baseUrl}/pay/${preview.slug}`;
   
@@ -49,10 +51,34 @@ const PreviewCard = ({ preview }: PreviewProps) => {
         </div>
         
         <div className="space-y-3">
-          <h3 className="text-sm font-medium text-white flex items-center gap-2">
-            <Sparkles size={16} className="text-indigo-400" />
-            Share your button
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-medium text-white flex items-center gap-2">
+              <Sparkles size={16} className="text-indigo-400" />
+              Share your button
+            </h3>
+            {preview.socialPreview && (
+              <button
+                onClick={() => setShowSocialPreview(!showSocialPreview)}
+                className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+              >
+                <Share2 size={14} />
+                {showSocialPreview ? "Hide" : "Show"} social preview
+              </button>
+            )}
+          </div>
+          
+          {preview.socialPreview && showSocialPreview && (
+            <div className="my-4 animate-fade-in">
+              <SocialPreviewCard 
+                ensNameOrAddress={preview.ensNameOrAddress}
+                socialPreview={preview.socialPreview}
+              />
+              <p className="text-xs text-slate-400 mt-2">
+                This is how your link will appear when shared on social media
+              </p>
+            </div>
+          )}
+          
           <SocialShareButtons url={paymentUrl} title={`Support me with ${preview.buttonStyle.buttonText}`} />
         </div>
         

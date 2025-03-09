@@ -1,75 +1,48 @@
 
-import { useEffect, useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useMemo } from "react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface AvatarGeneratorProps {
   ensNameOrAddress: string;
-  size?: "sm" | "md" | "lg";
+  size?: "default" | "large";
 }
 
-const AvatarGenerator = ({ ensNameOrAddress, size = "md" }: AvatarGeneratorProps) => {
-  const [avatarUrl, setAvatarUrl] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<boolean>(false);
-
-  // Size mapping
-  const sizeClasses = {
-    sm: "h-8 w-8",
-    md: "h-12 w-12",
-    lg: "h-16 w-16"
-  };
-
-  useEffect(() => {
-    const generateAvatar = async () => {
-      setLoading(true);
-      setError(false);
-      
-      try {
-        // For demonstration purposes, we'll use a placeholder service
-        // In a real app, you'd integrate with a proper ENS avatar service
-        const hash = ensNameOrAddress.toLowerCase().replace(/[^a-z0-9]/g, "");
-        const url = `https://avatars.dicebear.com/api/identicon/${hash}.svg`;
-        setAvatarUrl(url);
-      } catch (err) {
-        console.error("Error generating avatar:", err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    if (ensNameOrAddress) {
-      generateAvatar();
-    }
-  }, [ensNameOrAddress]);
-
-  // Get initials from ENS name or address
-  const getInitials = (): string => {
+const AvatarGenerator = ({ ensNameOrAddress, size = "default" }: AvatarGeneratorProps) => {
+  const initial = useMemo(() => {
     if (!ensNameOrAddress) return "?";
     
     // For ENS names, use the first character
     if (ensNameOrAddress.includes(".eth")) {
-      return ensNameOrAddress.split(".")[0].charAt(0).toUpperCase();
+      return ensNameOrAddress.split(".")[0][0].toUpperCase();
     }
     
-    // For Ethereum addresses, use first and last characters
-    if (ensNameOrAddress.startsWith("0x")) {
-      return `${ensNameOrAddress.charAt(2).toUpperCase()}${ensNameOrAddress.charAt(ensNameOrAddress.length - 1).toUpperCase()}`;
+    // For Ethereum addresses, use the last character
+    return ensNameOrAddress.slice(-1).toUpperCase();
+  }, [ensNameOrAddress]);
+  
+  // Generate a deterministic pastel color based on the ENS name or address
+  const backgroundColor = useMemo(() => {
+    if (!ensNameOrAddress) return "#7C3AED";
+    
+    let hash = 0;
+    for (let i = 0; i < ensNameOrAddress.length; i++) {
+      hash = ensNameOrAddress.charCodeAt(i) + ((hash << 5) - hash);
     }
     
-    return ensNameOrAddress.charAt(0).toUpperCase();
-  };
-
-  if (loading) {
-    return <Skeleton className={`rounded-full ${sizeClasses[size]}`} />;
-  }
-
+    const hue = Math.abs(hash % 360);
+    return `hsl(${hue}, 70%, 70%)`;
+  }, [ensNameOrAddress]);
+  
+  // Currently, we're just using a placeholder avatar for demo
+  // In a real app, you'd fetch the actual ENS avatar if available
   return (
-    <Avatar className={`${sizeClasses[size]} transition-all-200`}>
-      <AvatarImage src={avatarUrl} alt={ensNameOrAddress} />
-      <AvatarFallback className="bg-primary text-primary-foreground">
-        {getInitials()}
+    <Avatar className={size === "large" ? "h-16 w-16" : "h-9 w-9"}>
+      <AvatarImage src={`https://avatars.dicebear.com/api/identicon/${ensNameOrAddress}.svg`} alt={ensNameOrAddress} />
+      <AvatarFallback 
+        style={{ backgroundColor }}
+        className="text-white"
+      >
+        {initial}
       </AvatarFallback>
     </Avatar>
   );
