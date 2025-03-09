@@ -22,7 +22,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-6">
             <Link to="/" className="text-xl font-bold tracking-tight">
-              BuyMeACoffee
+              Tributee
             </Link>
             <nav className="hidden md:flex gap-6">
               <Link
@@ -65,7 +65,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <footer className="border-t py-6 md:py-0">
         <div className="container flex flex-col items-center justify-between gap-4 md:h-16 md:flex-row">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} BuyMeACoffee. All rights reserved.
+            &copy; {new Date().getFullYear()} Tributee. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <Link
