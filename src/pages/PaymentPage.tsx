@@ -8,7 +8,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // In a real app, this would fetch from an API or database
 const getPaymentConfig = (slug: string): {buttonStyle: ButtonStyle, ensNameOrAddress: string} | null => {
-  // For demonstration, we'll use a static config
+  // Try to load from localStorage first
+  const savedConfig = localStorage.getItem("buymeacoffee_config");
+  if (savedConfig) {
+    const config = JSON.parse(savedConfig);
+    if (config.slug === slug) {
+      return {
+        buttonStyle: config.buttonStyle,
+        ensNameOrAddress: config.ensNameOrAddress
+      };
+    }
+  }
+  
+  // Fallback to demo config
   const mockConfigs: Record<string, {buttonStyle: ButtonStyle, ensNameOrAddress: string}> = {
     "demo": {
       buttonStyle: {

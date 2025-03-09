@@ -6,8 +6,16 @@ import { ThankYouPageStyle } from "@/types";
 
 // In a real app, this would fetch from an API or database
 const getThankYouConfig = (slug: string): ThankYouPageStyle | null => {
-  // For demonstration, we'll use a static config
-  // In a real app, you'd fetch this from an API or database
+  // Try to load from localStorage first
+  const savedConfig = localStorage.getItem("buymeacoffee_config");
+  if (savedConfig) {
+    const config = JSON.parse(savedConfig);
+    if (config.slug === slug) {
+      return config.thankYouPage;
+    }
+  }
+  
+  // Fallback to demo config
   const mockConfigs: Record<string, ThankYouPageStyle> = {
     "demo": {
       backgroundColor: "#F9FAFB",
