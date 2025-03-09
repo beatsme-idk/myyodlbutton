@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { UserConfig, ButtonStyle, ThankYouPageStyle, SocialPreviewStyle, YodlPaymentConfig } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -812,3 +813,84 @@ const ConfigurationForm = ({
                           <img 
                             src={config.socialPreview.imageUrl} 
                             alt="Preview"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="max-w-sm"
+                        />
+                        <p className="text-xs text-slate-400 mt-1">
+                          Recommended size: 1200x630 pixels
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="yodl" className="space-y-6">
+              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-4">
+                <h3 className="text-lg font-semibold mb-4 flex items-center">
+                  <img 
+                    src="https://yodl.me/_next/static/media/new_logo.be0c2fdb.svg" 
+                    alt="Yodl"
+                    className="w-5 h-5 mr-2 drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]"
+                  />
+                  Yodl Payment Settings
+                </h3>
+                <p className="text-sm text-slate-300 mb-2">
+                  Yodl is a protocol that makes it easy to accept crypto payments across 
+                  multiple chains and tokens.
+                </p>
+                <div className="flex items-center mt-4">
+                  <a 
+                    href="https://yodl.me" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-xs flex items-center gap-1 text-indigo-400 hover:text-indigo-300 transition-colors"
+                  >
+                    <ExternalLink size={12} />
+                    Learn more about Yodl
+                  </a>
+                </div>
+              </div>
+
+              <YodlConfig 
+                config={config.yodlConfig || DEFAULT_CONFIG.yodlConfig!} 
+                onChange={(yodlConfig) => updateConfig("yodlConfig", yodlConfig)}
+              />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+
+        <div className="px-6 py-4 border-t border-slate-700/20 flex justify-end">
+          <Button 
+            type="submit" 
+            className="px-6 flex items-center gap-2"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <LoadingSpinner size="sm" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Check className="w-4 h-4" />
+                Save and Create Button
+              </>
+            )}
+          </Button>
+        </div>
+      </Card>
+    </form>
+  );
+};
+
+export default ConfigurationForm;
