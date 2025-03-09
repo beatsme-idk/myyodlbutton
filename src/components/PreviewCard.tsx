@@ -5,18 +5,22 @@ import { PreviewProps } from "@/types";
 import SocialShareButtons from "./SocialShareButtons";
 import AvatarGenerator from "./AvatarGenerator";
 import SocialPreviewCard from "./SocialPreviewCard";
-import { Sparkles, Link as LinkIcon, CopyIcon, Check, Share2 } from "lucide-react";
+import { Sparkles, Link as LinkIcon, CopyIcon, Check, Share2, Wallet } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
+import { generateYodlPaymentLink } from "@/utils/yodl";
 
 const PreviewCard = ({ preview }: PreviewProps) => {
   const [copied, setCopied] = useState(false);
   const [showSocialPreview, setShowSocialPreview] = useState(false);
   const baseUrl = window.location.origin;
   const paymentUrl = `${baseUrl}/pay/${preview.slug}`;
+  const yodlUrl = preview.yodlConfig?.enabled 
+    ? generateYodlPaymentLink(preview.ensNameOrAddress, preview.yodlConfig)
+    : null;
   
-  const handleCopy = () => {
-    navigator.clipboard.writeText(paymentUrl);
+  const handleCopy = (url: string) => {
+    navigator.clipboard.writeText(url);
     setCopied(true);
     toast({
       title: "URL copied to clipboard",
@@ -46,6 +50,7 @@ const PreviewCard = ({ preview }: PreviewProps) => {
               style={preview.buttonStyle}
               ensNameOrAddress={preview.ensNameOrAddress}
               slug={preview.slug}
+              yodlConfig={preview.yodlConfig}
             />
           </div>
         </div>
@@ -100,7 +105,7 @@ const PreviewCard = ({ preview }: PreviewProps) => {
               </div>
               <button 
                 className="bg-indigo-600/50 hover:bg-indigo-600 border-l border-indigo-500/30 px-3 py-2 text-white transition-colors"
-                onClick={handleCopy}
+                onClick={() => handleCopy(paymentUrl)}
               >
                 {copied ? (
                   <Check size={18} className="text-green-400" />
@@ -111,6 +116,43 @@ const PreviewCard = ({ preview }: PreviewProps) => {
             </div>
           </div>
         </div>
+        
+        {yodlUrl && (
+          <div className="glass-morphism p-4 rounded-lg space-y-2">
+            <h3 className="text-sm font-medium text-white flex items-center gap-2 mb-3">
+              <Wallet size={16} className="text-green-400" />
+              Yodl Payment Link
+            </h3>
+            
+            <div className="relative">
+              <div className="flex items-center bg-black/30 rounded-lg overflow-hidden border border-green-500/20">
+                <div className="flex-1 overflow-hidden">
+                  <input 
+                    type="text" 
+                    value={yodlUrl} 
+                    readOnly 
+                    className="bg-transparent w-full px-3 py-2 text-sm text-green-200 font-mono overflow-x-auto focus:outline-none"
+                  />
+                </div>
+                <button 
+                  className="bg-green-600/50 hover:bg-green-600 border-l border-green-500/30 px-3 py-2 text-white transition-colors"
+                  onClick={() => handleCopy(yodlUrl)}
+                >
+                  {copied ? (
+                    <Check size={18} className="text-green-400" />
+                  ) : (
+                    <CopyIcon size={18} />
+                  )}
+                </button>
+              </div>
+            </div>
+            
+            <div className="text-xs text-slate-400 mt-2 flex items-center gap-2">
+              <Sparkles size={12} className="text-green-400" />
+              Your audience will be able to pay you with various tokens on multiple blockchains
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

@@ -22,12 +22,23 @@ export interface SocialPreviewStyle {
   useCustomImage: boolean;
 }
 
+export interface YodlPaymentConfig {
+  enabled: boolean;
+  tokens: string;
+  chains: string;
+  currency: string;
+  amount?: string;
+  memo?: string;
+  webhooks?: string[];
+}
+
 export interface UserConfig {
   ensNameOrAddress: string;
   buttonStyle: ButtonStyle;
   thankYouPage: ThankYouPageStyle;
   socialPreview: SocialPreviewStyle;
   slug: string;
+  yodlConfig?: YodlPaymentConfig;
 }
 
 export interface PreviewProps {
@@ -36,6 +47,7 @@ export interface PreviewProps {
     slug: string;
     ensNameOrAddress: string;
     socialPreview?: SocialPreviewStyle;
+    yodlConfig?: YodlPaymentConfig;
   };
 }
 

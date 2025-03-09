@@ -1,7 +1,7 @@
-
-import { ButtonStyle } from "@/types";
+import { ButtonStyle, YodlPaymentConfig } from "@/types";
 import { useNavigate } from "react-router-dom";
-import { Coffee, ArrowRight } from "lucide-react";
+import { Coffee, ArrowRight, ExternalLink } from "lucide-react";
+import { generateYodlPaymentLink } from "@/utils/yodl";
 
 interface PaymentButtonProps {
   style: ButtonStyle;
@@ -9,6 +9,7 @@ interface PaymentButtonProps {
   slug: string;
   className?: string;
   onClick?: () => void;
+  yodlConfig?: YodlPaymentConfig;
 }
 
 const PaymentButton = ({
@@ -16,11 +17,22 @@ const PaymentButton = ({
   ensNameOrAddress,
   slug,
   className = "",
-  onClick
+  onClick,
+  yodlConfig
 }: PaymentButtonProps) => {
   const navigate = useNavigate();
   
   const handleClick = () => {
+    // If Yodl is enabled, redirect to Yodl payment page
+    if (yodlConfig?.enabled) {
+      const yodlLink = generateYodlPaymentLink(ensNameOrAddress, yodlConfig);
+      if (yodlLink) {
+        window.open(yodlLink, "_blank");
+        return;
+      }
+    }
+    
+    // Otherwise use the default behavior
     if (onClick) {
       onClick();
       return;
@@ -43,8 +55,17 @@ const PaymentButton = ({
       }}
       onClick={handleClick}
     >
-      <Coffee className="mr-2" size={20} />
-      <span>{style.buttonText}</span>
+      {yodlConfig?.enabled ? (
+        <>
+          <ExternalLink className="mr-2" size={20} />
+          <span>{style.buttonText} with Yodl</span>
+        </>
+      ) : (
+        <>
+          <Coffee className="mr-2" size={20} />
+          <span>{style.buttonText}</span>
+        </>
+      )}
       <ArrowRight className="ml-2 opacity-70" size={16} />
     </button>
   );

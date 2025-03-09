@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { UserConfig, ButtonStyle, ThankYouPageStyle, SocialPreviewStyle } from "@/types";
+import { UserConfig, ButtonStyle, ThankYouPageStyle, SocialPreviewStyle, YodlPaymentConfig } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -8,11 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { validateHexColor, isValidEnsOrAddress, isValidSlug } from "@/utils/validation";
-import { Check, ChevronsUpDown, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload } from "lucide-react";
+import { Check, ChevronsUpDown, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload, Wallet, ExternalLink, Book } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import ColorPicker from "./ColorPicker";
 import LoadingSpinner from "./LoadingSpinner";
 import SocialPreviewCard from "./SocialPreviewCard";
+import YodlConfig from "./YodlConfig";
 
 interface ConfigurationFormProps {
   initialConfig?: UserConfig;
@@ -66,7 +67,6 @@ const ConfigurationForm = ({
     onConfigChange(newConfig);
     validateField(key, value);
     
-    // Auto-generate slug from ENS name or address if slug is empty
     if (key === "ensNameOrAddress" && !config.slug && isValidEnsOrAddress(value)) {
       const autoSlug = value
         .toLowerCase()
@@ -201,7 +201,6 @@ const ConfigurationForm = ({
       setIsSubmitting(true);
       
       try {
-        // Simulate API call with small delay
         await new Promise(resolve => setTimeout(resolve, 800));
         onSave(config);
         toast({
@@ -234,8 +233,6 @@ const ConfigurationForm = ({
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // In a real app, you would upload this to a server and get a URL back
-      // For now, we'll create a data URL for demo purposes
       const reader = new FileReader();
       reader.onload = () => {
         if (typeof reader.result === 'string') {

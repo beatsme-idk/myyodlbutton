@@ -9,11 +9,21 @@ import Index from "./pages/Index";
 import PaymentPage from "./pages/PaymentPage";
 import ThankYouPage from "./pages/ThankYouPage";
 import NotFound from "./pages/NotFound";
-import { UserConfig } from "./types";
+import { UserConfig, YodlPaymentConfig } from "./types";
 
 const queryClient = new QueryClient();
 
 const STORAGE_KEY = "buymeacoffee_config";
+
+const DEFAULT_YODL_CONFIG: YodlPaymentConfig = {
+  enabled: false,
+  tokens: "USDC,USDT",
+  chains: "base,oeth",
+  currency: "USD",
+  amount: "",
+  memo: "",
+  webhooks: []
+};
 
 const App = () => {
   const [userConfig, setUserConfig] = useState<UserConfig | null>(() => {
@@ -47,6 +57,11 @@ const App = () => {
               showConfetti: true
             };
           }
+
+          // Add Yodl config if it doesn't exist
+          if (!parsedConfig.yodlConfig) {
+            parsedConfig.yodlConfig = DEFAULT_YODL_CONFIG;
+          }
           
           return parsedConfig;
         }
@@ -73,7 +88,8 @@ const App = () => {
         textColor: "#FFFFFF",
         message: "Thank you for your support! It means a lot to me.",
         showConfetti: true
-      }
+      },
+      yodlConfig: config.yodlConfig || DEFAULT_YODL_CONFIG
     };
     
     setUserConfig(completeConfig);
