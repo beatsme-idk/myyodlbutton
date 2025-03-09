@@ -66,6 +66,11 @@ const App = () => {
             parsedConfig.yodlConfig = DEFAULT_YODL_CONFIG;
           }
           
+          // Update button text if it's still the old text
+          if (parsedConfig.buttonStyle.buttonText === "Buy me a coffee") {
+            parsedConfig.buttonStyle.buttonText = "Yodl me a coffee";
+          }
+          
           return parsedConfig;
         }
       }

@@ -8,13 +8,14 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { validateHexColor, isValidEnsOrAddress, isValidSlug } from "@/utils/validation";
-import { Check, ChevronsUpDown, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload, ExternalLink, Book, Wallet } from "lucide-react";
+import { Check, ChevronsUpDown, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload, ExternalLink, Book, Wallet, Droplet } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useWeb3 } from "@/contexts/Web3Context";
 import ColorPicker from "./ColorPicker";
 import LoadingSpinner from "./LoadingSpinner";
 import SocialPreviewCard from "./SocialPreviewCard";
 import YodlConfig from "./YodlConfig";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface ConfigurationFormProps {
   initialConfig?: UserConfig;
@@ -28,7 +29,7 @@ const DEFAULT_BUTTON_STYLE: ButtonStyle = {
   borderRadius: "9999px",
   fontSize: "16px",
   padding: "12px 24px",
-  buttonText: "Buy me a coffee"
+  buttonText: "Yodl me a coffee"
 };
 
 const DEFAULT_THANK_YOU_STYLE: ThankYouPageStyle = {
@@ -62,6 +63,37 @@ const DEFAULT_CONFIG: UserConfig = {
   }
 };
 
+const GRADIENT_OPTIONS = [
+  {
+    label: "None",
+    value: "none"
+  },
+  {
+    label: "Indigo to Purple",
+    value: "linear-gradient(90deg, hsla(277, 75%, 84%, 1) 0%, hsla(297, 50%, 51%, 1) 100%)"
+  },
+  {
+    label: "Orange to Red",
+    value: "linear-gradient(90deg, hsla(39, 100%, 77%, 1) 0%, hsla(22, 90%, 57%, 1) 100%)"
+  },
+  {
+    label: "Blue to Cyan",
+    value: "linear-gradient(90deg, hsla(221, 45%, 73%, 1) 0%, hsla(220, 78%, 29%, 1) 100%)"
+  },
+  {
+    label: "Green to Yellow",
+    value: "linear-gradient(90deg, hsla(139, 70%, 75%, 1) 0%, hsla(63, 90%, 76%, 1) 100%)"
+  },
+  {
+    label: "Pink to Orange",
+    value: "linear-gradient(90deg, hsla(24, 100%, 83%, 1) 0%, hsla(341, 91%, 68%, 1) 100%)"
+  },
+  {
+    label: "Purple to Magenta",
+    value: "linear-gradient(102.3deg, rgba(147,39,143,1) 5.9%, rgba(234,172,232,1) 64%, rgba(246,219,245,1) 89%)"
+  }
+];
+
 const ConfigurationForm = ({
   initialConfig = DEFAULT_CONFIG,
   onConfigChange,
@@ -71,6 +103,10 @@ const ConfigurationForm = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { ensNameOrAddress: connectedWalletENS, isConnected } = useWeb3();
+  const [useGradient, setUseGradient] = useState(false);
+  const [selectedGradient, setSelectedGradient] = useState("none");
+  const [paddingHorizontal, setPaddingHorizontal] = useState(24);
+  const [paddingVertical, setPaddingVertical] = useState(12);
 
   useEffect(() => {
     if (isConnected && connectedWalletENS && !config.ensNameOrAddress) {
@@ -98,7 +134,16 @@ const ConfigurationForm = ({
       setConfig(newConfig);
       onConfigChange(newConfig);
     }
-  }, [isConnected, connectedWalletENS]);
+    
+    // Initialize padding values from config
+    if (config.buttonStyle.padding) {
+      const paddingValues = config.buttonStyle.padding.split(" ");
+      if (paddingValues.length === 2) {
+        setPaddingVertical(parseInt(paddingValues[0]) || 12);
+        setPaddingHorizontal(parseInt(paddingValues[1]) || 24);
+      }
+    }
+  }, [isConnected, connectedWalletENS, config.buttonStyle.padding]);
 
   const updateConfig = (key: keyof UserConfig, value: any) => {
     const newConfig = { ...config, [key]: value };
@@ -287,6 +332,25 @@ const ConfigurationForm = ({
       reader.readAsDataURL(file);
     }
   };
+
+  const updatePadding = () => {
+    const paddingValue = `${paddingVertical}px ${paddingHorizontal}px`;
+    updateButtonStyle("padding", paddingValue);
+  };
+
+  const handleGradientChange = (value: string) => {
+    setSelectedGradient(value);
+    if (value === "none") {
+      setUseGradient(false);
+      // Reset to solid color
+      if (config.buttonStyle.backgroundColor.includes("linear-gradient")) {
+        updateButtonStyle("backgroundColor", "#1E40AF");
+      }
+    } else {
+      setUseGradient(true);
+      updateButtonStyle("backgroundColor", value);
+    }
+  };
   
   return (
     <form onSubmit={handleSubmit}>
@@ -296,7 +360,7 @@ const ConfigurationForm = ({
             Configure Your Payment Button
           </CardTitle>
           <CardDescription>
-            Customize how your "Buy Me a Coffee" button looks and behaves
+            Customize how your "Yodl Me a Coffee" button looks and behaves
           </CardDescription>
         </CardHeader>
         
@@ -434,21 +498,67 @@ const ConfigurationForm = ({
                 </div>
               </div>
             
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <Label htmlFor="backgroundColor">Background Color</Label>
-                  <ColorPicker 
-                    color={config.buttonStyle.backgroundColor} 
-                    onChange={(color) => updateButtonStyle("backgroundColor", color)}
-                  />
-                  {errors["buttonStyle.backgroundColor"] && (
-                    <div className="text-destructive text-sm flex items-center gap-1">
-                      <AlertCircle size={14} />
-                      {errors["buttonStyle.backgroundColor"]}
-                    </div>
-                  )}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <Droplet className="w-5 h-5 text-indigo-400" />
+                  <Label>Background Style</Label>
                 </div>
                 
+                <RadioGroup 
+                  value={selectedGradient} 
+                  onValueChange={handleGradientChange}
+                  className="grid grid-cols-1 md:grid-cols-2 gap-3"
+                >
+                  {GRADIENT_OPTIONS.map((option) => (
+                    <div key={option.value} className="flex items-center space-x-2">
+                      <RadioGroupItem value={option.value} id={option.value} />
+                      <Label htmlFor={option.value} className="flex items-center">
+                        <div 
+                          className="w-6 h-6 rounded-full mr-2 border border-gray-600"
+                          style={{ 
+                            background: option.value === "none" ? config.buttonStyle.backgroundColor : option.value 
+                          }}
+                        ></div>
+                        {option.label}
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
+              
+              {!useGradient && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <Label htmlFor="backgroundColor">Background Color</Label>
+                    <ColorPicker 
+                      color={config.buttonStyle.backgroundColor} 
+                      onChange={(color) => updateButtonStyle("backgroundColor", color)}
+                    />
+                    {errors["buttonStyle.backgroundColor"] && (
+                      <div className="text-destructive text-sm flex items-center gap-1">
+                        <AlertCircle size={14} />
+                        {errors["buttonStyle.backgroundColor"]}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <Label htmlFor="textColor">Text Color</Label>
+                    <ColorPicker 
+                      color={config.buttonStyle.textColor} 
+                      onChange={(color) => updateButtonStyle("textColor", color)}
+                    />
+                    {errors["buttonStyle.textColor"] && (
+                      <div className="text-destructive text-sm flex items-center gap-1">
+                        <AlertCircle size={14} />
+                        {errors["buttonStyle.textColor"]}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              {useGradient && (
                 <div className="space-y-3">
                   <Label htmlFor="textColor">Text Color</Label>
                   <ColorPicker 
@@ -462,7 +572,7 @@ const ConfigurationForm = ({
                     </div>
                   )}
                 </div>
-              </div>
+              )}
               
               <div className="space-y-2">
                 <Label htmlFor="buttonText">Button Text</Label>
@@ -470,7 +580,7 @@ const ConfigurationForm = ({
                   id="buttonText"
                   value={config.buttonStyle.buttonText}
                   onChange={(e) => updateButtonStyle("buttonText", e.target.value)}
-                  placeholder="Buy me a coffee"
+                  placeholder="Yodl me a coffee"
                   className={errors["buttonStyle.buttonText"] ? "border-destructive" : ""}
                 />
                 {errors["buttonStyle.buttonText"] && (
@@ -518,12 +628,40 @@ const ConfigurationForm = ({
                 
                 <div className="space-y-2">
                   <Label htmlFor="padding">Padding</Label>
-                  <Input
-                    id="padding"
-                    value={config.buttonStyle.padding}
-                    onChange={(e) => updateButtonStyle("padding", e.target.value)}
-                    placeholder="12px 24px"
-                  />
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-xs">Vertical: {paddingVertical}px</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="4"
+                        max="32"
+                        value={paddingVertical}
+                        onChange={(e) => {
+                          setPaddingVertical(parseInt(e.target.value));
+                          updatePadding();
+                        }}
+                        className="w-full"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-xs">Horizontal: {paddingHorizontal}px</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="8"
+                        max="48"
+                        value={paddingHorizontal}
+                        onChange={(e) => {
+                          setPaddingHorizontal(parseInt(e.target.value));
+                          updatePadding();
+                        }}
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </TabsContent>
@@ -673,99 +811,4 @@ const ConfigurationForm = ({
                         <div className="w-12 h-12 rounded overflow-hidden">
                           <img 
                             src={config.socialPreview.imageUrl} 
-                            alt="Preview" 
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      )}
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="flex items-center gap-2"
-                        asChild
-                      >
-                        <label className="cursor-pointer">
-                          <Upload size={14} />
-                          {config.socialPreview.imageUrl ? "Change image" : "Upload image"}
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={handleImageUpload}
-                          />
-                        </label>
-                      </Button>
-                    </div>
-                    <p className="text-xs text-slate-400">
-                      Best size is 1200x630 pixels for optimal display across platforms
-                    </p>
-                  </div>
-                )}
-                
-                {!config.socialPreview.useCustomImage && (
-                  <p className="text-sm text-slate-400">
-                    Your ENS avatar or a generated one will be used as the image
-                  </p>
-                )}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="yodl" className="space-y-6">
-              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-4">
-                <div className="flex items-center mb-4">
-                  <Wallet className="w-5 h-5 text-green-500 mr-2" />
-                  <h3 className="text-lg font-semibold">Yodl Payment</h3>
-                </div>
-                <p className="text-sm text-slate-300">
-                  Yodl payments allow your supporters to send you tokens on various blockchains.
-                  Configure your preferred tokens, chains, and other settings below.
-                </p>
-              </div>
-              
-              <YodlConfig 
-                config={config.yodlConfig || {
-                  enabled: true,
-                  tokens: "USDC,USDT",
-                  chains: "base,oeth",
-                  currency: "USD",
-                  amount: "",
-                  memo: "",
-                  webhooks: []
-                }} 
-                onChange={(yodlConfig) => {
-                  const newConfig = { 
-                    ...config, 
-                    yodlConfig: {
-                      ...yodlConfig,
-                      enabled: true
-                    } 
-                  };
-                  setConfig(newConfig);
-                  onConfigChange(newConfig);
-                }} 
-              />
-            </TabsContent>
-          </Tabs>
-          
-          <Button 
-            type="submit" 
-            className="mt-6 w-full"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <div className="flex items-center">
-                <span className="animate-spin mr-2 w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                Creating Payment Button...
-              </div>
-            ) : (
-              "Create Payment Button"
-            )}
-          </Button>
-        </CardContent>
-      </Card>
-    </form>
-  );
-};
-
-export default ConfigurationForm;
+                            alt="Preview"
