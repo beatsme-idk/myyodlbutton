@@ -50,52 +50,58 @@ const Web3DataProvider = ({ children }: { children: ReactNode }) => {
         // Project ID from your WalletConnect dashboard
         const projectId = "ca70dcf9165c21ca431481f45879e239";
         
-        // Using the correct import for WalletKit initialization
+        // Create WalletKit instance with correct options
         const kit = new WalletKit({
-          projectId,
-          metadata: {
-            name: "Buy Me A Coffee",
-            description: "Support creators with crypto",
-            url: window.location.origin,
-            icons: [`${window.location.origin}/favicon.ico`]
-          },
+          name: "Buy Me A Coffee",
+          description: "Support creators with crypto",
+          url: window.location.origin,
+          icons: [`${window.location.origin}/favicon.ico`],
+          projectId: projectId
         });
         
         setWalletKit(kit);
         
-        // Register event listeners
-        kit.on("auth_request", async (authRequest) => {
-          const { verifyContext } = authRequest;
-          const validation = verifyContext.verified.validation; // can be VALID, INVALID or UNKNOWN
-          const isScam = verifyContext.verified.isScam; // true if the domain is flagged as malicious
-          
-          // If the domain is flagged as malicious, warn the user
-          if (isScam) {
-            console.warn("WARNING: This domain is flagged as potentially malicious!");
-            // In a real app, you should show a warning UI here
-          }
-          
-          switch (validation) {
-            case "VALID":
-              // Proceed with the request
-              break;
-            case "INVALID":
-              console.warn("WARNING: Domain verification failed - mismatched origin");
-              // In a real app, you should show a warning UI here
-              break;
-            case "UNKNOWN":
-              console.warn("WARNING: Domain could not be verified");
-              // In a real app, you should show a warning UI here
-              break;
+        // Set up event listeners
+        kit.on("auth", (event) => {
+          try {
+            const validation = event.verified?.validation; // can be VALID, INVALID or UNKNOWN
+            const isScam = event.verified?.isScam; // true if the domain is flagged as malicious
+            
+            // If the domain is flagged as malicious, warn the user
+            if (isScam) {
+              console.warn("WARNING: This domain is flagged as potentially malicious!");
+            }
+            
+            if (validation) {
+              switch (validation) {
+                case "VALID":
+                  // Proceed with the request
+                  break;
+                case "INVALID":
+                  console.warn("WARNING: Domain verification failed - mismatched origin");
+                  break;
+                case "UNKNOWN":
+                  console.warn("WARNING: Domain could not be verified");
+                  break;
+              }
+            }
+          } catch (error) {
+            console.error("Error in auth event handler:", error);
           }
         });
         
-        kit.on("connect", (params) => {
-          setWalletAddress(params.accounts[0]);
-          setEnsNameOrAddress(params.accounts[0]);
-          setIsConnected(true);
-          setIsConnecting(false);
-          setConnectionError(null);
+        kit.on("connect", (event) => {
+          try {
+            if (event.address) {
+              setWalletAddress(event.address);
+              setEnsNameOrAddress(event.address);
+              setIsConnected(true);
+              setIsConnecting(false);
+              setConnectionError(null);
+            }
+          } catch (error) {
+            console.error("Error in connect event handler:", error);
+          }
         });
         
         kit.on("disconnect", () => {
@@ -106,10 +112,9 @@ const Web3DataProvider = ({ children }: { children: ReactNode }) => {
         });
         
         // Check if already connected
-        const accounts = await kit.getAccounts();
-        if (accounts && accounts.length > 0) {
-          setWalletAddress(accounts[0]);
-          setEnsNameOrAddress(accounts[0]);
+        if (kit.isConnected() && kit.getAddress()) {
+          setWalletAddress(kit.getAddress());
+          setEnsNameOrAddress(kit.getAddress() || '');
           setIsConnected(true);
         }
         
@@ -124,9 +129,7 @@ const Web3DataProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       // Clean up any listeners when component unmounts
       if (walletKit) {
-        walletKit.off("connect");
-        walletKit.off("disconnect");
-        walletKit.off("auth_request");
+        walletKit.removeAllListeners();
       }
     };
   }, []);
