@@ -17,15 +17,74 @@ const STORAGE_KEY = "buymeacoffee_config";
 
 const App = () => {
   const [userConfig, setUserConfig] = useState<UserConfig | null>(() => {
-    // Try to load config from localStorage
-    const savedConfig = localStorage.getItem(STORAGE_KEY);
-    return savedConfig ? JSON.parse(savedConfig) : null;
+    // Try to load config from localStorage with proper error handling
+    try {
+      const savedConfig = localStorage.getItem(STORAGE_KEY);
+      if (savedConfig) {
+        const parsedConfig = JSON.parse(savedConfig);
+        
+        // Validate the parsed config has required fields
+        if (parsedConfig && 
+            parsedConfig.buttonStyle && 
+            parsedConfig.ensNameOrAddress && 
+            parsedConfig.slug) {
+          
+          // Ensure all required nested objects exist
+          if (!parsedConfig.socialPreview) {
+            parsedConfig.socialPreview = {
+              title: "Support My Work",
+              description: "Every contribution helps me continue creating awesome content for you!",
+              imageUrl: "",
+              useCustomImage: false
+            };
+          }
+          
+          if (!parsedConfig.thankYouPage) {
+            parsedConfig.thankYouPage = {
+              backgroundColor: "#1E1E2E",
+              textColor: "#FFFFFF",
+              message: "Thank you for your support! It means a lot to me.",
+              showConfetti: true
+            };
+          }
+          
+          return parsedConfig;
+        }
+      }
+    } catch (error) {
+      console.error("Error loading saved configuration:", error);
+    }
+    
+    return null;
   });
 
   const handleConfigSave = (config: UserConfig) => {
-    setUserConfig(config);
+    // Ensure all required fields are present before saving
+    const completeConfig = {
+      ...config,
+      socialPreview: config.socialPreview || {
+        title: "Support My Work",
+        description: "Every contribution helps me continue creating awesome content for you!",
+        imageUrl: "",
+        useCustomImage: false
+      },
+      thankYouPage: config.thankYouPage || {
+        backgroundColor: "#1E1E2E",
+        textColor: "#FFFFFF",
+        message: "Thank you for your support! It means a lot to me.",
+        showConfetti: true
+      }
+    };
+    
+    setUserConfig(completeConfig);
+    
     // Save to localStorage
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(completeConfig));
+      console.log("Configuration saved successfully");
+    } catch (error) {
+      console.error("Error saving configuration:", error);
+    }
   };
 
   return (
