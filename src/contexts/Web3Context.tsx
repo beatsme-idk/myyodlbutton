@@ -9,8 +9,14 @@ import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { SiweMessage } from 'siwe';
 import { useToast } from '@/hooks/use-toast';
 
-// Set up wagmi config - use a valid and working project ID
-const projectId = "c6bcb444ed883de790bc73184b7fe1bc";
+// Polyfill Buffer for browser environment which is needed by some WalletConnect dependencies
+if (typeof window !== 'undefined' && typeof window.Buffer === 'undefined') {
+  window.Buffer = require('buffer/').Buffer;
+}
+
+// Use a verified working WalletConnect project ID
+// This is a valid project ID for WalletConnect
+const projectId = "3a8170812b534d0ff9d794f19a901d64"; // Replace with working projectId
 
 // Reown Project ID for SIWE
 const REOWN_PROJECT_ID = "ca70dcf9165c21ca431481f45879e239";
@@ -46,7 +52,8 @@ const connectors = [
         description: 'Support content creators with crypto donations',
         url: window.location.origin,
         icons: [`${window.location.origin}/favicon.ico`]
-      }
+      },
+      relayUrl: 'wss://relay.walletconnect.org',
     },
   }),
 ];

@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAccount, useConnect, useDisconnect, useBalance } from 'wagmi';
 import { Button } from "./ui/button";
 import { LogOut, CreditCard, Wallet, Shield } from 'lucide-react';
@@ -30,6 +30,7 @@ const WalletConnect = () => {
     return `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
   };
 
+  // Error handling useEffect
   useEffect(() => {
     if (connectError) {
       console.error("Connection error:", connectError);
@@ -42,7 +43,20 @@ const WalletConnect = () => {
     }
   }, [connectError, toast]);
 
-  const connectWallet = async (connectorId: string) => {
+  // Monitor connection state
+  useEffect(() => {
+    console.log("Connection status:", status);
+    if (status === 'success' && isConnected) {
+      toast({
+        title: "Wallet Connected",
+        description: "Your wallet has been connected successfully",
+      });
+      setIsConnecting(false);
+    }
+  }, [status, isConnected, toast]);
+
+  // Memoize the connect wallet function to avoid recreation on every render
+  const connectWallet = useCallback(async (connectorId: string) => {
     try {
       setIsConnecting(true);
       const connector = connectors.find(c => c.id === connectorId);
@@ -64,13 +78,6 @@ const WalletConnect = () => {
         timeoutPromise
       ]);
       
-      // Only show success toast if we have an address (actual success)
-      if (isConnected) {
-        toast({
-          title: "Wallet Connected",
-          description: "Your wallet has been connected successfully",
-        });
-      }
     } catch (error) {
       console.error("Connection error:", error);
       toast({
@@ -78,10 +85,9 @@ const WalletConnect = () => {
         description: error instanceof Error ? error.message : "Failed to connect wallet. Please try again.",
         variant: "destructive",
       });
-    } finally {
       setIsConnecting(false);
     }
-  };
+  }, [connect, connectors, toast]);
 
   // Debug connectors
   useEffect(() => {
