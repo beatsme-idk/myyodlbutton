@@ -15,8 +15,7 @@ const PreviewCard = ({ preview }: PreviewProps) => {
   const [copied, setCopied] = useState(false);
   const [showSocialPreview, setShowSocialPreview] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
-  const baseUrl = window.location.origin;
-  const paymentUrl = `${baseUrl}/pay/${preview.slug}`;
+  const paymentUrl = `https://tributee.lovable.app/pay/${preview.slug}`;
   const yodlUrl = preview.yodlConfig?.enabled 
     ? generateYodlPaymentLink(preview.ensNameOrAddress, preview.yodlConfig)
     : null;

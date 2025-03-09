@@ -41,7 +41,7 @@ const SocialPreviewCard = ({ ensNameOrAddress, socialPreview }: SocialPreviewCar
             {socialPreview.description || `Send crypto to ${ensNameOrAddress} to show your support.`}
           </p>
           <div className="mt-2 text-xs text-slate-400 truncate">
-            {window.location.host}/pay/{ensNameOrAddress.replace('.eth', '')}
+            https://tributee.lovable.app/pay/{ensNameOrAddress.replace('.eth', '')}
           </div>
         </div>
       </div>

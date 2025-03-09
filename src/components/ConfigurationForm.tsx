@@ -466,7 +466,7 @@ const ConfigurationForm = ({
                 </div>
                 <div className="flex rounded-lg shadow-sm">
                   <span className="inline-flex items-center px-4 bg-slate-800/50 border border-r-0 border-slate-700/50 rounded-l-lg text-slate-400 text-sm">
-                    {window.location.origin}/pay/
+                    https://tributee.lovable.app/pay/
                   </span>
                   <Input
                     id="slug"
@@ -483,7 +483,7 @@ const ConfigurationForm = ({
                   </div>
                 )}
                 <div className="text-muted-foreground text-xs mt-1">
-                  This will be used in your payment URL: {window.location.origin}/pay/<strong>{config.slug || "your-slug"}</strong>
+                  This will be used in your payment URL: https://tributee.lovable.app/pay/<strong>{config.slug || "your-slug"}</strong>
                 </div>
               </div>
             </TabsContent>
@@ -902,3 +902,4 @@ const ConfigurationForm = ({
 };
 
 export default ConfigurationForm;
+
