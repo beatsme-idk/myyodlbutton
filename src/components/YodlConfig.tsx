@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { YodlPaymentConfig } from "@/types";
 import { Input } from "@/components/ui/input";
@@ -7,10 +8,39 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { ChevronDown, Plus, Trash2, AlertTriangle, Wallet, ExternalLink } from "lucide-react";
+import { ChevronDown, Plus, Trash2, AlertTriangle, Wallet, ExternalLink, Check } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useAccount } from "wagmi";
 import { parseYodlConfigFromENS } from "@/utils/yodl";
+import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
+
+// Predefined lists of tokens and chains
+const SUPPORTED_TOKENS = [
+  { value: "USDC", label: "USDC" },
+  { value: "USDT", label: "USDT" },
+  { value: "ETH", label: "ETH" },
+  { value: "WETH", label: "WETH" },
+  { value: "DAI", label: "DAI" },
+  { value: "WBTC", label: "WBTC" },
+  { value: "MATIC", label: "MATIC" },
+  { value: "OP", label: "OP" },
+  { value: "ARB", label: "ARB" },
+];
+
+const SUPPORTED_CHAINS = [
+  { value: "mainnet", label: "Ethereum" },
+  { value: "base", label: "Base" },
+  { value: "optimism", label: "Optimism" },
+  { value: "arbitrum", label: "Arbitrum" },
+  { value: "polygon", label: "Polygon" },
+  { value: "avalanche", label: "Avalanche" },
+  { value: "zora", label: "Zora" },
+  { value: "oeth", label: "Optimism ETH" },
+];
 
 interface YodlConfigProps {
   config: YodlPaymentConfig;
@@ -22,6 +52,18 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [webhooks, setWebhooks] = useState<string[]>(config.webhooks || []);
   const { address, isConnected } = useAccount();
+  
+  // Selected tokens and chains state
+  const [selectedTokens, setSelectedTokens] = useState<string[]>(
+    config.tokens ? config.tokens.split(',').map(token => token.trim()) : []
+  );
+  const [selectedChains, setSelectedChains] = useState<string[]>(
+    config.chains ? config.chains.split(',').map(chain => chain.trim()) : []
+  );
+  
+  // Open state for dropdowns
+  const [tokensOpen, setTokensOpen] = useState(false);
+  const [chainsOpen, setChainsOpen] = useState(false);
 
   // Fetch Yodl preferences from ENS
   useEffect(() => {
@@ -41,6 +83,15 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
             });
             
             setWebhooks(ensYodlConfig.webhooks || config.webhooks || []);
+            
+            // Update selected tokens and chains
+            if (ensYodlConfig.tokens) {
+              setSelectedTokens(ensYodlConfig.tokens.split(',').map(token => token.trim()));
+            }
+            
+            if (ensYodlConfig.chains) {
+              setSelectedChains(ensYodlConfig.chains.split(',').map(chain => chain.trim()));
+            }
             
             toast({
               title: "Yodl preferences loaded",
@@ -80,6 +131,26 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
     setWebhooks(newWebhooks);
     updateConfig("webhooks", newWebhooks);
   };
+  
+  // Handle token selection
+  const toggleToken = (value: string) => {
+    const newSelectedTokens = selectedTokens.includes(value)
+      ? selectedTokens.filter(token => token !== value)
+      : [...selectedTokens, value];
+      
+    setSelectedTokens(newSelectedTokens);
+    updateConfig("tokens", newSelectedTokens.join(','));
+  };
+  
+  // Handle chain selection
+  const toggleChain = (value: string) => {
+    const newSelectedChains = selectedChains.includes(value)
+      ? selectedChains.filter(chain => chain !== value)
+      : [...selectedChains, value];
+      
+    setSelectedChains(newSelectedChains);
+    updateConfig("chains", newSelectedChains.join(','));
+  };
 
   return (
     <div className="space-y-6">
@@ -98,31 +169,131 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
         <>
           <div className="space-y-3">
             <Label htmlFor="tokens">
-              Accepted Tokens (comma separated)
+              Accepted Tokens
             </Label>
-            <Input
-              id="tokens"
-              value={config.tokens}
-              onChange={(e) => updateConfig("tokens", e.target.value)}
-              placeholder="USDC,USDT,ETH"
-            />
+            <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={tokensOpen}
+                  className="w-full justify-between"
+                >
+                  {selectedTokens.length > 0 
+                    ? `${selectedTokens.length} token${selectedTokens.length > 1 ? 's' : ''} selected`
+                    : "Select tokens..."}
+                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0">
+                <Command>
+                  <CommandInput placeholder="Search tokens..." />
+                  <CommandEmpty>No tokens found.</CommandEmpty>
+                  <CommandGroup>
+                    <ScrollArea className="h-[200px]">
+                      {SUPPORTED_TOKENS.map((token) => (
+                        <CommandItem
+                          key={token.value}
+                          value={token.value}
+                          onSelect={() => toggleToken(token.value)}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              selectedTokens.includes(token.value) ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {token.label}
+                        </CommandItem>
+                      ))}
+                    </ScrollArea>
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            {selectedTokens.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {selectedTokens.map(token => (
+                  <Badge key={token} variant="secondary" className="gap-1">
+                    {token}
+                    <button 
+                      type="button" 
+                      className="ml-1 rounded-full text-xs"
+                      onClick={() => toggleToken(token)}
+                    >
+                      ×
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            )}
             <p className="text-xs text-slate-400">
-              List the tokens you want to accept, separated by commas
+              Select the tokens you want to accept for payments
             </p>
           </div>
           
           <div className="space-y-3">
             <Label htmlFor="chains">
-              Supported Chains (comma separated)
+              Supported Chains
             </Label>
-            <Input
-              id="chains"
-              value={config.chains}
-              onChange={(e) => updateConfig("chains", e.target.value)}
-              placeholder="base,oeth,mainnet"
-            />
+            <Popover open={chainsOpen} onOpenChange={setChainsOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={chainsOpen}
+                  className="w-full justify-between"
+                >
+                  {selectedChains.length > 0 
+                    ? `${selectedChains.length} chain${selectedChains.length > 1 ? 's' : ''} selected`
+                    : "Select chains..."}
+                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0">
+                <Command>
+                  <CommandInput placeholder="Search chains..." />
+                  <CommandEmpty>No chains found.</CommandEmpty>
+                  <CommandGroup>
+                    <ScrollArea className="h-[200px]">
+                      {SUPPORTED_CHAINS.map((chain) => (
+                        <CommandItem
+                          key={chain.value}
+                          value={chain.value}
+                          onSelect={() => toggleChain(chain.value)}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              selectedChains.includes(chain.value) ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {chain.label}
+                        </CommandItem>
+                      ))}
+                    </ScrollArea>
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            {selectedChains.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {selectedChains.map(chain => (
+                  <Badge key={chain} variant="secondary" className="gap-1">
+                    {SUPPORTED_CHAINS.find(c => c.value === chain)?.label || chain}
+                    <button 
+                      type="button" 
+                      className="ml-1 rounded-full text-xs"
+                      onClick={() => toggleChain(chain)}
+                    >
+                      ×
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            )}
             <p className="text-xs text-slate-400">
-              List the chains you want to support, separated by commas
+              Select the blockchains you want to support for payments
             </p>
           </div>
           

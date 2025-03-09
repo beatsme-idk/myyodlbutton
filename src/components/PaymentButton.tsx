@@ -26,8 +26,8 @@ const PaymentButton = ({
   const { toast } = useToast();
   
   const handleClick = () => {
-    // Default to Yodl payment if config exists
-    if (yodlConfig) {
+    // Always use Yodl payment if config exists
+    if (yodlConfig && yodlConfig.enabled) {
       const yodlLink = generateYodlPaymentLink(ensNameOrAddress, yodlConfig);
       if (yodlLink) {
         window.open(yodlLink, "_blank");
@@ -62,7 +62,7 @@ const PaymentButton = ({
       }}
       onClick={handleClick}
     >
-      {yodlConfig ? (
+      {yodlConfig && yodlConfig.enabled ? (
         <>
           <ExternalLink className="mr-2" size={20} />
           <span>{style.buttonText} with Yodl</span>

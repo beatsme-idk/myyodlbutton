@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { UserConfig, ButtonStyle, ThankYouPageStyle, SocialPreviewStyle, YodlPaymentConfig } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -52,7 +53,7 @@ const DEFAULT_CONFIG: UserConfig = {
   socialPreview: DEFAULT_SOCIAL_PREVIEW,
   slug: "",
   yodlConfig: {
-    enabled: false,
+    enabled: true, // Always enabled
     tokens: "USDC,USDT",
     chains: "base,oeth",
     currency: "USD",
@@ -86,8 +87,14 @@ const ConfigurationForm = ({
         newConfig.slug = autoSlug;
       }
       
+      // Ensure Yodl is always enabled
       if (newConfig.yodlConfig) {
         newConfig.yodlConfig.enabled = true;
+      } else {
+        newConfig.yodlConfig = {
+          ...DEFAULT_CONFIG.yodlConfig!,
+          enabled: true
+        };
       }
       
       setConfig(newConfig);
@@ -98,6 +105,7 @@ const ConfigurationForm = ({
   const updateConfig = (key: keyof UserConfig, value: any) => {
     const newConfig = { ...config, [key]: value };
     
+    // Ensure Yodl is always enabled
     if (key === 'yodlConfig' && newConfig.yodlConfig) {
       newConfig.yodlConfig.enabled = true;
     }
@@ -713,10 +721,7 @@ const ConfigurationForm = ({
               </div>
               
               <YodlConfig 
-                config={{
-                  ...config.yodlConfig,
-                  enabled: true
-                } || {
+                config={config.yodlConfig || {
                   enabled: true,
                   tokens: "USDC,USDT",
                   chains: "base,oeth",
