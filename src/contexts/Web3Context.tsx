@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { WalletKit } from '@reown/walletkit';
 import { SiweMessage } from 'siwe';
@@ -56,7 +55,7 @@ const Web3DataProvider = ({ children }: { children: ReactNode }) => {
           description: "Support creators with crypto",
           url: window.location.origin,
           icons: [`${window.location.origin}/favicon.ico`],
-          projectId: projectId
+          projectId
         });
         
         setWalletKit(kit);
