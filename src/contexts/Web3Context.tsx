@@ -1,65 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { createConfig, configureChains, WagmiConfig, useEnsName, useAccount, useSignMessage } from 'wagmi';
-import { mainnet, optimism, polygon, base } from 'wagmi/chains';
-import { publicProvider } from 'wagmi/providers/public';
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
-import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
-import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
+import { WalletKit, initWalletKit } from '@reown/walletkit';
 import { SiweMessage } from 'siwe';
-
-// Polyfill Buffer for browser environment
-// This resolves the "Buffer is not defined" error
-import { Buffer } from 'buffer';
-// Make Buffer available globally to fix dependency issues
-window.Buffer = window.Buffer || Buffer;
-
-// Set up wagmi config with the user's project ID
-const PROJECT_ID = "ca70dcf9165c21ca431481f45879e239";
-
-// Configure chains & providers
-const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [mainnet, optimism, polygon, base],
-  [publicProvider()]
-);
-
-// Set up connectors with better error handling
-const connectors = [
-  new MetaMaskConnector({ 
-    chains,
-    options: {
-      shimDisconnect: true,
-    },
-  }),
-  new CoinbaseWalletConnector({
-    chains,
-    options: {
-      appName: 'Buy Me A Coffee',
-      headlessMode: false,
-    },
-  }),
-  new WalletConnectConnector({
-    chains,
-    options: {
-      projectId: PROJECT_ID,
-      showQrModal: true,
-      metadata: {
-        name: 'Buy Me A Coffee',
-        description: 'Support creators with crypto',
-        url: window.location.origin,
-        icons: [`${window.location.origin}/favicon.ico`]
-      }
-    },
-  }),
-];
-
-// Create wagmi config with better connection management
-const config = createConfig({
-  autoConnect: false, // Changed to false to give more control
-  connectors,
-  publicClient,
-  webSocketPublicClient,
-});
 
 // Create context with additional connection management states and SIWE auth
 export const Web3Context = createContext<{
@@ -71,6 +13,9 @@ export const Web3Context = createContext<{
   isAuthenticated: boolean;
   signInWithEthereum: () => Promise<boolean>;
   signOut: () => void;
+  connect: () => void;
+  disconnect: () => void;
+  walletKit: WalletKit | null;
 }>({
   walletAddress: undefined,
   ensNameOrAddress: '',
@@ -80,6 +25,9 @@ export const Web3Context = createContext<{
   isAuthenticated: false,
   signInWithEthereum: async () => false,
   signOut: () => {},
+  connect: () => {},
+  disconnect: () => {},
+  walletKit: null,
 });
 
 // Hook to use Web3 context
@@ -87,13 +35,100 @@ export const useWeb3 = () => useContext(Web3Context);
 
 // Web3 data provider component with improved state handling
 const Web3DataProvider = ({ children }: { children: ReactNode }) => {
-  const { address, isConnected } = useAccount();
-  const { data: ensName } = useEnsName({ address });
-  const { signMessageAsync } = useSignMessage();
+  const [walletKit, setWalletKit] = useState<WalletKit | null>(null);
+  const [walletAddress, setWalletAddress] = useState<string | undefined>(undefined);
   const [ensNameOrAddress, setEnsNameOrAddress] = useState<string>('');
+  const [isConnected, setIsConnected] = useState<boolean>(false);
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [connectionError, setConnectionError] = useState<Error | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+
+  // Initialize walletKit
+  useEffect(() => {
+    const initWallet = async () => {
+      try {
+        // Project ID from your WalletConnect dashboard
+        const projectId = "ca70dcf9165c21ca431481f45879e239";
+        
+        const kit = await initWalletKit({
+          projectId,
+          metadata: {
+            name: "Buy Me A Coffee",
+            description: "Support creators with crypto",
+            url: window.location.origin,
+            icons: [`${window.location.origin}/favicon.ico`]
+          },
+        });
+        
+        setWalletKit(kit);
+        
+        // Register event listeners
+        kit.on("auth_request", async (authRequest) => {
+          const { verifyContext } = authRequest;
+          const validation = verifyContext.verified.validation; // can be VALID, INVALID or UNKNOWN
+          const isScam = verifyContext.verified.isScam; // true if the domain is flagged as malicious
+          
+          // If the domain is flagged as malicious, warn the user
+          if (isScam) {
+            console.warn("WARNING: This domain is flagged as potentially malicious!");
+            // In a real app, you should show a warning UI here
+          }
+          
+          switch (validation) {
+            case "VALID":
+              // Proceed with the request
+              break;
+            case "INVALID":
+              console.warn("WARNING: Domain verification failed - mismatched origin");
+              // In a real app, you should show a warning UI here
+              break;
+            case "UNKNOWN":
+              console.warn("WARNING: Domain could not be verified");
+              // In a real app, you should show a warning UI here
+              break;
+          }
+        });
+        
+        kit.on("connect", (params) => {
+          setWalletAddress(params.accounts[0]);
+          setEnsNameOrAddress(params.accounts[0]);
+          setIsConnected(true);
+          setIsConnecting(false);
+          setConnectionError(null);
+        });
+        
+        kit.on("disconnect", () => {
+          setWalletAddress(undefined);
+          setEnsNameOrAddress('');
+          setIsConnected(false);
+          setIsAuthenticated(false);
+        });
+        
+        // Check if already connected
+        const accounts = await kit.getAccounts();
+        if (accounts && accounts.length > 0) {
+          setWalletAddress(accounts[0]);
+          setEnsNameOrAddress(accounts[0]);
+          setIsConnected(true);
+        }
+        
+      } catch (error) {
+        console.error("Failed to initialize WalletKit:", error);
+        setConnectionError(error instanceof Error ? error : new Error('Failed to initialize wallet connection'));
+      }
+    };
+    
+    initWallet();
+    
+    return () => {
+      // Clean up any listeners when component unmounts
+      if (walletKit) {
+        walletKit.off("connect");
+        walletKit.off("disconnect");
+        walletKit.off("auth_request");
+      }
+    };
+  }, []);
 
   // Initialize auth state from localStorage
   useEffect(() => {
@@ -102,7 +137,7 @@ const Web3DataProvider = ({ children }: { children: ReactNode }) => {
       try {
         const authData = JSON.parse(storedAuthState);
         // Check if the auth is still valid and for the current address
-        if (authData.address === address && authData.expiration > Date.now()) {
+        if (authData.address === walletAddress && authData.expiration > Date.now()) {
           setIsAuthenticated(true);
         } else {
           // Clear invalid auth data
@@ -113,22 +148,41 @@ const Web3DataProvider = ({ children }: { children: ReactNode }) => {
         localStorage.removeItem('siwe_auth');
       }
     }
-  }, [address]);
+  }, [walletAddress]);
 
-  useEffect(() => {
-    if (isConnected && address) {
-      // Use ENS name if available, otherwise use address
-      setEnsNameOrAddress(ensName || address);
-      setConnectionError(null);
-    } else {
-      setEnsNameOrAddress('');
-      setIsAuthenticated(false); // Reset authentication when disconnected
+  // Connect wallet function
+  const connect = useCallback(async () => {
+    if (!walletKit) {
+      console.error("WalletKit not initialized");
+      return;
     }
-  }, [isConnected, address, ensName]);
+    
+    try {
+      setIsConnecting(true);
+      await walletKit.connect();
+    } catch (error) {
+      console.error("Error connecting wallet:", error);
+      setConnectionError(error instanceof Error ? error : new Error('Failed to connect wallet'));
+      setIsConnecting(false);
+    }
+  }, [walletKit]);
+
+  // Disconnect wallet function
+  const disconnect = useCallback(async () => {
+    if (!walletKit) return;
+    
+    try {
+      await walletKit.disconnect();
+      setIsAuthenticated(false);
+      localStorage.removeItem('siwe_auth');
+    } catch (error) {
+      console.error("Error disconnecting wallet:", error);
+    }
+  }, [walletKit]);
 
   // Sign in with Ethereum function
   const signInWithEthereum = useCallback(async () => {
-    if (!address || !isConnected) {
+    if (!walletAddress || !isConnected || !walletKit) {
       console.error('No wallet connected');
       setConnectionError(new Error('No wallet connected'));
       return false;
@@ -143,7 +197,7 @@ const Web3DataProvider = ({ children }: { children: ReactNode }) => {
       
       const message = new SiweMessage({
         domain,
-        address,
+        address: walletAddress,
         statement: 'Sign in with Ethereum to authenticate with Buy Me A Coffee.',
         uri: origin,
         version: '1',
@@ -159,14 +213,14 @@ const Web3DataProvider = ({ children }: { children: ReactNode }) => {
       const messageString = message.prepareMessage();
       
       // Request user signature
-      const signature = await signMessageAsync({ message: messageString });
+      const signature = await walletKit.signMessage(messageString);
       
       // Store auth in localStorage (expires in 7 days)
       const expirationTime = Date.now() + 7 * 24 * 60 * 60 * 1000;
       localStorage.setItem('siwe_auth', JSON.stringify({
         message: messageString,
         signature,
-        address,
+        address: walletAddress,
         expiration: expirationTime
       }));
       
@@ -177,7 +231,7 @@ const Web3DataProvider = ({ children }: { children: ReactNode }) => {
       setConnectionError(error instanceof Error ? error : new Error('Authentication failed'));
       return false;
     }
-  }, [address, isConnected, signMessageAsync]);
+  }, [walletAddress, isConnected, walletKit]);
 
   // Sign out function
   const signOut = useCallback(() => {
@@ -188,14 +242,17 @@ const Web3DataProvider = ({ children }: { children: ReactNode }) => {
   return (
     <Web3Context.Provider 
       value={{ 
-        walletAddress: address, 
+        walletAddress, 
         ensNameOrAddress, 
         isConnected,
         isConnecting,
         connectionError,
         isAuthenticated,
         signInWithEthereum,
-        signOut
+        signOut,
+        connect,
+        disconnect,
+        walletKit
       }}
     >
       {children}
@@ -209,8 +266,6 @@ type Web3ProviderProps = {
 
 export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
   return (
-    <WagmiConfig config={config}>
-      <Web3DataProvider>{children}</Web3DataProvider>
-    </WagmiConfig>
+    <Web3DataProvider>{children}</Web3DataProvider>
   );
 };

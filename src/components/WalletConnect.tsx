@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from 'react';
-import { useAccount, useConnect, useDisconnect, useBalance } from 'wagmi';
 import { Button } from "./ui/button";
 import { LogOut, CreditCard, Wallet, Shield } from 'lucide-react';
 import {
@@ -15,71 +14,44 @@ import { useToast } from "@/hooks/use-toast";
 import { useWeb3 } from '@/contexts/Web3Context';
 
 const WalletConnect = () => {
-  const { address, isConnected } = useAccount();
-  const { connect, connectors, error: connectError, isLoading: isWagmiLoading, reset } = useConnect();
-  const { disconnect } = useDisconnect();
-  const { data: balanceData } = useBalance({
-    address,
-  });
+  const { 
+    walletAddress, 
+    isConnected, 
+    isConnecting, 
+    connect, 
+    disconnect, 
+    isAuthenticated, 
+    signInWithEthereum, 
+    signOut 
+  } = useWeb3();
   const { toast } = useToast();
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [hasAttemptedConnect, setHasAttemptedConnect] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const { isAuthenticated, signInWithEthereum, signOut } = useWeb3();
+  const [balance, setBalance] = useState<{ formatted: string; symbol: string } | null>(null);
 
   const formatAddress = (addr: string) => {
     return `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
   };
 
-  // Effect to handle connection errors
+  // Handle successful connections through useEffect
   useEffect(() => {
-    if (connectError && hasAttemptedConnect) {
-      console.error("Wallet connection error:", connectError);
-      toast({
-        title: "Connection Failed",
-        description: connectError.message || "Failed to connect wallet. Please try again.",
-        variant: "destructive",
-      });
-      setIsConnecting(false);
-      reset();
-    }
-  }, [connectError, toast, hasAttemptedConnect, reset]);
-
-  // Effect to handle successful connections
-  useEffect(() => {
-    if (isConnected && hasAttemptedConnect) {
+    if (isConnected && walletAddress) {
       toast({
         title: "Wallet Connected",
         description: "Your wallet has been connected successfully",
       });
-      setIsConnecting(false);
-      setHasAttemptedConnect(false);
     }
-  }, [isConnected, hasAttemptedConnect, toast]);
+  }, [isConnected, walletAddress, toast]);
 
-  const connectWallet = async (connectorId: string) => {
+  const handleConnect = async () => {
     try {
-      setIsConnecting(true);
-      setHasAttemptedConnect(true);
-      const connector = connectors.find(c => c.id === connectorId);
-      
-      if (!connector) {
-        throw new Error(`Connector '${connectorId}' not found`);
-      }
-      
-      console.log("Connecting with connector:", connector.id, connector);
-      await connect({ connector });
-      
-      // Note: Success toast is handled by the useEffect above
+      await connect();
     } catch (error) {
-      console.error("Connection error caught in try/catch:", error);
+      console.error("Connection error:", error);
       toast({
         title: "Connection Failed",
         description: error instanceof Error ? error.message : "Failed to connect wallet. Please try again.",
         variant: "destructive",
       });
-      setIsConnecting(false);
-      setHasAttemptedConnect(false);
     }
   };
 
@@ -129,17 +101,15 @@ const WalletConnect = () => {
     });
   };
 
-  // Debug connectors at component mount
-  useEffect(() => {
-    console.log("Available connectors:", connectors.map(c => ({ 
-      id: c.id, 
-      name: c.name,
-      ready: c.ready,
-      details: c
-    })));
-  }, [connectors]);
+  const handleDisconnect = () => {
+    disconnect();
+    toast({
+      title: "Wallet Disconnected",
+      description: "Your wallet has been disconnected",
+    });
+  };
 
-  if (isConnected && address) {
+  if (isConnected && walletAddress) {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -155,16 +125,18 @@ const WalletConnect = () => {
                 <path d="M7 15H9M15 15H17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             )}
-            {formatAddress(address)}
+            {formatAddress(walletAddress)}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem disabled>
-            <CreditCard className="mr-2 h-4 w-4" />
-            <span>Balance: {balanceData?.formatted.slice(0, 6)} {balanceData?.symbol}</span>
-          </DropdownMenuItem>
+          {balance && (
+            <DropdownMenuItem disabled>
+              <CreditCard className="mr-2 h-4 w-4" />
+              <span>Balance: {balance.formatted.slice(0, 6)} {balance.symbol}</span>
+            </DropdownMenuItem>
+          )}
           
           {isAuthenticated ? (
             <DropdownMenuItem onClick={handleSignOut}>
@@ -178,7 +150,7 @@ const WalletConnect = () => {
             </DropdownMenuItem>
           )}
           
-          <DropdownMenuItem onClick={() => disconnect()}>
+          <DropdownMenuItem onClick={handleDisconnect}>
             <LogOut className="mr-2 h-4 w-4" />
             <span>Disconnect</span>
           </DropdownMenuItem>
@@ -188,29 +160,15 @@ const WalletConnect = () => {
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" disabled={isConnecting || isWagmiLoading}>
-          <Wallet className="mr-2 h-4 w-4" />
-          {isConnecting || isWagmiLoading ? "Connecting..." : "Connect Wallet"}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>Connect Wallet</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        {connectors.map((connector) => (
-          <DropdownMenuItem
-            key={connector.id}
-            onClick={() => connectWallet(connector.id)}
-            className="cursor-pointer"
-            disabled={!connector.ready || isConnecting}
-          >
-            {connector.name}
-            {!connector.ready && " (unsupported)"}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Button 
+      variant="outline" 
+      disabled={isConnecting}
+      onClick={handleConnect}
+      className="flex items-center gap-2"
+    >
+      <Wallet className="h-4 w-4" />
+      {isConnecting ? "Connecting..." : "Connect Wallet"}
+    </Button>
   );
 };
 
