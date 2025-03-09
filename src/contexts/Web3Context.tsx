@@ -6,6 +6,8 @@ import { publicProvider } from 'wagmi/providers/public';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
 import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
+import { WalletKit } from '@reown/walletkit';
+import { Core } from '@walletconnect/core';
 
 // Polyfill Buffer for browser environment
 // This resolves the "Buffer is not defined" error
@@ -15,6 +17,11 @@ window.Buffer = window.Buffer || Buffer;
 
 // Set up wagmi config
 const PROJECT_ID = "c6bcb444ed883de790bc73184b7fe1bc";
+
+// Initialize WalletConnect core
+const core = new Core({
+  projectId: PROJECT_ID
+});
 
 // Configure chains & providers
 const { chains, publicClient, webSocketPublicClient } = configureChains(
@@ -116,6 +123,17 @@ type Web3ProviderProps = {
 };
 
 export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
+  // Initialize WalletKit with our WalletConnect core instance
+  const walletKit = new WalletKit({
+    projectId: PROJECT_ID,
+    metadata: {
+      name: 'Buy Me A Coffee',
+      description: 'Support creators with crypto',
+      url: window.location.origin,
+      icons: [`${window.location.origin}/favicon.ico`]
+    }
+  });
+
   return (
     <WagmiConfig config={config}>
       <Web3DataProvider>{children}</Web3DataProvider>
