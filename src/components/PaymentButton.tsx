@@ -1,7 +1,9 @@
+
 import { ButtonStyle, YodlPaymentConfig } from "@/types";
 import { useNavigate } from "react-router-dom";
 import { Coffee, ArrowRight, ExternalLink } from "lucide-react";
 import { generateYodlPaymentLink } from "@/utils/yodl";
+import { useToast } from "@/hooks/use-toast";
 
 interface PaymentButtonProps {
   style: ButtonStyle;
@@ -21,13 +23,18 @@ const PaymentButton = ({
   yodlConfig
 }: PaymentButtonProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   const handleClick = () => {
-    // If Yodl is enabled, redirect to Yodl payment page
-    if (yodlConfig?.enabled) {
+    // Default to Yodl payment if config exists
+    if (yodlConfig) {
       const yodlLink = generateYodlPaymentLink(ensNameOrAddress, yodlConfig);
       if (yodlLink) {
         window.open(yodlLink, "_blank");
+        toast({
+          title: "Opening Yodl Payment",
+          description: "You'll be redirected to complete your payment with Yodl",
+        });
         return;
       }
     }
@@ -55,7 +62,7 @@ const PaymentButton = ({
       }}
       onClick={handleClick}
     >
-      {yodlConfig?.enabled ? (
+      {yodlConfig ? (
         <>
           <ExternalLink className="mr-2" size={20} />
           <span>{style.buttonText} with Yodl</span>

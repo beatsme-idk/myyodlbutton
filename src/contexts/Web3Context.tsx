@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { createConfig, configureChains, WagmiConfig } from 'wagmi';
+import { createConfig, configureChains, WagmiConfig, useEnsName, useAccount } from 'wagmi';
 import { mainnet, optimism, polygon, base } from 'wagmi/chains';
 import { publicProvider } from 'wagmi/providers/public';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
@@ -35,10 +35,50 @@ const config = createConfig({
   webSocketPublicClient,
 });
 
+// Create context
+export const Web3Context = createContext<{
+  walletAddress: string | undefined;
+  ensNameOrAddress: string;
+  isConnected: boolean;
+}>({
+  walletAddress: undefined,
+  ensNameOrAddress: '',
+  isConnected: false,
+});
+
+// Hook to use Web3 context
+export const useWeb3 = () => useContext(Web3Context);
+
+// Web3 data provider component
+const Web3DataProvider = ({ children }: { children: ReactNode }) => {
+  const { address, isConnected } = useAccount();
+  const { data: ensName } = useEnsName({ address });
+  const [ensNameOrAddress, setEnsNameOrAddress] = useState<string>('');
+
+  useEffect(() => {
+    if (isConnected && address) {
+      // Use ENS name if available, otherwise use address
+      setEnsNameOrAddress(ensName || address);
+    } else {
+      setEnsNameOrAddress('');
+    }
+  }, [isConnected, address, ensName]);
+
+  return (
+    <Web3Context.Provider value={{ walletAddress: address, ensNameOrAddress, isConnected }}>
+      {children}
+    </Web3Context.Provider>
+  );
+};
+
 type Web3ProviderProps = {
   children: ReactNode;
 };
 
 export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
-  return <WagmiConfig config={config}>{children}</WagmiConfig>;
+  return (
+    <WagmiConfig config={config}>
+      <Web3DataProvider>{children}</Web3DataProvider>
+    </WagmiConfig>
+  );
 };

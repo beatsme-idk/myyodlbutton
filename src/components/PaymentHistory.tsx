@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -28,7 +27,6 @@ interface Payment {
   memo?: string;
 }
 
-// Extended mock payments with some additional data
 const mockPayments: Payment[] = [
   {
     id: "1",
@@ -92,7 +90,6 @@ const getChainExplorerUrl = (chainId: string, txHash: string): string => {
   return `${baseUrl}${txHash}`;
 };
 
-// Calculate total amount received
 const calculateTotalReceived = (payments: Payment[]): number => {
   return payments
     .filter(payment => payment.status === "completed")
@@ -105,7 +102,6 @@ const PaymentHistory = () => {
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   
-  // Goal tracking state
   const monthlyGoal = 100; // $100 monthly goal
   const currentMonth = new Date().toLocaleString('default', { month: 'long' });
   const currentMonthPayments = payments.filter(payment => {
@@ -116,12 +112,9 @@ const PaymentHistory = () => {
   const monthlyTotal = calculateTotalReceived(currentMonthPayments);
 
   useEffect(() => {
-    // In a real app, we would fetch payment history from an API
-    // For now, we'll use mock data
     const loadPayments = async () => {
       setLoading(true);
       try {
-        // Simulate API call delay
         await new Promise(resolve => setTimeout(resolve, 800));
         setPayments(mockPayments);
       } catch (error) {
@@ -137,7 +130,7 @@ const PaymentHistory = () => {
   const getStatusBadge = (status: Payment["status"]) => {
     switch (status) {
       case "completed":
-        return <Badge variant="success" className="bg-green-600">
+        return <Badge variant="default" className="bg-green-500 hover:bg-green-600 ml-2">
           <CheckIcon className="w-3 h-3 mr-1" />
           Completed
         </Badge>;
@@ -170,7 +163,6 @@ const PaymentHistory = () => {
 
   return (
     <div className="space-y-6">
-      {/* Goals Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <GoalTracker 
           title={`${currentMonth} Goal`}
@@ -212,7 +204,6 @@ const PaymentHistory = () => {
         </Card>
       </div>
 
-      {/* Transaction History */}
       <Tabs defaultValue="all" className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-4">
           <TabsTrigger value="all">All Transactions</TabsTrigger>

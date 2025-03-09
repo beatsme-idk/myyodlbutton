@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { UserConfig, ButtonStyle, ThankYouPageStyle, SocialPreviewStyle, YodlPaymentConfig } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { validateHexColor, isValidEnsOrAddress, isValidSlug } from "@/utils/validation";
 import { Check, ChevronsUpDown, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload, Wallet, ExternalLink, Book } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useWeb3 } from "@/contexts/Web3Context";
 import ColorPicker from "./ColorPicker";
 import LoadingSpinner from "./LoadingSpinner";
 import SocialPreviewCard from "./SocialPreviewCard";
@@ -69,9 +70,38 @@ const ConfigurationForm = ({
   const [config, setConfig] = useState<UserConfig>(initialConfig);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { ensNameOrAddress: connectedWalletENS, isConnected } = useWeb3();
+
+  useEffect(() => {
+    if (isConnected && connectedWalletENS && !config.ensNameOrAddress) {
+      const newConfig = { ...config, ensNameOrAddress: connectedWalletENS };
+      
+      if (!config.slug) {
+        const autoSlug = connectedWalletENS
+          .toLowerCase()
+          .replace('.eth', '')
+          .replace(/[^a-z0-9-]/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '');
+        newConfig.slug = autoSlug;
+      }
+      
+      if (newConfig.yodlConfig) {
+        newConfig.yodlConfig.enabled = true;
+      }
+      
+      setConfig(newConfig);
+      onConfigChange(newConfig);
+    }
+  }, [isConnected, connectedWalletENS]);
 
   const updateConfig = (key: keyof UserConfig, value: any) => {
     const newConfig = { ...config, [key]: value };
+    
+    if (key === 'yodlConfig' && newConfig.yodlConfig) {
+      newConfig.yodlConfig.enabled = true;
+    }
+    
     setConfig(newConfig);
     onConfigChange(newConfig);
     validateField(key, value);
@@ -322,7 +352,13 @@ const ConfigurationForm = ({
                   onChange={(e) => updateConfig("ensNameOrAddress", e.target.value)}
                   placeholder="vitalik.eth or donations.vitalik.eth or 0x123..."
                   className={errors.ensNameOrAddress ? "border-destructive" : ""}
+                  disabled={isConnected}
                 />
+                {isConnected && (
+                  <p className="text-xs text-indigo-400 mt-1">
+                    Using your connected wallet's address
+                  </p>
+                )}
                 {errors.ensNameOrAddress && (
                   <div className="text-destructive text-sm flex items-center gap-1 mt-1">
                     <AlertCircle size={14} />
@@ -665,9 +701,23 @@ const ConfigurationForm = ({
             </TabsContent>
 
             <TabsContent value="yodl" className="space-y-6">
+              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-4">
+                <div className="flex items-center mb-4">
+                  <Wallet className="w-5 h-5 text-green-500 mr-2" />
+                  <h3 className="text-lg font-semibold">Yodl Payment</h3>
+                </div>
+                <p className="text-sm text-slate-300">
+                  Yodl payments allow your supporters to send you tokens on various blockchains.
+                  Configure your preferred tokens, chains, and other settings below.
+                </p>
+              </div>
+              
               <YodlConfig 
-                config={config.yodlConfig || {
-                  enabled: false,
+                config={{
+                  ...config.yodlConfig,
+                  enabled: true
+                } || {
+                  enabled: true,
                   tokens: "USDC,USDT",
                   chains: "base,oeth",
                   currency: "USD",
@@ -676,7 +726,13 @@ const ConfigurationForm = ({
                   webhooks: []
                 }} 
                 onChange={(yodlConfig) => {
-                  const newConfig = { ...config, yodlConfig };
+                  const newConfig = { 
+                    ...config, 
+                    yodlConfig: {
+                      ...yodlConfig,
+                      enabled: true
+                    } 
+                  };
                   setConfig(newConfig);
                   onConfigChange(newConfig);
                 }} 
