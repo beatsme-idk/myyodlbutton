@@ -14,8 +14,8 @@ import { Buffer } from 'buffer';
 // Make Buffer available globally to fix dependency issues
 window.Buffer = window.Buffer || Buffer;
 
-// Set up wagmi config
-const PROJECT_ID = "c6bcb444ed883de790bc73184b7fe1bc";
+// Set up wagmi config with the user's project ID
+const PROJECT_ID = "ca70dcf9165c21ca431481f45879e239";
 
 // Configure chains & providers
 const { chains, publicClient, webSocketPublicClient } = configureChains(
