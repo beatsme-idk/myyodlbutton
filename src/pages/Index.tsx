@@ -5,7 +5,7 @@ import PreviewCard from "@/components/PreviewCard";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
-import { Wallet } from "lucide-react";
+import { ReceiptIcon } from "lucide-react";
 
 const DEFAULT_BUTTON_STYLE = {
   backgroundColor: "#6366F1",
@@ -84,12 +84,12 @@ const Index = ({ savedConfig, onConfigSave }: IndexProps) => {
           
           <div className="mt-6">
             <Button 
-              onClick={() => navigate("/yodl-config")}
+              onClick={() => navigate("/payment-history")}
               variant="outline" 
               className="flex items-center gap-2 bg-indigo-950/30 border-indigo-500/30 hover:bg-indigo-900/50"
             >
-              <Wallet className="w-4 h-4 text-indigo-400" />
-              Configure Yodl Payments
+              <ReceiptIcon className="w-4 h-4 text-indigo-400" />
+              View Payment History
             </Button>
           </div>
         </div>

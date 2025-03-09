@@ -49,7 +49,16 @@ const DEFAULT_CONFIG: UserConfig = {
   buttonStyle: DEFAULT_BUTTON_STYLE,
   thankYouPage: DEFAULT_THANK_YOU_STYLE,
   socialPreview: DEFAULT_SOCIAL_PREVIEW,
-  slug: ""
+  slug: "",
+  yodlConfig: {
+    enabled: false,
+    tokens: "USDC,USDT",
+    chains: "base,oeth",
+    currency: "USD",
+    amount: "",
+    memo: "",
+    webhooks: []
+  }
 };
 
 const ConfigurationForm = ({
@@ -258,7 +267,7 @@ const ConfigurationForm = ({
         
         <CardContent>
           <Tabs defaultValue="general" className="w-full">
-            <TabsList className="grid grid-cols-4 mb-6">
+            <TabsList className="grid grid-cols-5 mb-6">
               <TabsTrigger value="general" className="flex items-center gap-2">
                 <Settings className="w-4 h-4" />
                 <span className="hidden sm:inline">General</span>
@@ -274,6 +283,10 @@ const ConfigurationForm = ({
               <TabsTrigger value="social" className="flex items-center gap-2">
                 <Share2 className="w-4 h-4" />
                 <span className="hidden sm:inline">Social</span>
+              </TabsTrigger>
+              <TabsTrigger value="yodl" className="flex items-center gap-2">
+                <Wallet className="w-4 h-4" />
+                <span className="hidden sm:inline">Yodl</span>
               </TabsTrigger>
             </TabsList>
             
@@ -649,6 +662,25 @@ const ConfigurationForm = ({
                   </p>
                 )}
               </div>
+            </TabsContent>
+
+            <TabsContent value="yodl" className="space-y-6">
+              <YodlConfig 
+                config={config.yodlConfig || {
+                  enabled: false,
+                  tokens: "USDC,USDT",
+                  chains: "base,oeth",
+                  currency: "USD",
+                  amount: "",
+                  memo: "",
+                  webhooks: []
+                }} 
+                onChange={(yodlConfig) => {
+                  const newConfig = { ...config, yodlConfig };
+                  setConfig(newConfig);
+                  onConfigChange(newConfig);
+                }} 
+              />
             </TabsContent>
           </Tabs>
           
