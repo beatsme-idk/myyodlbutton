@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ButtonStyle, YodlPaymentConfig } from "@/types";
@@ -10,20 +9,17 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 import { Wallet } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-// In a real app, this would fetch from an API or database
 const getPaymentConfig = (slug: string): {
   buttonStyle: ButtonStyle, 
   ensNameOrAddress: string, 
   socialPreview?: any,
   yodlConfig?: YodlPaymentConfig
 } | null => {
-  // Try to load from localStorage first
   const savedConfig = localStorage.getItem("buymeacoffee_config");
   if (savedConfig) {
     try {
       const config = JSON.parse(savedConfig);
       if (config.slug === slug) {
-        // Ensure socialPreview exists to prevent undefined errors
         return {
           buttonStyle: config.buttonStyle,
           ensNameOrAddress: config.ensNameOrAddress,
@@ -43,11 +39,9 @@ const getPaymentConfig = (slug: string): {
       }
     } catch (e) {
       console.error("Error parsing saved config:", e);
-      // Continue to fallback config
     }
   }
   
-  // Fallback to demo config
   const mockConfigs: Record<string, {
     buttonStyle: ButtonStyle, 
     ensNameOrAddress: string, 
@@ -97,22 +91,18 @@ const PaymentPage = () => {
   
   useEffect(() => {
     if (slug) {
-      // Simulate an API call
       setTimeout(() => {
         try {
           const paymentConfig = getPaymentConfig(slug);
           if (paymentConfig) {
-            // Ensure we have a valid config with all required properties
             if (!paymentConfig.buttonStyle || !paymentConfig.ensNameOrAddress) {
               throw new Error("Invalid payment configuration");
             }
             
-            // Set the config and clear any previous errors
             setConfig(paymentConfig);
             setError(null);
             console.log("Payment config loaded:", paymentConfig);
           } else {
-            // Handle case where no config was found
             const errorMsg = `Payment button not found for: ${slug}`;
             console.error(errorMsg);
             setError(errorMsg);
@@ -123,7 +113,6 @@ const PaymentPage = () => {
             });
           }
         } catch (err) {
-          // Handle any unexpected errors
           const errorMsg = `Error loading payment page: ${err instanceof Error ? err.message : 'Unknown error'}`;
           console.error(errorMsg);
           setError(errorMsg);
@@ -148,7 +137,7 @@ const PaymentPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="large" variant="gradient" />
+        <LoadingSpinner size="lg" variant="gradient" />
       </div>
     );
   }
