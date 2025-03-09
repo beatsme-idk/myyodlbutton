@@ -13,6 +13,10 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
   [publicProvider()]
 );
 
+// WalletConnect requires a valid project ID
+// This is a public ID that can safely be in the codebase
+const WALLET_CONNECT_PROJECT_ID = "c6bcb444ed883de790bc73184b7fe1bc";
+
 // Set up wagmi config
 const config = createConfig({
   autoConnect: true,
@@ -27,7 +31,7 @@ const config = createConfig({
     new WalletConnectConnector({
       chains,
       options: {
-        projectId: 'buymeacoffee-web3-app',
+        projectId: WALLET_CONNECT_PROJECT_ID,
       },
     }),
   ],

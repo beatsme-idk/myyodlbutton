@@ -16,6 +16,10 @@ import {
 } from "./ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 
+// WalletConnect requires a valid project ID
+// This is a public ID that can safely be in the codebase
+const WALLET_CONNECT_PROJECT_ID = "c6bcb444ed883de790bc73184b7fe1bc";
+
 const WalletConnect = () => {
   const { address, isConnected } = useAccount();
   const { connect, connectors, error, isLoading } = useConnect();
@@ -58,7 +62,7 @@ const WalletConnect = () => {
     });
   const walletConnectConnector = connectors.find(c => c.id === 'walletConnect') || 
     new WalletConnectConnector({
-      options: { projectId: 'buymeacoffee-web3-app' }
+      options: { projectId: WALLET_CONNECT_PROJECT_ID }
     });
 
   if (isConnected && address) {
