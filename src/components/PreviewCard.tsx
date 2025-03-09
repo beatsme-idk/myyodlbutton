@@ -5,7 +5,8 @@ import { PreviewProps } from "@/types";
 import SocialShareButtons from "./SocialShareButtons";
 import AvatarGenerator from "./AvatarGenerator";
 import SocialPreviewCard from "./SocialPreviewCard";
-import { Sparkles, Link as LinkIcon, CopyIcon, Check, Share2, Wallet } from "lucide-react";
+import QRCodeGenerator from "./QRCodeGenerator";
+import { Sparkles, Link as LinkIcon, CopyIcon, Check, Share2, Wallet, QrCode, Scan } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { generateYodlPaymentLink } from "@/utils/yodl";
@@ -13,6 +14,7 @@ import { generateYodlPaymentLink } from "@/utils/yodl";
 const PreviewCard = ({ preview }: PreviewProps) => {
   const [copied, setCopied] = useState(false);
   const [showSocialPreview, setShowSocialPreview] = useState(false);
+  const [showQRCode, setShowQRCode] = useState(false);
   const baseUrl = window.location.origin;
   const paymentUrl = `${baseUrl}/pay/${preview.slug}`;
   const yodlUrl = preview.yodlConfig?.enabled 
@@ -61,16 +63,32 @@ const PreviewCard = ({ preview }: PreviewProps) => {
               <Sparkles size={16} className="text-indigo-400" />
               Share your button
             </h3>
-            {preview.socialPreview && (
+            <div className="flex gap-3">
               <button
-                onClick={() => setShowSocialPreview(!showSocialPreview)}
+                onClick={() => setShowQRCode(!showQRCode)}
                 className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
               >
-                <Share2 size={14} />
-                {showSocialPreview ? "Hide" : "Show"} social preview
+                <Scan size={14} />
+                {showQRCode ? "Hide" : "Show"} QR code
               </button>
-            )}
+              
+              {preview.socialPreview && (
+                <button
+                  onClick={() => setShowSocialPreview(!showSocialPreview)}
+                  className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+                >
+                  <Share2 size={14} />
+                  {showSocialPreview ? "Hide" : "Show"} social preview
+                </button>
+              )}
+            </div>
           </div>
+          
+          {showQRCode && (
+            <div className="my-4 animate-fade-in">
+              <QRCodeGenerator paymentUrl={paymentUrl} />
+            </div>
+          )}
           
           {preview.socialPreview && showSocialPreview && (
             <div className="my-4 animate-fade-in">

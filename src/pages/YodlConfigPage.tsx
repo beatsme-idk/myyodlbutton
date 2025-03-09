@@ -22,10 +22,10 @@ const PaymentHistoryPage = () => {
           </Button>
           
           <h1 className="text-3xl font-bold tracking-tight text-gradient">
-            Payment History
+            Payment Analytics
           </h1>
           <p className="text-slate-400 mt-2">
-            Track all transactions received through your payment button
+            Track goals, view transaction details, and manage your payment history
           </p>
         </div>
         
