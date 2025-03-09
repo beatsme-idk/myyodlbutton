@@ -54,7 +54,7 @@ const PaymentButton = ({
     <button
       className={`inline-flex items-center justify-center transition-all-300 shadow-[0_4px_14px_rgba(0,0,0,0.25)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.35)] hover:-translate-y-1 ${className}`}
       style={{
-        backgroundColor: style.backgroundColor,
+        background: style.backgroundColor,
         color: style.textColor,
         borderRadius: style.borderRadius,
         fontSize: style.fontSize,

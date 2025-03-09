@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { UserConfig, ButtonStyle, ThankYouPageStyle, SocialPreviewStyle, YodlPaymentConfig } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -136,7 +135,6 @@ const ConfigurationForm = ({
       onConfigChange(newConfig);
     }
     
-    // Initialize padding values from config
     if (config.buttonStyle.padding) {
       const paddingValues = config.buttonStyle.padding.split(" ");
       if (paddingValues.length === 2) {
@@ -144,7 +142,15 @@ const ConfigurationForm = ({
         setPaddingHorizontal(parseInt(paddingValues[1]) || 24);
       }
     }
-  }, [isConnected, connectedWalletENS, config.buttonStyle.padding]);
+
+    if (config.buttonStyle.backgroundColor.includes("linear-gradient")) {
+      setUseGradient(true);
+      setSelectedGradient(config.buttonStyle.backgroundColor);
+    } else {
+      setUseGradient(false);
+      setSelectedGradient("none");
+    }
+  }, [isConnected, connectedWalletENS, config.buttonStyle.padding, config.buttonStyle.backgroundColor]);
 
   const updateConfig = (key: keyof UserConfig, value: any) => {
     const newConfig = { ...config, [key]: value };
@@ -219,7 +225,9 @@ const ConfigurationForm = ({
       const styleKey = key.split(".")[1];
       
       if (styleKey === "backgroundColor" || styleKey === "textColor") {
-        if (!validateHexColor(value)) {
+        if (styleKey === "backgroundColor" && value.includes("linear-gradient")) {
+          delete newErrors[key];
+        } else if (!validateHexColor(value)) {
           newErrors[key] = "Must be a valid hex color (e.g. #FF0000)";
         } else {
           delete newErrors[key];
@@ -487,7 +495,7 @@ const ConfigurationForm = ({
                   <button
                     className="inline-flex items-center justify-center shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
                     style={{
-                      backgroundColor: config.buttonStyle.backgroundColor,
+                      background: config.buttonStyle.backgroundColor,
                       color: config.buttonStyle.textColor,
                       borderRadius: config.buttonStyle.borderRadius,
                       fontSize: config.buttonStyle.fontSize,

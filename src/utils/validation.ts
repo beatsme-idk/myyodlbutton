@@ -51,6 +51,11 @@ export const validateUserConfig = (config: UserConfig): boolean => {
 };
 
 export const validateHexColor = (color: string): boolean => {
+  // If it's a gradient, consider it valid
+  if (color.includes("linear-gradient")) {
+    return true;
+  }
+  // Regular hex color validation
   return /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(color);
 };
 
