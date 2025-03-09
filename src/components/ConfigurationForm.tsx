@@ -9,8 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { validateHexColor, isValidEnsOrAddress, isValidSlug } from "@/utils/validation";
-import { Check, ChevronsUpDown, AlertCircle } from "lucide-react";
+import { Check, ChevronsUpDown, AlertCircle, Lightbulb, Settings, Palette, Heart } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import ColorPicker from "./ColorPicker";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface ConfigurationFormProps {
   initialConfig?: UserConfig;
@@ -48,12 +50,24 @@ const ConfigurationForm = ({
 }: ConfigurationFormProps) => {
   const [config, setConfig] = useState<UserConfig>(initialConfig);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const updateConfig = (key: keyof UserConfig, value: any) => {
     const newConfig = { ...config, [key]: value };
     setConfig(newConfig);
     onConfigChange(newConfig);
     validateField(key, value);
+    
+    // Auto-generate slug from ENS name or address if slug is empty
+    if (key === "ensNameOrAddress" && !config.slug && isValidEnsOrAddress(value)) {
+      const autoSlug = value
+        .toLowerCase()
+        .replace('.eth', '')
+        .replace(/[^a-z0-9-]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+      updateConfig("slug", autoSlug);
+    }
   };
   
   const updateButtonStyle = (key: keyof ButtonStyle, value: string) => {
@@ -142,15 +156,29 @@ const ConfigurationForm = ({
     return Object.values(fieldValidations).every(valid => valid);
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (validateForm()) {
-      onSave(config);
-      toast({
-        title: "Configuration saved",
-        description: "Your payment button has been successfully created",
-      });
+      setIsSubmitting(true);
+      
+      try {
+        // Simulate API call with small delay
+        await new Promise(resolve => setTimeout(resolve, 800));
+        onSave(config);
+        toast({
+          title: "Configuration saved",
+          description: "Your payment button has been successfully created",
+        });
+      } catch (error) {
+        toast({
+          title: "Error saving configuration",
+          description: "Please try again later",
+          variant: "destructive",
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
     } else {
       toast({
         title: "Validation error",
@@ -180,12 +208,38 @@ const ConfigurationForm = ({
         <CardContent>
           <Tabs defaultValue="general" className="w-full">
             <TabsList className="grid grid-cols-3 mb-6">
-              <TabsTrigger value="general">General</TabsTrigger>
-              <TabsTrigger value="button">Button Style</TabsTrigger>
-              <TabsTrigger value="thankYou">Thank You Page</TabsTrigger>
+              <TabsTrigger value="general" className="flex items-center gap-2">
+                <Settings className="w-4 h-4" />
+                <span className="hidden sm:inline">General</span>
+              </TabsTrigger>
+              <TabsTrigger value="button" className="flex items-center gap-2">
+                <Palette className="w-4 h-4" />
+                <span className="hidden sm:inline">Button Style</span>
+              </TabsTrigger>
+              <TabsTrigger value="thankYou" className="flex items-center gap-2">
+                <Heart className="w-4 h-4" />
+                <span className="hidden sm:inline">Thank You Page</span>
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="general" className="space-y-4">
+              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-6">
+                <div className="flex items-center mb-4">
+                  <Lightbulb className="w-5 h-5 text-yellow-500 mr-2" />
+                  <h3 className="text-lg font-semibold">Quick Tips</h3>
+                </div>
+                <ul className="space-y-2 text-sm text-slate-300">
+                  <li className="flex items-center">
+                    <span className="mr-2 text-indigo-400">•</span>
+                    Use an ENS name for better recognition
+                  </li>
+                  <li className="flex items-center">
+                    <span className="mr-2 text-indigo-400">•</span>
+                    Create a memorable slug for easy sharing
+                  </li>
+                </ul>
+              </div>
+              
               <div className="space-y-2">
                 <Label htmlFor="ensNameOrAddress">
                   ENS Name or Ethereum Address
@@ -218,13 +272,18 @@ const ConfigurationForm = ({
                     Generate Random
                   </Button>
                 </div>
-                <Input
-                  id="slug"
-                  value={config.slug}
-                  onChange={(e) => updateConfig("slug", e.target.value)}
-                  placeholder="my-coffee-button"
-                  className={errors.slug ? "border-destructive" : ""}
-                />
+                <div className="flex rounded-lg shadow-sm">
+                  <span className="inline-flex items-center px-4 bg-slate-800/50 border border-r-0 border-slate-700/50 rounded-l-lg text-slate-400 text-sm">
+                    {window.location.origin}/pay/
+                  </span>
+                  <Input
+                    id="slug"
+                    value={config.slug}
+                    onChange={(e) => updateConfig("slug", e.target.value)}
+                    placeholder="my-coffee-button"
+                    className={`rounded-none rounded-r-lg ${errors.slug ? "border-destructive" : ""}`}
+                  />
+                </div>
                 {errors.slug && (
                   <div className="text-destructive text-sm flex items-center gap-1 mt-1">
                     <AlertCircle size={14} />
@@ -232,53 +291,53 @@ const ConfigurationForm = ({
                   </div>
                 )}
                 <div className="text-muted-foreground text-xs mt-1">
-                  This will be used in your payment URL: yourdomain.com/pay/<strong>{config.slug || "your-slug"}</strong>
+                  This will be used in your payment URL: {window.location.origin}/pay/<strong>{config.slug || "your-slug"}</strong>
                 </div>
               </div>
             </TabsContent>
             
-            <TabsContent value="button" className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
+            <TabsContent value="button" className="space-y-6">
+              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-4">
+                <h3 className="text-lg font-semibold mb-4">Button Preview</h3>
+                <div className="flex items-center justify-center p-8 bg-slate-900/50 rounded-lg">
+                  <button
+                    className="inline-flex items-center justify-center shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
+                    style={{
+                      backgroundColor: config.buttonStyle.backgroundColor,
+                      color: config.buttonStyle.textColor,
+                      borderRadius: config.buttonStyle.borderRadius,
+                      fontSize: config.buttonStyle.fontSize,
+                      padding: config.buttonStyle.padding,
+                    }}
+                  >
+                    {config.buttonStyle.buttonText}
+                  </button>
+                </div>
+              </div>
+            
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
                   <Label htmlFor="backgroundColor">Background Color</Label>
-                  <div className="flex gap-2">
-                    <div 
-                      className="w-10 h-10 rounded border" 
-                      style={{ backgroundColor: config.buttonStyle.backgroundColor }}
-                    />
-                    <Input
-                      id="backgroundColor"
-                      value={config.buttonStyle.backgroundColor}
-                      onChange={(e) => updateButtonStyle("backgroundColor", e.target.value)}
-                      placeholder="#000000"
-                      className={errors["buttonStyle.backgroundColor"] ? "border-destructive" : ""}
-                    />
-                  </div>
+                  <ColorPicker 
+                    color={config.buttonStyle.backgroundColor} 
+                    onChange={(color) => updateButtonStyle("backgroundColor", color)}
+                  />
                   {errors["buttonStyle.backgroundColor"] && (
-                    <div className="text-destructive text-sm flex items-center gap-1 mt-1">
+                    <div className="text-destructive text-sm flex items-center gap-1">
                       <AlertCircle size={14} />
                       {errors["buttonStyle.backgroundColor"]}
                     </div>
                   )}
                 </div>
                 
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <Label htmlFor="textColor">Text Color</Label>
-                  <div className="flex gap-2">
-                    <div 
-                      className="w-10 h-10 rounded border" 
-                      style={{ backgroundColor: config.buttonStyle.textColor }}
-                    />
-                    <Input
-                      id="textColor"
-                      value={config.buttonStyle.textColor}
-                      onChange={(e) => updateButtonStyle("textColor", e.target.value)}
-                      placeholder="#FFFFFF"
-                      className={errors["buttonStyle.textColor"] ? "border-destructive" : ""}
-                    />
-                  </div>
+                  <ColorPicker 
+                    color={config.buttonStyle.textColor} 
+                    onChange={(color) => updateButtonStyle("textColor", color)}
+                  />
                   {errors["buttonStyle.textColor"] && (
-                    <div className="text-destructive text-sm flex items-center gap-1 mt-1">
+                    <div className="text-destructive text-sm flex items-center gap-1">
                       <AlertCircle size={14} />
                       {errors["buttonStyle.textColor"]}
                     </div>
@@ -306,22 +365,36 @@ const ConfigurationForm = ({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="borderRadius">Border Radius</Label>
-                  <Input
-                    id="borderRadius"
-                    value={config.buttonStyle.borderRadius}
-                    onChange={(e) => updateButtonStyle("borderRadius", e.target.value)}
-                    placeholder="4px"
-                  />
+                  <div className="space-y-2">
+                    <input
+                      type="range"
+                      min="0"
+                      max="24"
+                      value={parseInt(config.buttonStyle.borderRadius)}
+                      onChange={(e) => updateButtonStyle("borderRadius", `${e.target.value}px`)}
+                      className="w-full"
+                    />
+                    <div className="text-xs text-muted-foreground">
+                      {config.buttonStyle.borderRadius}
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="fontSize">Font Size</Label>
-                  <Input
-                    id="fontSize"
-                    value={config.buttonStyle.fontSize}
-                    onChange={(e) => updateButtonStyle("fontSize", e.target.value)}
-                    placeholder="16px"
-                  />
+                  <div className="space-y-2">
+                    <input
+                      type="range"
+                      min="12"
+                      max="24"
+                      value={parseInt(config.buttonStyle.fontSize)}
+                      onChange={(e) => updateButtonStyle("fontSize", `${e.target.value}px`)}
+                      className="w-full"
+                    />
+                    <div className="text-xs text-muted-foreground">
+                      {config.buttonStyle.fontSize}
+                    </div>
+                  </div>
                 </div>
                 
                 <div className="space-y-2">
@@ -336,48 +409,47 @@ const ConfigurationForm = ({
               </div>
             </TabsContent>
             
-            <TabsContent value="thankYou" className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
+            <TabsContent value="thankYou" className="space-y-6">
+              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-4">
+                <h3 className="text-lg font-semibold mb-4">Thank You Page Preview</h3>
+                <div 
+                  className="p-8 rounded-lg text-center"
+                  style={{
+                    backgroundColor: config.thankYouPage.backgroundColor,
+                    color: config.thankYouPage.textColor
+                  }}
+                >
+                  <h4 className="text-2xl font-bold mb-4">Thank You!</h4>
+                  <p className="opacity-80">{config.thankYouPage.message}</p>
+                  {config.thankYouPage.showConfetti && (
+                    <div className="mt-4 text-sm">✨ Confetti will appear here ✨</div>
+                  )}
+                </div>
+              </div>
+            
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
                   <Label htmlFor="tyBackgroundColor">Background Color</Label>
-                  <div className="flex gap-2">
-                    <div 
-                      className="w-10 h-10 rounded border" 
-                      style={{ backgroundColor: config.thankYouPage.backgroundColor }}
-                    />
-                    <Input
-                      id="tyBackgroundColor"
-                      value={config.thankYouPage.backgroundColor}
-                      onChange={(e) => updateThankYouStyle("backgroundColor", e.target.value)}
-                      placeholder="#F9FAFB"
-                      className={errors["thankYouPage.backgroundColor"] ? "border-destructive" : ""}
-                    />
-                  </div>
+                  <ColorPicker 
+                    color={config.thankYouPage.backgroundColor} 
+                    onChange={(color) => updateThankYouStyle("backgroundColor", color)}
+                  />
                   {errors["thankYouPage.backgroundColor"] && (
-                    <div className="text-destructive text-sm flex items-center gap-1 mt-1">
+                    <div className="text-destructive text-sm flex items-center gap-1">
                       <AlertCircle size={14} />
                       {errors["thankYouPage.backgroundColor"]}
                     </div>
                   )}
                 </div>
                 
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <Label htmlFor="tyTextColor">Text Color</Label>
-                  <div className="flex gap-2">
-                    <div 
-                      className="w-10 h-10 rounded border" 
-                      style={{ backgroundColor: config.thankYouPage.textColor }}
-                    />
-                    <Input
-                      id="tyTextColor"
-                      value={config.thankYouPage.textColor}
-                      onChange={(e) => updateThankYouStyle("textColor", e.target.value)}
-                      placeholder="#111827"
-                      className={errors["thankYouPage.textColor"] ? "border-destructive" : ""}
-                    />
-                  </div>
+                  <ColorPicker 
+                    color={config.thankYouPage.textColor} 
+                    onChange={(color) => updateThankYouStyle("textColor", color)}
+                  />
                   {errors["thankYouPage.textColor"] && (
-                    <div className="text-destructive text-sm flex items-center gap-1 mt-1">
+                    <div className="text-destructive text-sm flex items-center gap-1">
                       <AlertCircle size={14} />
                       {errors["thankYouPage.textColor"]}
                     </div>
@@ -413,8 +485,19 @@ const ConfigurationForm = ({
             </TabsContent>
           </Tabs>
           
-          <Button type="submit" className="mt-6 w-full">
-            Create Payment Button
+          <Button 
+            type="submit" 
+            className="mt-6 w-full"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <div className="flex items-center">
+                <span className="animate-spin mr-2 w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+                Creating Payment Button...
+              </div>
+            ) : (
+              "Create Payment Button"
+            )}
           </Button>
         </CardContent>
       </Card>
