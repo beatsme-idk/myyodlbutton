@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { validateHexColor, isValidEnsOrAddress, isValidSlug } from "@/utils/validation";
-import { Check, ChevronsUpDown, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload, Wallet, ExternalLink, Book } from "lucide-react";
+import { Check, ChevronsUpDown, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload, ExternalLink, Book } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useWeb3 } from "@/contexts/Web3Context";
 import ColorPicker from "./ColorPicker";
@@ -323,7 +323,13 @@ const ConfigurationForm = ({
                 <span className="hidden sm:inline">Social</span>
               </TabsTrigger>
               <TabsTrigger value="yodl" className="flex items-center gap-2">
-                <Wallet className="w-4 h-4" />
+                <div className="w-4 h-4">
+                  <img 
+                    src="https://yodl.me/_next/static/media/new_logo.be0c2fdb.svg" 
+                    alt="Yodl"
+                    className="w-full h-full drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]"
+                  />
+                </div>
                 <span className="hidden sm:inline">Yodl</span>
               </TabsTrigger>
             </TabsList>

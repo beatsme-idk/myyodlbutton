@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const PaymentHistoryPage = () => {
+const YodlConfigPage = () => {
   const navigate = useNavigate();
 
   return (
@@ -23,7 +23,7 @@ const PaymentHistoryPage = () => {
           
           <div className="flex items-center gap-3 mb-2">
             <h1 className="text-3xl font-bold tracking-tight text-gradient">
-              Payment Analytics
+              Yodl Configuration
             </h1>
             <div className="w-6 h-6">
               <img 
@@ -34,7 +34,7 @@ const PaymentHistoryPage = () => {
             </div>
           </div>
           <p className="text-slate-400 mt-1">
-            Track goals, view transaction details, and manage your payment history
+            Configure how Yodl payments work with your payment button
           </p>
         </div>
         
@@ -46,4 +46,4 @@ const PaymentHistoryPage = () => {
   );
 };
 
-export default PaymentHistoryPage;
+export default YodlConfigPage;
