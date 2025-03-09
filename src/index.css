@@ -5,33 +5,33 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 210 100% 50%;
+    --primary: 230 100% 67%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217 32% 17%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 217 32% 17%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 217 32% 17%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 210 100% 50%;
+    --border: 217 32% 17%;
+    --input: 217 32% 17%;
+    --ring: 224 76% 48%;
 
     --radius: 1rem;
   }
@@ -41,26 +41,54 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-gradient-to-br from-slate-900 via-indigo-950/40 to-slate-950 text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
 @layer utilities {
   .glass-morphism {
-    @apply bg-white/10 backdrop-blur-lg border border-white/10 shadow-lg;
+    @apply bg-white/10 backdrop-blur-lg border border-white/15 shadow-lg;
   }
   
   .glass-card {
-    @apply bg-white/5 backdrop-blur-xl border border-white/5 shadow-xl;
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl;
   }
   
   .glass-dark {
-    @apply bg-black/40 backdrop-blur-xl border border-white/5 shadow-xl;
+    @apply bg-black/30 backdrop-blur-xl border border-white/5 shadow-xl;
+  }
+  
+  .glass-panel {
+    @apply bg-gradient-to-b from-white/10 to-white/5 backdrop-blur-xl border border-white/10 shadow-xl;
+  }
+  
+  .neo-blur {
+    @apply backdrop-blur-md bg-slate-900/80 border border-indigo-500/20;
+  }
+  
+  .shadow-glow {
+    @apply shadow-[0_0_15px_rgba(99,102,241,0.4)];
+  }
+  
+  .shadow-glow-sm {
+    @apply shadow-[0_0_10px_rgba(99,102,241,0.3)];
   }
   
   .text-balance {
     text-wrap: balance;
+  }
+  
+  .text-gradient {
+    @apply bg-gradient-to-r from-white via-indigo-200 to-white bg-clip-text text-transparent;
+  }
+  
+  .text-gradient-blue {
+    @apply bg-gradient-to-r from-blue-400 to-indigo-600 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-purple {
+    @apply bg-gradient-to-r from-indigo-400 to-purple-600 bg-clip-text text-transparent;
   }
   
   .transition-all-200 {
@@ -81,6 +109,22 @@
   
   .animate-slide-down {
     animation: slide-down 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+  }
+  
+  .animate-fade-in-up {
+    animation: fade-in-up 0.5s ease-out forwards;
+  }
+  
+  .animate-pulse-subtle {
+    animation: pulse-subtle 3s infinite;
+  }
+
+  .hover-scale {
+    @apply transition-transform duration-200 hover:scale-105;
   }
   
   .delay-150 {
@@ -118,7 +162,46 @@
   }
 }
 
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.02);
+  }
+}
+
 .payment-button-shadow:hover {
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
+}
+
+.input-field {
+  @apply w-full bg-slate-800/50 border border-indigo-500/20 rounded-lg px-4 py-2.5 text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all;
+}
+
+.glass-button {
+  @apply px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/10 hover:border-white/30 rounded-lg transition-all shadow-sm hover:shadow-md text-white;
 }

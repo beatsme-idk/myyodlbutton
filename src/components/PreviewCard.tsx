@@ -4,26 +4,42 @@ import PaymentButton from "./PaymentButton";
 import { PreviewProps } from "@/types";
 import SocialShareButtons from "./SocialShareButtons";
 import AvatarGenerator from "./AvatarGenerator";
+import { Sparkles, Link as LinkIcon, CopyIcon, Check } from "lucide-react";
+import { useState } from "react";
+import { toast } from "@/hooks/use-toast";
 
 const PreviewCard = ({ preview }: PreviewProps) => {
+  const [copied, setCopied] = useState(false);
   const baseUrl = window.location.origin;
   const paymentUrl = `${baseUrl}/pay/${preview.slug}`;
   
+  const handleCopy = () => {
+    navigator.clipboard.writeText(paymentUrl);
+    setCopied(true);
+    toast({
+      title: "URL copied to clipboard",
+      description: "Share it with your audience to receive payments",
+    });
+    setTimeout(() => setCopied(false), 2000);
+  };
+  
   return (
-    <Card className="w-full overflow-hidden glass-card transition-all-200 animate-fade-in shadow-xl border-0">
-      <CardHeader className="pb-2 bg-gradient-to-r from-slate-800/60 to-slate-900/60 border-b border-white/5">
+    <Card className="w-full overflow-hidden glass-panel transition-all-200 shadow-xl border-0 rounded-xl">
+      <CardHeader className="pb-3 bg-gradient-to-r from-indigo-900/60 to-indigo-950/70 border-b border-indigo-500/20">
         <CardTitle className="text-2xl font-medium flex items-center gap-3">
           <AvatarGenerator ensNameOrAddress={preview.ensNameOrAddress} />
-          <span className="bg-gradient-to-r from-white to-slate-300 text-transparent bg-clip-text">Button Preview</span>
+          <div className="flex flex-col items-start">
+            <span className="text-gradient">Payment Button</span>
+            <CardDescription className="text-indigo-300 mt-1">
+              Share with your audience
+            </CardDescription>
+          </div>
         </CardTitle>
-        <CardDescription className="text-slate-300">
-          How your payment button will appear to others
-        </CardDescription>
       </CardHeader>
       
-      <CardContent className="space-y-6 p-6">
-        <div className="rounded-lg glass-morphism p-8 flex items-center justify-center shadow-inner">
-          <div className="transition-all-300 transform hover:scale-110 hover:rotate-1">
+      <CardContent className="space-y-8 p-6">
+        <div className="rounded-lg glass-morphism p-10 flex items-center justify-center shadow-inner">
+          <div className="transition-all-300 transform hover:scale-110">
             <PaymentButton
               style={preview.buttonStyle}
               ensNameOrAddress={preview.ensNameOrAddress}
@@ -33,16 +49,40 @@ const PreviewCard = ({ preview }: PreviewProps) => {
         </div>
         
         <div className="space-y-3">
-          <h3 className="text-sm font-medium text-white">Share your button</h3>
+          <h3 className="text-sm font-medium text-white flex items-center gap-2">
+            <Sparkles size={16} className="text-indigo-400" />
+            Share your button
+          </h3>
           <SocialShareButtons url={paymentUrl} title={`Support me with ${preview.buttonStyle.buttonText}`} />
         </div>
         
-        <div className="text-sm text-slate-400 pt-2 glass-morphism p-3 rounded-lg">
-          <div className="flex items-center gap-2">
-            <span>Button URL:</span>
-            <code className="bg-black/30 px-2 py-1 rounded text-xs text-lime-300 font-mono">
-              {paymentUrl}
-            </code>
+        <div className="glass-morphism p-4 rounded-lg space-y-2">
+          <h3 className="text-sm font-medium text-white flex items-center gap-2 mb-3">
+            <LinkIcon size={16} className="text-indigo-400" />
+            Payment Link
+          </h3>
+          
+          <div className="relative">
+            <div className="flex items-center bg-black/30 rounded-lg overflow-hidden border border-indigo-500/20">
+              <div className="flex-1 overflow-hidden">
+                <input 
+                  type="text" 
+                  value={paymentUrl} 
+                  readOnly 
+                  className="bg-transparent w-full px-3 py-2 text-sm text-indigo-200 font-mono overflow-x-auto focus:outline-none"
+                />
+              </div>
+              <button 
+                className="bg-indigo-600/50 hover:bg-indigo-600 border-l border-indigo-500/30 px-3 py-2 text-white transition-colors"
+                onClick={handleCopy}
+              >
+                {copied ? (
+                  <Check size={18} className="text-green-400" />
+                ) : (
+                  <CopyIcon size={18} />
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </CardContent>

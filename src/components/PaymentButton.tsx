@@ -1,7 +1,7 @@
 
 import { ButtonStyle } from "@/types";
 import { useNavigate } from "react-router-dom";
-import { Coffee } from "lucide-react";
+import { Coffee, ArrowRight } from "lucide-react";
 
 interface PaymentButtonProps {
   style: ButtonStyle;
@@ -33,7 +33,7 @@ const PaymentButton = ({
   
   return (
     <button
-      className={`inline-flex items-center justify-center transition-all-300 payment-button-shadow ${className}`}
+      className={`inline-flex items-center justify-center transition-all-300 shadow-[0_4px_14px_rgba(0,0,0,0.25)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.35)] hover:-translate-y-1 ${className}`}
       style={{
         backgroundColor: style.backgroundColor,
         color: style.textColor,
@@ -44,7 +44,8 @@ const PaymentButton = ({
       onClick={handleClick}
     >
       <Coffee className="mr-2" size={20} />
-      {style.buttonText}
+      <span>{style.buttonText}</span>
+      <ArrowRight className="ml-2 opacity-70" size={16} />
     </button>
   );
 };
