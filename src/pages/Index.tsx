@@ -65,7 +65,7 @@ const Index = ({ savedConfig, onConfigSave }: IndexProps) => {
           </p>
         </div>
         
-        <div className="bg-slate-800/30 backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden border border-slate-700/50">
+        <div className="glass-dark rounded-2xl shadow-xl overflow-hidden border border-slate-700/50 animate-slide-up">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
             <div className="p-6 md:p-8 border-b lg:border-b-0 lg:border-r border-slate-700/50">
               <h2 className="text-xl font-semibold mb-6 text-slate-100 flex items-center">
@@ -81,7 +81,7 @@ const Index = ({ savedConfig, onConfigSave }: IndexProps) => {
               />
             </div>
             
-            <div className="p-6 md:p-8 bg-slate-900/50">
+            <div className="p-6 md:p-8 bg-gradient-to-br from-slate-900 to-slate-800/90">
               <h2 className="text-xl font-semibold mb-6 text-slate-100 flex items-center">
                 <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
@@ -89,13 +89,15 @@ const Index = ({ savedConfig, onConfigSave }: IndexProps) => {
                 </svg>
                 Preview
               </h2>
-              <PreviewCard
-                preview={{
-                  buttonStyle: userConfig.buttonStyle,
-                  slug: userConfig.slug,
-                  ensNameOrAddress: userConfig.ensNameOrAddress
-                }}
-              />
+              <div className="transition-all-300 transform hover:scale-[1.02]">
+                <PreviewCard
+                  preview={{
+                    buttonStyle: userConfig.buttonStyle,
+                    slug: userConfig.slug,
+                    ensNameOrAddress: userConfig.ensNameOrAddress
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>

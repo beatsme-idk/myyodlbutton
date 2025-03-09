@@ -48,15 +48,15 @@
 
 @layer utilities {
   .glass-morphism {
-    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-lg;
+    @apply bg-white/10 backdrop-blur-lg border border-white/10 shadow-lg;
   }
   
   .glass-card {
-    @apply bg-white/10 backdrop-blur-xl border border-white/10 shadow-xl;
+    @apply bg-white/5 backdrop-blur-xl border border-white/5 shadow-xl;
   }
   
   .glass-dark {
-    @apply bg-black/40 backdrop-blur-xl border border-white/10 shadow-xl;
+    @apply bg-black/40 backdrop-blur-xl border border-white/5 shadow-xl;
   }
   
   .text-balance {
