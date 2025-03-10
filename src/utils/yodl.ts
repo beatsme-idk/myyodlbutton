@@ -32,9 +32,22 @@ export const generateYodlPaymentLink = (address: string, config?: YodlPaymentCon
     params.append("memo", config.memo);
   }
   
-  // Add redirect URL parameter
+  // Add redirect URL parameter - make sure it's not double-encoded
   if (config.redirectUrl) {
-    params.append("redirectUrl", config.redirectUrl);
+    // First check if the redirectUrl is already encoded
+    let redirectUrl = config.redirectUrl;
+    
+    // If it looks encoded (contains % followed by hex digits), try to decode it once
+    if (/%[0-9A-F]{2}/i.test(redirectUrl)) {
+      try {
+        redirectUrl = decodeURIComponent(redirectUrl);
+      } catch (e) {
+        console.error("Error decoding redirectUrl:", e);
+        // If decoding fails, use the original value
+      }
+    }
+    
+    params.append("redirectUrl", redirectUrl);
   }
   
   const queryString = params.toString();

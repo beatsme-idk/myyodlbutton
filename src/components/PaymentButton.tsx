@@ -34,6 +34,7 @@ const PaymentButton = ({
       // Set the redirect URL if it's not already set
       if (!yodlConfigWithRedirect.redirectUrl) {
         // Use the thank you page URL for this specific user's slug
+        // Use un-encoded URL - the generateYodlPaymentLink function will handle encoding
         yodlConfigWithRedirect.redirectUrl = `${window.location.origin}/thank-you/${slug}`;
       }
       
