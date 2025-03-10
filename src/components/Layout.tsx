@@ -3,7 +3,6 @@ import React, { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import WalletConnect from './WalletConnect';
 
 interface LayoutProps {
   children: ReactNode;
@@ -53,9 +52,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 My Profile
               </Link>
             </nav>
-          </div>
-          <div className="flex items-center gap-4">
-            <WalletConnect />
           </div>
         </div>
       </header>

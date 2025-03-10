@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,7 +11,6 @@ import ThankYouPage from "./pages/ThankYouPage";
 import NotFound from "./pages/NotFound";
 import PaymentHistoryPage from "./pages/YodlConfigPage";
 import { UserConfig, YodlPaymentConfig } from "./types";
-import { Web3Provider } from "./contexts/Web3Context";
 import MyProfilePage from "./components/MyProfilePage";
 
 const queryClient = new QueryClient();
@@ -113,22 +112,20 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Web3Provider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index savedConfig={userConfig} onConfigSave={handleConfigSave} />} />
-              <Route path="/pay/:slug" element={<PaymentPage />} />
-              <Route path="/thank-you/:slug" element={<ThankYouPage />} />
-              <Route path="/payment-history" element={<PaymentHistoryPage />} />
-              <Route path="/profile" element={<MyProfilePage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </Web3Provider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index savedConfig={userConfig} onConfigSave={handleConfigSave} />} />
+            <Route path="/pay/:slug" element={<PaymentPage />} />
+            <Route path="/thank-you/:slug" element={<ThankYouPage />} />
+            <Route path="/payment-history" element={<PaymentHistoryPage />} />
+            <Route path="/profile" element={<MyProfilePage />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
     </QueryClientProvider>
   );
 };

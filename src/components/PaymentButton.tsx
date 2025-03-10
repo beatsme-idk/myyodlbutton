@@ -1,7 +1,7 @@
 
 import { ButtonStyle, YodlPaymentConfig } from "@/types";
 import { useNavigate } from "react-router-dom";
-import { Coffee, ArrowRight, ExternalLink, DollarSign, Heart, HandCoins } from "lucide-react";
+import { Coffee, ArrowRight, DollarSign, Heart, HandCoins } from "lucide-react";
 import { generateYodlPaymentLink } from "@/utils/yodl";
 import { useToast } from "@/hooks/use-toast";
 

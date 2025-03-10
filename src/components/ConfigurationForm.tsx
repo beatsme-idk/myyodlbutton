@@ -8,9 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { validateHexColor, isValidEnsOrAddress, isValidSlug } from "@/utils/validation";
-import { Check, ChevronsUpDown, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload, ExternalLink, Book, Wallet, Droplet, HandCoins, DollarSign, Coffee } from "lucide-react";
+import { Check, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload, ExternalLink, Book, Droplet, HandCoins, DollarSign, Coffee } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { useWeb3 } from "@/contexts/Web3Context";
 import ColorPicker from "./ColorPicker";
 import LoadingSpinner from "./LoadingSpinner";
 import SocialPreviewCard from "./SocialPreviewCard";
@@ -113,39 +112,12 @@ const ConfigurationForm = ({
   const [config, setConfig] = useState<UserConfig>(initialConfig);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { ensNameOrAddress: connectedWalletENS, isConnected } = useWeb3();
   const [useGradient, setUseGradient] = useState(false);
   const [selectedGradient, setSelectedGradient] = useState("none");
   const [paddingHorizontal, setPaddingHorizontal] = useState(24);
   const [paddingVertical, setPaddingVertical] = useState(12);
 
   useEffect(() => {
-    if (isConnected && connectedWalletENS && !config.ensNameOrAddress) {
-      const newConfig = { ...config, ensNameOrAddress: connectedWalletENS };
-      
-      if (!config.slug) {
-        const autoSlug = connectedWalletENS
-          .toLowerCase()
-          .replace('.eth', '')
-          .replace(/[^a-z0-9-]/g, '-')
-          .replace(/-+/g, '-')
-          .replace(/^-|-$/g, '');
-        newConfig.slug = autoSlug;
-      }
-      
-      if (newConfig.yodlConfig) {
-        newConfig.yodlConfig.enabled = true;
-      } else {
-        newConfig.yodlConfig = {
-          ...DEFAULT_CONFIG.yodlConfig!,
-          enabled: true
-        };
-      }
-      
-      setConfig(newConfig);
-      onConfigChange(newConfig);
-    }
-    
     if (config.buttonStyle.padding) {
       const paddingValues = config.buttonStyle.padding.split(" ");
       if (paddingValues.length === 2) {
@@ -161,7 +133,7 @@ const ConfigurationForm = ({
       setUseGradient(false);
       setSelectedGradient("none");
     }
-  }, [isConnected, connectedWalletENS, config.buttonStyle.padding, config.buttonStyle.backgroundColor]);
+  }, [config.buttonStyle.padding, config.buttonStyle.backgroundColor]);
 
   const updateConfig = (key: keyof UserConfig, value: any) => {
     const newConfig = { ...config, [key]: value };
@@ -492,13 +464,7 @@ const ConfigurationForm = ({
                   onChange={(e) => updateConfig("ensNameOrAddress", e.target.value)}
                   placeholder="vitalik.eth or donations.vitalik.eth or 0x123..."
                   className={errors.ensNameOrAddress ? "border-destructive" : ""}
-                  disabled={isConnected}
                 />
-                {isConnected && (
-                  <p className="text-xs text-indigo-400 mt-1">
-                    Using your connected wallet's address
-                  </p>
-                )}
                 {errors.ensNameOrAddress && (
                   <div className="text-destructive text-sm flex items-center gap-1 mt-1">
                     <AlertCircle size={14} />
@@ -1095,4 +1061,3 @@ const ConfigurationForm = ({
 };
 
 export default ConfigurationForm;
-
