@@ -14,7 +14,10 @@ const DEFAULT_BUTTON_STYLE = {
   borderRadius: "9999px",
   fontSize: "16px",
   padding: "12px 24px",
-  buttonText: "Yodl me a coffee"
+  buttonText: "Yodl me a coffee",
+  tipText: "Tip me",
+  donateText: "Donate",
+  payText: "Pay now"
 };
 
 const DEFAULT_THANK_YOU_STYLE = {

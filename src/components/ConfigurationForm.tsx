@@ -31,7 +31,10 @@ const DEFAULT_BUTTON_STYLE: ButtonStyle = {
   padding: "12px 24px",
   buttonText: "Yodl me a coffee",
   buttonTextType: "custom",
-  iconType: "coffee"
+  iconType: "coffee",
+  tipText: "Tip me",
+  donateText: "Donate",
+  payText: "Pay now"
 };
 
 const DEFAULT_THANK_YOU_STYLE: ThankYouPageStyle = {
@@ -375,19 +378,16 @@ const ConfigurationForm = ({
     // Set default text based on type
     switch (type) {
       case "tip":
-        buttonText = "Tip me";
+        buttonText = config.buttonStyle.tipText || "Tip me";
         break;
       case "donate":
-        buttonText = "Donate";
+        buttonText = config.buttonStyle.donateText || "Donate";
         break;
       case "pay":
-        buttonText = "Pay now";
+        buttonText = config.buttonStyle.payText || "Pay now";
         break;
       case "custom":
-        // Keep current text or reset to default if currently using a preset
-        if (["Tip me", "Donate", "Pay now"].includes(buttonText)) {
-          buttonText = "Yodl me a coffee";
-        }
+        // Keep current text
         break;
     }
     
@@ -1095,3 +1095,4 @@ const ConfigurationForm = ({
 };
 
 export default ConfigurationForm;
+

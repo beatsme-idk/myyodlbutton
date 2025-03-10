@@ -1,3 +1,4 @@
+
 import { ButtonStyle, YodlPaymentConfig } from "@/types";
 import { useNavigate } from "react-router-dom";
 import { Coffee, ArrowRight, ExternalLink, DollarSign, Heart, HandCoins } from "lucide-react";
@@ -93,7 +94,22 @@ const PaymentButton = ({
     }
   };
   
+  // Get the appropriate text based on button type
+  const getButtonText = () => {
+    if (style.buttonTextType === "tip" && style.tipText) {
+      return style.tipText;
+    } else if (style.buttonTextType === "donate" && style.donateText) {
+      return style.donateText;
+    } else if (style.buttonTextType === "pay" && style.payText) {
+      return style.payText;
+    }
+    
+    // Fallback to the default buttonText
+    return style.buttonText;
+  };
+  
   const buttonIcon = getButtonIcon();
+  const buttonText = getButtonText();
   
   return (
     <button
@@ -116,12 +132,12 @@ const PaymentButton = ({
               className="w-full h-full drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]"
             />
           </div>
-          <span>{style.buttonText}</span>
+          <span>{buttonText}</span>
         </>
       ) : (
         <>
           {buttonIcon}
-          <span>{style.buttonText}</span>
+          <span>{buttonText}</span>
         </>
       )}
       <ArrowRight className="ml-2 opacity-70" size={16} />
