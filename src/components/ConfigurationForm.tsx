@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { validateHexColor, isValidEnsOrAddress, isValidSlug } from "@/utils/validation";
-import { Check, ChevronsUpDown, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload, ExternalLink, Book, Wallet, Droplet } from "lucide-react";
+import { Check, ChevronsUpDown, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload, ExternalLink, Book, Wallet, Droplet, HandCoins, DollarSign, Coffee } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useWeb3 } from "@/contexts/Web3Context";
 import ColorPicker from "./ColorPicker";
@@ -29,7 +29,8 @@ const DEFAULT_BUTTON_STYLE: ButtonStyle = {
   borderRadius: "9999px",
   fontSize: "16px",
   padding: "12px 24px",
-  buttonText: "Yodl me a coffee"
+  buttonText: "Yodl me a coffee",
+  buttonTextType: "custom"
 };
 
 const DEFAULT_THANK_YOU_STYLE: ThankYouPageStyle = {
@@ -360,7 +361,40 @@ const ConfigurationForm = ({
       updateButtonStyle("backgroundColor", value);
     }
   };
-  
+
+  const handleButtonTextTypeChange = (type: ButtonStyle["buttonTextType"]) => {
+    let buttonText = config.buttonStyle.buttonText;
+    
+    // Set default text based on type
+    switch (type) {
+      case "tip":
+        buttonText = "Tip me";
+        break;
+      case "donate":
+        buttonText = "Donate";
+        break;
+      case "pay":
+        buttonText = "Pay now";
+        break;
+      case "custom":
+        // Keep current text or reset to default if currently using a preset
+        if (["Tip me", "Donate", "Pay now"].includes(buttonText)) {
+          buttonText = "Yodl me a coffee";
+        }
+        break;
+    }
+    
+    const newButtonStyle = { 
+      ...config.buttonStyle, 
+      buttonTextType: type,
+      buttonText: buttonText
+    };
+    
+    const newConfig = { ...config, buttonStyle: newButtonStyle };
+    setConfig(newConfig);
+    onConfigChange(newConfig);
+  };
+
   return (
     <form onSubmit={handleSubmit}>
       <Card className="w-full animate-slide-up">
@@ -583,6 +617,51 @@ const ConfigurationForm = ({
                 </div>
               )}
               
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <Book className="w-5 h-5 text-indigo-400" />
+                  <Label>Button Text Type</Label>
+                </div>
+                
+                <RadioGroup 
+                  value={config.buttonStyle.buttonTextType || "custom"} 
+                  onValueChange={(value) => handleButtonTextTypeChange(value as ButtonStyle["buttonTextType"])}
+                  className="grid grid-cols-2 gap-3"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="tip" id="tip-text" />
+                    <Label htmlFor="tip-text" className="flex items-center">
+                      <HandCoins className="w-4 h-4 mr-2 text-green-400" />
+                      Tip
+                    </Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="donate" id="donate-text" />
+                    <Label htmlFor="donate-text" className="flex items-center">
+                      <Heart className="w-4 h-4 mr-2 text-pink-400" />
+                      Donate
+                    </Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="pay" id="pay-text" />
+                    <Label htmlFor="pay-text" className="flex items-center">
+                      <DollarSign className="w-4 h-4 mr-2 text-blue-400" />
+                      Pay
+                    </Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="custom" id="custom-text" />
+                    <Label htmlFor="custom-text" className="flex items-center">
+                      <Coffee className="w-4 h-4 mr-2 text-amber-400" />
+                      Custom
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+              
               <div className="space-y-2">
                 <Label htmlFor="buttonText">Button Text</Label>
                 <Input
@@ -591,7 +670,13 @@ const ConfigurationForm = ({
                   onChange={(e) => updateButtonStyle("buttonText", e.target.value)}
                   placeholder="Yodl me a coffee"
                   className={errors["buttonStyle.buttonText"] ? "border-destructive" : ""}
+                  disabled={config.buttonStyle.buttonTextType !== "custom"}
                 />
+                {config.buttonStyle.buttonTextType !== "custom" && (
+                  <p className="text-xs text-slate-400 mt-1">
+                    Select "Custom" to use your own button text
+                  </p>
+                )}
                 {errors["buttonStyle.buttonText"] && (
                   <div className="text-destructive text-sm flex items-center gap-1 mt-1">
                     <AlertCircle size={14} />
@@ -902,4 +987,3 @@ const ConfigurationForm = ({
 };
 
 export default ConfigurationForm;
-

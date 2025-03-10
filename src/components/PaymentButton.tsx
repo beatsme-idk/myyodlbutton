@@ -1,7 +1,7 @@
 
 import { ButtonStyle, YodlPaymentConfig } from "@/types";
 import { useNavigate } from "react-router-dom";
-import { Coffee, ArrowRight, ExternalLink } from "lucide-react";
+import { Coffee, ArrowRight, ExternalLink, DollarSign, Heart, HandCoins } from "lucide-react";
 import { generateYodlPaymentLink } from "@/utils/yodl";
 import { useToast } from "@/hooks/use-toast";
 
@@ -60,6 +60,21 @@ const PaymentButton = ({
     navigate(`/thank-you/${slug}`);
   };
   
+  // Get the appropriate icon based on button text type
+  const getButtonIcon = () => {
+    switch (style.buttonTextType) {
+      case "tip":
+        return <HandCoins className="mr-2" size={20} />;
+      case "donate":
+        return <Heart className="mr-2" size={20} />;
+      case "pay":
+        return <DollarSign className="mr-2" size={20} />;
+      case "custom":
+      default:
+        return <Coffee className="mr-2" size={20} />;
+    }
+  };
+  
   return (
     <button
       className={`inline-flex items-center justify-center transition-all-300 shadow-[0_4px_14px_rgba(0,0,0,0.25)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.35)] hover:-translate-y-1 ${className}`}
@@ -81,11 +96,11 @@ const PaymentButton = ({
               className="w-full h-full drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]"
             />
           </div>
-          <span>{style.buttonText} with Yodl</span>
+          <span>{style.buttonText}</span>
         </>
       ) : (
         <>
-          <Coffee className="mr-2" size={20} />
+          {getButtonIcon()}
           <span>{style.buttonText}</span>
         </>
       )}
