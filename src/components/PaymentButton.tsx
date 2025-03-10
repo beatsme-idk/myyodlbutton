@@ -1,4 +1,3 @@
-
 import { ButtonStyle, YodlPaymentConfig } from "@/types";
 import { useNavigate } from "react-router-dom";
 import { Coffee, ArrowRight, ExternalLink, DollarSign, Heart, HandCoins } from "lucide-react";
@@ -60,8 +59,27 @@ const PaymentButton = ({
     navigate(`/thank-you/${slug}`);
   };
   
-  // Get the appropriate icon based on button text type
+  // Get the appropriate icon based on button text type or explicit icon type
   const getButtonIcon = () => {
+    // Use iconType if explicitly set
+    if (style.iconType) {
+      switch (style.iconType) {
+        case "coffee":
+          return <Coffee className="mr-2" size={20} />;
+        case "heart":
+          return <Heart className="mr-2" size={20} />;
+        case "dollar-sign":
+          return <DollarSign className="mr-2" size={20} />;
+        case "hand-coins":
+          return <HandCoins className="mr-2" size={20} />;
+        case "none":
+          return null;
+        default:
+          return <Coffee className="mr-2" size={20} />;
+      }
+    }
+    
+    // Fall back to buttonTextType if iconType not set
     switch (style.buttonTextType) {
       case "tip":
         return <HandCoins className="mr-2" size={20} />;
@@ -74,6 +92,8 @@ const PaymentButton = ({
         return <Coffee className="mr-2" size={20} />;
     }
   };
+  
+  const buttonIcon = getButtonIcon();
   
   return (
     <button
@@ -100,7 +120,7 @@ const PaymentButton = ({
         </>
       ) : (
         <>
-          {getButtonIcon()}
+          {buttonIcon}
           <span>{style.buttonText}</span>
         </>
       )}

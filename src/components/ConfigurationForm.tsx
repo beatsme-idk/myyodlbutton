@@ -30,14 +30,21 @@ const DEFAULT_BUTTON_STYLE: ButtonStyle = {
   fontSize: "16px",
   padding: "12px 24px",
   buttonText: "Yodl me a coffee",
-  buttonTextType: "custom"
+  buttonTextType: "custom",
+  iconType: "coffee"
 };
 
 const DEFAULT_THANK_YOU_STYLE: ThankYouPageStyle = {
   backgroundColor: "#F9FAFB",
   textColor: "#111827",
   message: "Thank you for your support! It means a lot to me.",
-  showConfetti: true
+  showConfetti: true,
+  accentColor: "#8B5CF6",
+  headerText: "Thank You!",
+  showTransactionDetails: true,
+  showReturnHomeButton: true,
+  showShareButton: true,
+  animation: "bounce"
 };
 
 const DEFAULT_SOCIAL_PREVIEW: SocialPreviewStyle = {
@@ -393,6 +400,21 @@ const ConfigurationForm = ({
     const newConfig = { ...config, buttonStyle: newButtonStyle };
     setConfig(newConfig);
     onConfigChange(newConfig);
+  };
+
+  const handleButtonIconTypeChange = (iconType: ButtonStyle["iconType"]) => {
+    const newButtonStyle = { 
+      ...config.buttonStyle, 
+      iconType: iconType
+    };
+    
+    const newConfig = { ...config, buttonStyle: newButtonStyle };
+    setConfig(newConfig);
+    onConfigChange(newConfig);
+  };
+
+  const handleAnimationChange = (animation: ThankYouPageStyle["animation"]) => {
+    updateThankYouStyle("animation", animation);
   };
 
   return (
@@ -770,7 +792,7 @@ const ConfigurationForm = ({
                     color: config.thankYouPage.textColor
                   }}
                 >
-                  <h4 className="text-2xl font-bold mb-4">Thank You!</h4>
+                  <h4 className="text-2xl font-bold mb-4">{config.thankYouPage.headerText || "Thank You!"}</h4>
                   <p className="opacity-80">{config.thankYouPage.message}</p>
                   {config.thankYouPage.showConfetti && (
                     <div className="mt-4 text-sm">✨ Confetti will appear here ✨</div>
@@ -808,6 +830,27 @@ const ConfigurationForm = ({
                 </div>
               </div>
               
+              <div className="space-y-3">
+                <Label htmlFor="tyAccentColor">Accent Color</Label>
+                <ColorPicker 
+                  color={config.thankYouPage.accentColor || "#8B5CF6"} 
+                  onChange={(color) => updateThankYouStyle("accentColor", color)}
+                />
+                <p className="text-xs text-slate-400">
+                  Used for highlights, icons, and decorative elements
+                </p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="tyHeaderText">Header Text</Label>
+                <Input
+                  id="tyHeaderText"
+                  value={config.thankYouPage.headerText || "Thank You!"}
+                  onChange={(e) => updateThankYouStyle("headerText", e.target.value)}
+                  placeholder="Thank You!"
+                />
+              </div>
+              
               <div className="space-y-2">
                 <Label htmlFor="tyMessage">Thank You Message</Label>
                 <Textarea
@@ -824,14 +867,79 @@ const ConfigurationForm = ({
                   </div>
                 )}
               </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <Settings className="w-5 h-5 text-indigo-400" />
+                  <Label>Animation Style</Label>
+                </div>
+                
+                <RadioGroup 
+                  value={config.thankYouPage.animation || "bounce"} 
+                  onValueChange={(value) => handleAnimationChange(value as ThankYouPageStyle["animation"])}
+                  className="grid grid-cols-2 gap-3"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="bounce" id="bounce-anim" />
+                    <Label htmlFor="bounce-anim">Bounce</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="pulse" id="pulse-anim" />
+                    <Label htmlFor="pulse-anim">Pulse</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="wave" id="wave-anim" />
+                    <Label htmlFor="wave-anim">Wave</Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="none" id="no-anim" />
+                    <Label htmlFor="no-anim">None</Label>
+                  </div>
+                </RadioGroup>
+              </div>
               
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="showConfetti"
-                  checked={config.thankYouPage.showConfetti}
-                  onCheckedChange={(checked) => updateThankYouStyle("showConfetti", checked)}
-                />
-                <Label htmlFor="showConfetti">Show confetti animation</Label>
+              <div className="space-y-4">
+                <Label>Display Options</Label>
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="showConfetti"
+                      checked={config.thankYouPage.showConfetti}
+                      onCheckedChange={(checked) => updateThankYouStyle("showConfetti", checked)}
+                    />
+                    <Label htmlFor="showConfetti">Show confetti animation</Label>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="showTransactionDetails"
+                      checked={config.thankYouPage.showTransactionDetails !== false}
+                      onCheckedChange={(checked) => updateThankYouStyle("showTransactionDetails", checked)}
+                    />
+                    <Label htmlFor="showTransactionDetails">Show transaction details</Label>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="showReturnHomeButton"
+                      checked={config.thankYouPage.showReturnHomeButton !== false}
+                      onCheckedChange={(checked) => updateThankYouStyle("showReturnHomeButton", checked)}
+                    />
+                    <Label htmlFor="showReturnHomeButton">Show return home button</Label>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="showShareButton"
+                      checked={config.thankYouPage.showShareButton !== false}
+                      onCheckedChange={(checked) => updateThankYouStyle("showShareButton", checked)}
+                    />
+                    <Label htmlFor="showShareButton">Show share button</Label>
+                  </div>
+                </div>
               </div>
             </TabsContent>
 

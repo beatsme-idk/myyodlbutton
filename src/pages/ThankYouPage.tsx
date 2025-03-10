@@ -21,7 +21,13 @@ const getThankYouConfig = (slug: string): ThankYouPageStyle | null => {
       backgroundColor: "#F9FAFB",
       textColor: "#111827",
       message: "Thank you for your support! It means a lot to me.",
-      showConfetti: true
+      showConfetti: true,
+      accentColor: "#8B5CF6",
+      headerText: "Thank You!",
+      showTransactionDetails: true,
+      showReturnHomeButton: true,
+      showShareButton: true,
+      animation: "bounce"
     }
   };
   
@@ -42,7 +48,13 @@ const ThankYouPage = () => {
           backgroundColor: "#F9FAFB",
           textColor: "#111827",
           message: "Thank you for your support!",
-          showConfetti: true
+          showConfetti: true,
+          accentColor: "#8B5CF6",
+          headerText: "Thank You!",
+          showTransactionDetails: true,
+          showReturnHomeButton: true,
+          showShareButton: true,
+          animation: "bounce"
         });
         setLoading(false);
       }, 500);
@@ -73,7 +85,13 @@ const ThankYouPage = () => {
         message: config.message,
         showConfetti: config.showConfetti,
         backgroundColor: config.backgroundColor,
-        textColor: config.textColor
+        textColor: config.textColor,
+        accentColor: config.accentColor,
+        headerText: config.headerText,
+        showTransactionDetails: config.showTransactionDetails,
+        showReturnHomeButton: config.showReturnHomeButton,
+        showShareButton: config.showShareButton,
+        animation: config.animation
       }}
     />
   );
