@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { YodlPaymentConfig } from "@/types";
 import { Input } from "@/components/ui/input";
@@ -14,7 +13,6 @@ import { parseYodlConfigFromENS } from "@/utils/yodl";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 
-// Predefined lists of tokens and chains
 const SUPPORTED_TOKENS = [
   { value: "USDC", label: "USDC" },
   { value: "USDT", label: "USDT" },
@@ -47,7 +45,6 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
   const [webhooks, setWebhooks] = useState<string[]>(config.webhooks || []);
   const { address, isConnected } = useAccount();
   
-  // Selected tokens and chains state
   const [selectedTokens, setSelectedTokens] = useState<string[]>(
     config.tokens ? config.tokens.split(',').map(token => token.trim()) : []
   );
@@ -55,7 +52,6 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
     config.chains ? config.chains.split(',').map(chain => chain.trim()) : []
   );
   
-  // Fetch Yodl preferences from ENS
   useEffect(() => {
     if (isConnected && address) {
       const fetchYodlConfig = async () => {
@@ -63,18 +59,15 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
         try {
           const ensYodlConfig = await parseYodlConfigFromENS(address);
           if (ensYodlConfig) {
-            // Merge ENS config with current config but keep enabled always true
             onChange({
               ...config,
               ...ensYodlConfig,
               enabled: true,
-              // Keep webhooks from current config if not provided in ENS
               webhooks: ensYodlConfig.webhooks || config.webhooks || []
             });
             
             setWebhooks(ensYodlConfig.webhooks || config.webhooks || []);
             
-            // Update selected tokens and chains
             if (ensYodlConfig.tokens) {
               setSelectedTokens(ensYodlConfig.tokens.split(',').map(token => token.trim()));
             }
@@ -121,8 +114,7 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
     setWebhooks(newWebhooks);
     updateConfig("webhooks", newWebhooks);
   };
-  
-  // Handle token selection
+
   const toggleToken = (value: string) => {
     const newSelectedTokens = selectedTokens.includes(value)
       ? selectedTokens.filter(token => token !== value)
@@ -131,8 +123,7 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
     setSelectedTokens(newSelectedTokens);
     updateConfig("tokens", newSelectedTokens.join(','));
   };
-  
-  // Handle chain selection
+
   const toggleChain = (value: string) => {
     const newSelectedChains = selectedChains.includes(value)
       ? selectedChains.filter(chain => chain !== value)
@@ -144,7 +135,6 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Yodl is now always enabled, showing info with new logo */}
       <div className="flex items-center bg-green-900/20 border border-green-500/20 p-3 rounded-lg">
         <div className="w-5 h-5 mr-2 relative">
           <img 
@@ -300,6 +290,22 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
             />
             <p className="text-xs text-slate-400">
               This will be shown to the sender as a default memo
+            </p>
+          </div>
+          
+          <div className="space-y-3">
+            <Label htmlFor="redirectUrl">
+              Redirect URL After Payment (optional)
+            </Label>
+            <Input
+              id="redirectUrl"
+              type="text"
+              value={config.redirectUrl || ""}
+              onChange={(e) => updateConfig("redirectUrl", e.target.value)}
+              placeholder={`https://tributee.lovable.app/thank-you/${window.location.pathname.split('/').pop() || 'your-slug'}`}
+            />
+            <p className="text-xs text-slate-400">
+              After payment completion, users will be redirected to this URL
             </p>
           </div>
           

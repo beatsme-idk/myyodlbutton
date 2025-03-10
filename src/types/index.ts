@@ -1,4 +1,3 @@
-
 export interface ButtonStyle {
   backgroundColor: string;
   textColor: string;
@@ -24,12 +23,13 @@ export interface SocialPreviewStyle {
 
 export interface YodlPaymentConfig {
   enabled: boolean;
-  tokens: string;
-  chains: string;
-  currency: string;
+  tokens?: string;
+  chains?: string;
+  currency?: string;
   amount?: string;
   memo?: string;
   webhooks?: string[];
+  redirectUrl?: string;
 }
 
 export interface UserConfig {

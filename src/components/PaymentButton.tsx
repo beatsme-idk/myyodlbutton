@@ -28,7 +28,16 @@ const PaymentButton = ({
   const handleClick = () => {
     // Always use Yodl payment if config exists
     if (yodlConfig && yodlConfig.enabled) {
-      const yodlLink = generateYodlPaymentLink(ensNameOrAddress, yodlConfig);
+      // Create a copy of the yodlConfig to avoid modifying the original
+      const yodlConfigWithRedirect = { ...yodlConfig };
+      
+      // Set the redirect URL if it's not already set
+      if (!yodlConfigWithRedirect.redirectUrl) {
+        // Use the thank you page URL for this specific user's slug
+        yodlConfigWithRedirect.redirectUrl = `${window.location.origin}/thank-you/${slug}`;
+      }
+      
+      const yodlLink = generateYodlPaymentLink(ensNameOrAddress, yodlConfigWithRedirect);
       if (yodlLink) {
         window.open(yodlLink, "_blank");
         toast({

@@ -32,6 +32,11 @@ export const generateYodlPaymentLink = (address: string, config?: YodlPaymentCon
     params.append("memo", config.memo);
   }
   
+  // Add redirect URL parameter
+  if (config.redirectUrl) {
+    params.append("redirectUrl", config.redirectUrl);
+  }
+  
   const queryString = params.toString();
   if (queryString) {
     url += `?${queryString}`;

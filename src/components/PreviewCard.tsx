@@ -16,8 +16,17 @@ const PreviewCard = ({ preview }: PreviewProps) => {
   const [showSocialPreview, setShowSocialPreview] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
   const paymentUrl = `https://tributee.lovable.app/pay/${preview.slug}`;
-  const yodlUrl = preview.yodlConfig?.enabled 
-    ? generateYodlPaymentLink(preview.ensNameOrAddress, preview.yodlConfig)
+  
+  // Add the thank you page redirect URL to the Yodl config if needed
+  const yodlConfig = preview.yodlConfig?.enabled 
+    ? {
+        ...preview.yodlConfig,
+        redirectUrl: preview.yodlConfig.redirectUrl || `${window.location.origin}/thank-you/${preview.slug}`
+      }
+    : null;
+    
+  const yodlUrl = yodlConfig 
+    ? generateYodlPaymentLink(preview.ensNameOrAddress, yodlConfig)
     : null;
   
   const handleCopy = (url: string) => {
@@ -51,7 +60,7 @@ const PreviewCard = ({ preview }: PreviewProps) => {
               style={preview.buttonStyle}
               ensNameOrAddress={preview.ensNameOrAddress}
               slug={preview.slug}
-              yodlConfig={preview.yodlConfig}
+              yodlConfig={yodlConfig}
             />
           </div>
         </div>
@@ -168,6 +177,14 @@ const PreviewCard = ({ preview }: PreviewProps) => {
               <Sparkles size={12} className="text-green-400" />
               Your audience will be able to pay you with various tokens on multiple blockchains
             </div>
+            
+            {/* Display redirect information */}
+            {yodlConfig?.redirectUrl && (
+              <div className="text-xs text-slate-400 mt-1 flex items-center gap-2">
+                <Sparkles size={12} className="text-green-400" />
+                After payment, users will be redirected to your custom thank you page
+              </div>
+            )}
           </div>
         )}
       </CardContent>
