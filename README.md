@@ -1,69 +1,104 @@
-# Welcome to your Lovable project
 
-## Project info
+# Tributee - Web3 Donation Platform
 
-**URL**: https://lovable.dev/projects/cdd9897f-5fd8-4016-8dbe-9155f7b37462
+Tributee is a powerful, easy-to-use web application that allows anyone to create customizable donation/support buttons for their content or services. The platform leverages Web3 technology through Yodl integration to enable crypto payments, making it accessible globally.
 
-## How can I edit this code?
+## 🚀 Features
 
-There are several ways of editing your application.
+### Customizable Payment Buttons
+- **Fully customizable appearance**: Change colors, border radius, padding, and font size
+- **Flexible button text**: Choose from predefined types (tip, donate, pay) or create custom text
+- **Icon customization**: Select from a variety of icons (coffee, heart, dollar-sign, hand-coins) or use none
+- **Yodl integration**: Accept cryptocurrency payments across multiple blockchains
 
-**Use Lovable**
+### Beautiful Thank You Pages
+- **Personalize the experience**: Custom thank you messages, colors, and animations
+- **Confetti effect**: Option to show a celebratory confetti animation
+- **Transaction details**: Optionally display payment information
+- **Social sharing**: Allow supporters to share their contributions
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/cdd9897f-5fd8-4016-8dbe-9155f7b37462) and start prompting.
+### User-Friendly Configuration
+- **Live preview**: See changes in real-time as you customize your button
+- **Simple setup**: No technical knowledge required
+- **Persistent settings**: Your configurations are saved automatically
+- **Shareable links**: Generate unique URLs for your payment buttons
 
-Changes made via Lovable will be committed automatically to this repo.
+### Payment Analytics
+- **Track contributions**: View your payment history and analytics
+- **Insightful metrics**: Understand when and how people are supporting you
 
-**Use your preferred IDE**
+### Web3 Integration
+- **ENS compatibility**: Use your Ethereum Name Service domain
+- **Multi-chain support**: Accept payments across various blockchains
+- **Stablecoin options**: Support for USDC, USDT, and more
+- **Secure transactions**: All payments are processed securely via Yodl
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 💡 How It Works
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. **Create your button**: Customize the appearance and text of your payment button
+2. **Configure payment options**: Set up your ENS name or wallet address and Yodl payment preferences
+3. **Share your unique link**: Distribute your payment URL to your audience
+4. **Receive payments**: Supporters can easily send you crypto with just a few clicks
+5. **View analytics**: Track your contributions through the payment history page
 
-Follow these steps:
+## ⚙️ Technical Details
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Tributee is built with modern web technologies:
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+- **Frontend**: React.js with TypeScript
+- **Styling**: Tailwind CSS with shadcn/ui components
+- **Routing**: React Router for seamless navigation
+- **State Management**: React Query for efficient data fetching
+- **Storage**: Local storage for saving user configurations
+- **Payment Processing**: Yodl API integration for Web3 payments
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🤝 Use Cases
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+- **Content creators**: Accept tips from your audience
+- **Freelancers**: Set up quick payment links for clients
+- **Open source developers**: Receive donations for your work
+- **Charities**: Create donation buttons for causes
+- **Bloggers**: Monetize your content with support buttons
+- **Artists**: Allow fans to support your creative work
+
+## 🌐 Getting Started
+
+1. Visit the home page and start customizing your payment button
+2. Enter your ENS name or wallet address
+3. Choose your preferred style and text options
+4. Enable Yodl payments and configure your preferred tokens and chains
+5. Save your configuration and share your unique payment link
+
+## 🔒 Privacy & Security
+
+- Your wallet address is only used for receiving payments
+- No private keys or sensitive information is stored
+- All transactions are processed securely through the Yodl protocol
+
+## 🛠️ Development
+
+This project is built with Vite, TypeScript, React, shadcn-ui, and Tailwind CSS. If you want to run it locally:
+
+```bash
+# Clone the repository
+git clone <repository-url>
+
+# Navigate to the project directory
+cd tributee
+
+# Install dependencies
+npm install
+
+# Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## 📚 Additional Resources
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- [Yodl Documentation](https://docs.yodl.me)
+- [ENS Documentation](https://docs.ens.domains)
+- [Web3 Payments Guide](https://ethereum.org/en/developers/docs/web3/)
 
-**Use GitHub Codespaces**
+## 📱 Compatibility
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/cdd9897f-5fd8-4016-8dbe-9155f7b37462) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+Tributee works on all modern browsers and is fully responsive for mobile, tablet, and desktop devices.
