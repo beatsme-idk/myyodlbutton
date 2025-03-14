@@ -1,7 +1,7 @@
 
 import { ButtonStyle } from "@/types";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ArrowRight, Heart, Star, Check } from "lucide-react";
+import { ArrowRight, Heart, Star, Coffee, HandCoins } from "lucide-react";
 
 interface MobileButtonPreviewProps {
   buttonStyle: ButtonStyle;
@@ -17,14 +17,14 @@ const MobileButtonPreview = ({ buttonStyle }: MobileButtonPreviewProps) => {
     if (!buttonStyle.iconType || buttonStyle.iconType === "none") return null;
     
     switch (buttonStyle.iconType) {
-      case "arrow-right":
-        return <ArrowRight className="mr-2" size={16} />;
+      case "hand-coins":
+        return <HandCoins className="mr-2" size={16} />;
       case "heart":
         return <Heart className="mr-2" size={16} />;
       case "star":
         return <Star className="mr-2" size={16} />;
-      case "check":
-        return <Check className="mr-2" size={16} />;
+      case "coffee":
+        return <Coffee className="mr-2" size={16} />;
       default:
         return null;
     }

@@ -5,7 +5,7 @@ export interface ButtonStyle {
   fontSize: string;
   padding: string;
   buttonText: string;
-  iconType?: "arrow-right" | "heart" | "star" | "check" | "none";
+  iconType?: "hand-coins" | "heart" | "star" | "coffee" | "none";
 }
 
 export interface ThankYouPageStyle {

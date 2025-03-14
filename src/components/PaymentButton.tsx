@@ -1,6 +1,6 @@
 import { ButtonStyle, YodlPaymentConfig } from "@/types";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Heart, Star, Check } from "lucide-react";
+import { ArrowRight, Heart, Star, Coffee, HandCoins } from "lucide-react";
 import { generateYodlPaymentLink } from "@/utils/yodl";
 import { useToast } from "@/hooks/use-toast";
 
@@ -64,14 +64,14 @@ const PaymentButton = ({
     if (!style.iconType || style.iconType === "none") return null;
     
     switch (style.iconType) {
-      case "arrow-right":
-        return <ArrowRight className="mr-2" size={20} />;
+      case "hand-coins":
+        return <HandCoins className="mr-2" size={20} />;
       case "heart":
         return <Heart className="mr-2" size={20} />;
       case "star":
         return <Star className="mr-2" size={20} />;
-      case "check":
-        return <Check className="mr-2" size={20} />;
+      case "coffee":
+        return <Coffee className="mr-2" size={20} />;
       default:
         return null;
     }
