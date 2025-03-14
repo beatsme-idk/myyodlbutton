@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { UserConfig, ButtonStyle, ThankYouPageStyle, SocialPreviewStyle, YodlPaymentConfig } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -1062,5 +1063,9 @@ const ConfigurationForm = ({
         </div>
       </Card>
       
-      <
+      {isMobile && <MobileButtonPreview buttonStyle={config.buttonStyle} />}
+    </form>
+  );
+};
 
+export default ConfigurationForm;
