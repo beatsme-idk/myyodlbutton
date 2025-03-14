@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { UserConfig, ButtonStyle, ThankYouPageStyle, SocialPreviewStyle, YodlPaymentConfig } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,15 +8,14 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { validateHexColor, isValidEnsOrAddress, isValidSlug } from "@/utils/validation";
-import { Check, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload, ExternalLink, Book, Droplet, HandCoins, DollarSign, Coffee, Star, ArrowRight } from "lucide-react";
+import { Check, ChevronsUpDown, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload, ExternalLink, Book, Wallet, Droplet } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useWeb3 } from "@/contexts/Web3Context";
 import ColorPicker from "./ColorPicker";
 import LoadingSpinner from "./LoadingSpinner";
 import SocialPreviewCard from "./SocialPreviewCard";
 import YodlConfig from "./YodlConfig";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import MobileButtonPreview from "./MobileButtonPreview";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ConfigurationFormProps {
   initialConfig?: UserConfig;
@@ -31,21 +29,14 @@ const DEFAULT_BUTTON_STYLE: ButtonStyle = {
   borderRadius: "9999px",
   fontSize: "16px",
   padding: "12px 24px",
-  buttonText: "Support me",
-  iconType: "none"
+  buttonText: "Yodl me a coffee"
 };
 
 const DEFAULT_THANK_YOU_STYLE: ThankYouPageStyle = {
   backgroundColor: "#F9FAFB",
   textColor: "#111827",
   message: "Thank you for your support! It means a lot to me.",
-  showConfetti: true,
-  accentColor: "#8B5CF6",
-  headerText: "Thank You!",
-  showTransactionDetails: true,
-  showReturnHomeButton: true,
-  showShareButton: true,
-  animation: "bounce"
+  showConfetti: true
 };
 
 const DEFAULT_SOCIAL_PREVIEW: SocialPreviewStyle = {
@@ -111,13 +102,39 @@ const ConfigurationForm = ({
   const [config, setConfig] = useState<UserConfig>(initialConfig);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { ensNameOrAddress: connectedWalletENS, isConnected } = useWeb3();
   const [useGradient, setUseGradient] = useState(false);
   const [selectedGradient, setSelectedGradient] = useState("none");
   const [paddingHorizontal, setPaddingHorizontal] = useState(24);
   const [paddingVertical, setPaddingVertical] = useState(12);
-  const isMobile = useIsMobile();
 
   useEffect(() => {
+    if (isConnected && connectedWalletENS && !config.ensNameOrAddress) {
+      const newConfig = { ...config, ensNameOrAddress: connectedWalletENS };
+      
+      if (!config.slug) {
+        const autoSlug = connectedWalletENS
+          .toLowerCase()
+          .replace('.eth', '')
+          .replace(/[^a-z0-9-]/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '');
+        newConfig.slug = autoSlug;
+      }
+      
+      if (newConfig.yodlConfig) {
+        newConfig.yodlConfig.enabled = true;
+      } else {
+        newConfig.yodlConfig = {
+          ...DEFAULT_CONFIG.yodlConfig!,
+          enabled: true
+        };
+      }
+      
+      setConfig(newConfig);
+      onConfigChange(newConfig);
+    }
+    
     if (config.buttonStyle.padding) {
       const paddingValues = config.buttonStyle.padding.split(" ");
       if (paddingValues.length === 2) {
@@ -133,7 +150,7 @@ const ConfigurationForm = ({
       setUseGradient(false);
       setSelectedGradient("none");
     }
-  }, [config.buttonStyle.padding, config.buttonStyle.backgroundColor]);
+  }, [isConnected, connectedWalletENS, config.buttonStyle.padding, config.buttonStyle.backgroundColor]);
 
   const updateConfig = (key: keyof UserConfig, value: any) => {
     const newConfig = { ...config, [key]: value };
@@ -334,6 +351,7 @@ const ConfigurationForm = ({
     setSelectedGradient(value);
     if (value === "none") {
       setUseGradient(false);
+      // Reset to solid color
       if (config.buttonStyle.backgroundColor.includes("linear-gradient")) {
         updateButtonStyle("backgroundColor", "#1E40AF");
       }
@@ -342,22 +360,7 @@ const ConfigurationForm = ({
       updateButtonStyle("backgroundColor", value);
     }
   };
-
-  const handleIconTypeChange = (iconType: ButtonStyle["iconType"]) => {
-    const newButtonStyle = { 
-      ...config.buttonStyle, 
-      iconType: iconType
-    };
-    
-    const newConfig = { ...config, buttonStyle: newButtonStyle };
-    setConfig(newConfig);
-    onConfigChange(newConfig);
-  };
-
-  const handleAnimationChange = (animation: ThankYouPageStyle["animation"]) => {
-    updateThankYouStyle("animation", animation);
-  };
-
+  
   return (
     <form onSubmit={handleSubmit}>
       <Card className="w-full animate-slide-up">
@@ -366,7 +369,7 @@ const ConfigurationForm = ({
             Configure Your Payment Button
           </CardTitle>
           <CardDescription>
-            Customize how your button looks and behaves
+            Customize how your "Yodl Me a Coffee" button looks and behaves
           </CardDescription>
         </CardHeader>
         
@@ -401,77 +404,271 @@ const ConfigurationForm = ({
               </TabsTrigger>
             </TabsList>
             
+            <TabsContent value="general" className="space-y-4">
+              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-6">
+                <div className="flex items-center mb-4">
+                  <Lightbulb className="w-5 h-5 text-yellow-500 mr-2" />
+                  <h3 className="text-lg font-semibold">Quick Tips</h3>
+                </div>
+                <ul className="space-y-2 text-sm text-slate-300">
+                  <li className="flex items-center">
+                    <span className="mr-2 text-indigo-400">•</span>
+                    Use an ENS name for better recognition
+                  </li>
+                  <li className="flex items-center">
+                    <span className="mr-2 text-indigo-400">•</span>
+                    Create a memorable slug for easy sharing
+                  </li>
+                  <li className="flex items-center">
+                    <span className="mr-2 text-indigo-400">•</span>
+                    Subdomains are supported (e.g., donations.vitalik.eth)
+                  </li>
+                </ul>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="ensNameOrAddress">
+                  ENS Name or Ethereum Address
+                </Label>
+                <Input
+                  id="ensNameOrAddress"
+                  value={config.ensNameOrAddress}
+                  onChange={(e) => updateConfig("ensNameOrAddress", e.target.value)}
+                  placeholder="vitalik.eth or donations.vitalik.eth or 0x123..."
+                  className={errors.ensNameOrAddress ? "border-destructive" : ""}
+                  disabled={isConnected}
+                />
+                {isConnected && (
+                  <p className="text-xs text-indigo-400 mt-1">
+                    Using your connected wallet's address
+                  </p>
+                )}
+                {errors.ensNameOrAddress && (
+                  <div className="text-destructive text-sm flex items-center gap-1 mt-1">
+                    <AlertCircle size={14} />
+                    {errors.ensNameOrAddress}
+                  </div>
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="slug">Custom URL Slug</Label>
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={generateRandomSlug}
+                    className="h-8 px-2 text-xs"
+                  >
+                    Generate Random
+                  </Button>
+                </div>
+                <div className="flex rounded-lg shadow-sm">
+                  <span className="inline-flex items-center px-4 bg-slate-800/50 border border-r-0 border-slate-700/50 rounded-l-lg text-slate-400 text-sm">
+                    https://tributee.lovable.app/pay/
+                  </span>
+                  <Input
+                    id="slug"
+                    value={config.slug}
+                    onChange={(e) => updateConfig("slug", e.target.value)}
+                    placeholder="my-coffee-button"
+                    className={`rounded-none rounded-r-lg ${errors.slug ? "border-destructive" : ""}`}
+                  />
+                </div>
+                {errors.slug && (
+                  <div className="text-destructive text-sm flex items-center gap-1 mt-1">
+                    <AlertCircle size={14} />
+                    {errors.slug}
+                  </div>
+                )}
+                <div className="text-muted-foreground text-xs mt-1">
+                  This will be used in your payment URL: https://tributee.lovable.app/pay/<strong>{config.slug || "your-slug"}</strong>
+                </div>
+              </div>
+            </TabsContent>
+            
             <TabsContent value="button" className="space-y-6">
+              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-4">
+                <h3 className="text-lg font-semibold mb-4">Button Preview</h3>
+                <div className="flex items-center justify-center p-8 bg-slate-900/50 rounded-lg">
+                  <button
+                    className="inline-flex items-center justify-center shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
+                    style={{
+                      background: config.buttonStyle.backgroundColor,
+                      color: config.buttonStyle.textColor,
+                      borderRadius: config.buttonStyle.borderRadius,
+                      fontSize: config.buttonStyle.fontSize,
+                      padding: config.buttonStyle.padding,
+                    }}
+                  >
+                    {config.buttonStyle.buttonText}
+                  </button>
+                </div>
+              </div>
+            
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-1">
-                  <Book className="w-5 h-5 text-indigo-400" />
-                  <Label className="text-base font-medium">Button Text & Icon</Label>
+                  <Droplet className="w-5 h-5 text-indigo-400" />
+                  <Label>Background Style</Label>
                 </div>
                 
-                <div className="bg-slate-800/30 rounded-lg p-4 space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="buttonText">Button Text</Label>
-                    <Input
-                      id="buttonText"
-                      value={config.buttonStyle.buttonText}
-                      onChange={(e) => updateButtonStyle("buttonText", e.target.value)}
-                      placeholder="Support me"
-                      className={errors["buttonStyle.buttonText"] ? "border-destructive" : ""}
+                <RadioGroup 
+                  value={selectedGradient} 
+                  onValueChange={handleGradientChange}
+                  className="grid grid-cols-1 md:grid-cols-2 gap-3"
+                >
+                  {GRADIENT_OPTIONS.map((option) => (
+                    <div key={option.value} className="flex items-center space-x-2">
+                      <RadioGroupItem value={option.value} id={option.value} />
+                      <Label htmlFor={option.value} className="flex items-center">
+                        <div 
+                          className="w-6 h-6 rounded-full mr-2 border border-gray-600"
+                          style={{ 
+                            background: option.value === "none" ? config.buttonStyle.backgroundColor : option.value 
+                          }}
+                        ></div>
+                        {option.label}
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
+              
+              {!useGradient && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <Label htmlFor="backgroundColor">Background Color</Label>
+                    <ColorPicker 
+                      color={config.buttonStyle.backgroundColor} 
+                      onChange={(color) => updateButtonStyle("backgroundColor", color)}
                     />
+                    {errors["buttonStyle.backgroundColor"] && (
+                      <div className="text-destructive text-sm flex items-center gap-1">
+                        <AlertCircle size={14} />
+                        {errors["buttonStyle.backgroundColor"]}
+                      </div>
+                    )}
                   </div>
                   
+                  <div className="space-y-3">
+                    <Label htmlFor="textColor">Text Color</Label>
+                    <ColorPicker 
+                      color={config.buttonStyle.textColor} 
+                      onChange={(color) => updateButtonStyle("textColor", color)}
+                    />
+                    {errors["buttonStyle.textColor"] && (
+                      <div className="text-destructive text-sm flex items-center gap-1">
+                        <AlertCircle size={14} />
+                        {errors["buttonStyle.textColor"]}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              {useGradient && (
+                <div className="space-y-3">
+                  <Label htmlFor="textColor">Text Color</Label>
+                  <ColorPicker 
+                    color={config.buttonStyle.textColor} 
+                    onChange={(color) => updateButtonStyle("textColor", color)}
+                  />
+                  {errors["buttonStyle.textColor"] && (
+                    <div className="text-destructive text-sm flex items-center gap-1">
+                      <AlertCircle size={14} />
+                      {errors["buttonStyle.textColor"]}
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              <div className="space-y-2">
+                <Label htmlFor="buttonText">Button Text</Label>
+                <Input
+                  id="buttonText"
+                  value={config.buttonStyle.buttonText}
+                  onChange={(e) => updateButtonStyle("buttonText", e.target.value)}
+                  placeholder="Yodl me a coffee"
+                  className={errors["buttonStyle.buttonText"] ? "border-destructive" : ""}
+                />
+                {errors["buttonStyle.buttonText"] && (
+                  <div className="text-destructive text-sm flex items-center gap-1 mt-1">
+                    <AlertCircle size={14} />
+                    {errors["buttonStyle.buttonText"]}
+                  </div>
+                )}
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="borderRadius">Border Radius</Label>
                   <div className="space-y-2">
-                    <Label className="block mb-2">Icon (Optional)</Label>
-                    <div className="grid grid-cols-5 gap-2">
-                      <Button
-                        type="button"
-                        variant={config.buttonStyle.iconType === "none" ? "default" : "outline"}
-                        size="sm"
-                        className="h-10 p-0 flex justify-center items-center"
-                        onClick={() => handleIconTypeChange("none")}
-                      >
-                        None
-                      </Button>
-                      
-                      <Button
-                        type="button"
-                        variant={config.buttonStyle.iconType === "heart" ? "default" : "outline"}
-                        size="sm"
-                        className="h-10 p-0 flex justify-center items-center"
-                        onClick={() => handleIconTypeChange("heart")}
-                      >
-                        <Heart size={16} />
-                      </Button>
-                      
-                      <Button
-                        type="button"
-                        variant={config.buttonStyle.iconType === "star" ? "default" : "outline"}
-                        size="sm"
-                        className="h-10 p-0 flex justify-center items-center"
-                        onClick={() => handleIconTypeChange("star")}
-                      >
-                        <Star size={16} />
-                      </Button>
-                      
-                      <Button
-                        type="button"
-                        variant={config.buttonStyle.iconType === "hand-coins" ? "default" : "outline"}
-                        size="sm"
-                        className="h-10 p-0 flex justify-center items-center"
-                        onClick={() => handleIconTypeChange("hand-coins")}
-                      >
-                        <HandCoins size={16} />
-                      </Button>
-                      
-                      <Button
-                        type="button"
-                        variant={config.buttonStyle.iconType === "coffee" ? "default" : "outline"}
-                        size="sm"
-                        className="h-10 p-0 flex justify-center items-center"
-                        onClick={() => handleIconTypeChange("coffee")}
-                      >
-                        <Coffee size={16} />
-                      </Button>
+                    <input
+                      type="range"
+                      min="0"
+                      max="24"
+                      value={parseInt(config.buttonStyle.borderRadius)}
+                      onChange={(e) => updateButtonStyle("borderRadius", `${e.target.value}px`)}
+                      className="w-full"
+                    />
+                    <div className="text-xs text-muted-foreground">
+                      {config.buttonStyle.borderRadius}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="fontSize">Font Size</Label>
+                  <div className="space-y-2">
+                    <input
+                      type="range"
+                      min="12"
+                      max="24"
+                      value={parseInt(config.buttonStyle.fontSize)}
+                      onChange={(e) => updateButtonStyle("fontSize", `${e.target.value}px`)}
+                      className="w-full"
+                    />
+                    <div className="text-xs text-muted-foreground">
+                      {config.buttonStyle.fontSize}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="padding">Padding</Label>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-xs">Vertical: {paddingVertical}px</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="4"
+                        max="32"
+                        value={paddingVertical}
+                        onChange={(e) => {
+                          setPaddingVertical(parseInt(e.target.value));
+                          updatePadding();
+                        }}
+                        className="w-full"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-xs">Horizontal: {paddingHorizontal}px</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="8"
+                        max="48"
+                        value={paddingHorizontal}
+                        onChange={(e) => {
+                          setPaddingHorizontal(parseInt(e.target.value));
+                          updatePadding();
+                        }}
+                        className="w-full"
+                      />
                     </div>
                   </div>
                 </div>
@@ -479,364 +676,222 @@ const ConfigurationForm = ({
             </TabsContent>
             
             <TabsContent value="thankYou" className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <Heart className="w-5 h-5 text-indigo-400" />
-                  <Label className="text-base font-medium">Thank You Page Settings</Label>
-                </div>
-                
-                <div className="bg-slate-800/30 rounded-lg p-4 space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="headerText">Header Text</Label>
-                    <Input
-                      id="headerText"
-                      value={config.thankYouPage.headerText || ""}
-                      onChange={(e) => updateThankYouStyle("headerText", e.target.value)}
-                      placeholder="Thank You!"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="message">Message</Label>
-                    <Textarea
-                      id="message"
-                      value={config.thankYouPage.message}
-                      onChange={(e) => updateThankYouStyle("message", e.target.value)}
-                      placeholder="Thank you for your support! It means a lot to me."
-                      className={errors["thankYouPage.message"] ? "border-destructive" : ""}
-                    />
-                    {errors["thankYouPage.message"] && (
-                      <p className="text-sm text-destructive mt-1">{errors["thankYouPage.message"]}</p>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="animation">Animation</Label>
-                    <RadioGroup defaultValue={config.thankYouPage.animation || "none"} onValueChange={handleAnimationChange}>
-                      <div className="grid grid-cols-4 gap-2">
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="none" id="animation-none" />
-                          <Label htmlFor="animation-none">None</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="bounce" id="animation-bounce" />
-                          <Label htmlFor="animation-bounce">Bounce</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="pulse" id="animation-pulse" />
-                          <Label htmlFor="animation-pulse">Pulse</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="wave" id="animation-wave" />
-                          <Label htmlFor="animation-wave">Wave</Label>
-                        </div>
-                      </div>
-                    </RadioGroup>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label>Show Confetti</Label>
-                    <Switch
-                      id="showConfetti"
-                      checked={config.thankYouPage.showConfetti}
-                      onCheckedChange={(checked) => updateThankYouStyle("showConfetti", checked)}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label>Show Transaction Details</Label>
-                    <Switch
-                      id="showTransactionDetails"
-                      checked={config.thankYouPage.showTransactionDetails === undefined ? true : config.thankYouPage.showTransactionDetails}
-                      onCheckedChange={(checked) => updateThankYouStyle("showTransactionDetails", checked)}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label>Show Return Home Button</Label>
-                    <Switch
-                      id="showReturnHomeButton"
-                      checked={config.thankYouPage.showReturnHomeButton === undefined ? true : config.thankYouPage.showReturnHomeButton}
-                      onCheckedChange={(checked) => updateThankYouStyle("showReturnHomeButton", checked)}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label>Show Share Button</Label>
-                    <Switch
-                      id="showShareButton"
-                      checked={config.thankYouPage.showShareButton === undefined ? true : config.thankYouPage.showShareButton}
-                      onCheckedChange={(checked) => updateThankYouStyle("showShareButton", checked)}
-                    />
-                  </div>
+              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-4">
+                <h3 className="text-lg font-semibold mb-4">Thank You Page Preview</h3>
+                <div 
+                  className="p-8 rounded-lg text-center"
+                  style={{
+                    backgroundColor: config.thankYouPage.backgroundColor,
+                    color: config.thankYouPage.textColor
+                  }}
+                >
+                  <h4 className="text-2xl font-bold mb-4">Thank You!</h4>
+                  <p className="opacity-80">{config.thankYouPage.message}</p>
+                  {config.thankYouPage.showConfetti && (
+                    <div className="mt-4 text-sm">✨ Confetti will appear here ✨</div>
+                  )}
                 </div>
               </div>
-            </TabsContent>
             
-            <TabsContent value="social" className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <Share2 className="w-5 h-5 text-indigo-400" />
-                  <Label className="text-base font-medium">Social Media Preview</Label>
-                </div>
-                
-                <div className="bg-slate-800/30 rounded-lg p-4 space-y-4">
-                  <SocialPreviewCard
-                    ensNameOrAddress={config.ensNameOrAddress}
-                    socialPreview={config.socialPreview}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <Label htmlFor="tyBackgroundColor">Background Color</Label>
+                  <ColorPicker 
+                    color={config.thankYouPage.backgroundColor} 
+                    onChange={(color) => updateThankYouStyle("backgroundColor", color)}
                   />
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="socialTitle">Title</Label>
-                    <Input
-                      id="socialTitle"
-                      value={config.socialPreview.title}
-                      onChange={(e) => updateSocialPreviewStyle("title", e.target.value)}
-                      placeholder="Support My Work"
-                      className={errors["socialPreview.title"] ? "border-destructive" : ""}
-                    />
-                    {errors["socialPreview.title"] && (
-                      <p className="text-sm text-destructive mt-1">{errors["socialPreview.title"]}</p>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="socialDescription">Description</Label>
-                    <Textarea
-                      id="socialDescription"
-                      value={config.socialPreview.description}
-                      onChange={(e) => updateSocialPreviewStyle("description", e.target.value)}
-                      placeholder="Every contribution helps me continue creating awesome content for you!"
-                      className={errors["socialPreview.description"] ? "border-destructive" : ""}
-                    />
-                    {errors["socialPreview.description"] && (
-                      <p className="text-sm text-destructive mt-1">{errors["socialPreview.description"]}</p>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="socialImage">Image URL</Label>
-                    <div className="flex items-center space-x-2">
-                      <Input
-                        type="file"
-                        id="socialImage"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="hidden"
-                      />
-                      <Label htmlFor="socialImage" className="cursor-pointer bg-secondary hover:bg-secondary/80 rounded-md px-3 py-2 text-sm">
-                        {config.socialPreview.useCustomImage ? "Change Image" : "Upload Image"}
-                      </Label>
-                      {config.socialPreview.useCustomImage && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            updateSocialPreviewStyle('imageUrl', '');
-                            updateSocialPreviewStyle('useCustomImage', false);
-                          }}
-                        >
-                          Remove
-                        </Button>
-                      )}
+                  {errors["thankYouPage.backgroundColor"] && (
+                    <div className="text-destructive text-sm flex items-center gap-1">
+                      <AlertCircle size={14} />
+                      {errors["thankYouPage.backgroundColor"]}
                     </div>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="yodl" className="space-y-6">
-              <YodlConfig
-                config={config}
-                onConfigChange={onConfigChange}
-                updateConfig={updateConfig}
-              />
-            </TabsContent>
-            
-            <TabsContent value="general" className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <Settings className="w-5 h-5 text-indigo-400" />
-                  <Label className="text-base font-medium">General Settings</Label>
+                  )}
                 </div>
                 
-                <div className="bg-slate-800/30 rounded-lg p-4 space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="ensNameOrAddress">ENS Name or Address</Label>
-                    <Input
-                      id="ensNameOrAddress"
-                      value={config.ensNameOrAddress}
-                      onChange={(e) => updateConfig("ensNameOrAddress", e.target.value)}
-                      placeholder="vitalik.eth or 0xAb5801a7D398351b8bE11C439e05C5B3259cbCe9"
-                      className={errors["ensNameOrAddress"] ? "border-destructive" : ""}
-                    />
-                    {errors["ensNameOrAddress"] && (
-                      <p className="text-sm text-destructive mt-1">{errors["ensNameOrAddress"]}</p>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="slug">Slug</Label>
-                    <div className="flex items-center">
-                      <Input
-                        id="slug"
-                        value={config.slug}
-                        onChange={(e) => updateConfig("slug", e.target.value)}
-                        placeholder="vitalik"
-                        className={`flex-grow ${errors["slug"] ? "border-destructive" : ""}`}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="ml-2"
-                        onClick={generateRandomSlug}
-                      >
-                        Generate
-                      </Button>
+                <div className="space-y-3">
+                  <Label htmlFor="tyTextColor">Text Color</Label>
+                  <ColorPicker 
+                    color={config.thankYouPage.textColor} 
+                    onChange={(color) => updateThankYouStyle("textColor", color)}
+                  />
+                  {errors["thankYouPage.textColor"] && (
+                    <div className="text-destructive text-sm flex items-center gap-1">
+                      <AlertCircle size={14} />
+                      {errors["thankYouPage.textColor"]}
                     </div>
-                    {errors["slug"] && (
-                      <p className="text-sm text-destructive mt-1">{errors["slug"]}</p>
-                    )}
-                  </div>
+                  )}
                 </div>
               </div>
               
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-1">
-                  <Palette className="w-5 h-5 text-indigo-400" />
-                  <Label className="text-base font-medium">Button Styling</Label>
+              <div className="space-y-2">
+                <Label htmlFor="tyMessage">Thank You Message</Label>
+                <Textarea
+                  id="tyMessage"
+                  value={config.thankYouPage.message}
+                  onChange={(e) => updateThankYouStyle("message", e.target.value)}
+                  placeholder="Thank you for your support!"
+                  className={errors["thankYouPage.message"] ? "border-destructive" : "min-h-[100px]"}
+                />
+                {errors["thankYouPage.message"] && (
+                  <div className="text-destructive text-sm flex items-center gap-1 mt-1">
+                    <AlertCircle size={14} />
+                    {errors["thankYouPage.message"]}
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showConfetti"
+                  checked={config.thankYouPage.showConfetti}
+                  onCheckedChange={(checked) => updateThankYouStyle("showConfetti", checked)}
+                />
+                <Label htmlFor="showConfetti">Show confetti animation</Label>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="social" className="space-y-6">
+              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-4">
+                <h3 className="text-lg font-semibold mb-4 flex items-center">
+                  <Share2 className="w-5 h-5 text-indigo-400 mr-2" />
+                  Social Media Preview
+                </h3>
+                <p className="text-sm text-slate-300 mb-4">
+                  Customize how your payment link appears when shared on social media platforms 
+                  like Twitter, Facebook, and LinkedIn.
+                </p>
+                <SocialPreviewCard 
+                  ensNameOrAddress={config.ensNameOrAddress || "your.name.eth"}
+                  socialPreview={config.socialPreview}
+                />
+              </div>
+
+              <div className="space-y-3">
+                <Label htmlFor="socialTitle">Title</Label>
+                <Input
+                  id="socialTitle"
+                  value={config.socialPreview.title}
+                  onChange={(e) => updateSocialPreviewStyle("title", e.target.value)}
+                  placeholder="Support My Work"
+                  className={errors["socialPreview.title"] ? "border-destructive" : ""}
+                />
+                {errors["socialPreview.title"] && (
+                  <div className="text-destructive text-sm flex items-center gap-1 mt-1">
+                    <AlertCircle size={14} />
+                    {errors["socialPreview.title"]}
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <Label htmlFor="socialDescription">Description</Label>
+                <Textarea
+                  id="socialDescription"
+                  value={config.socialPreview.description}
+                  onChange={(e) => updateSocialPreviewStyle("description", e.target.value)}
+                  placeholder="Every contribution helps me continue creating awesome content for you!"
+                  className={errors["socialPreview.description"] ? "border-destructive" : ""}
+                />
+                {errors["socialPreview.description"] && (
+                  <div className="text-destructive text-sm flex items-center gap-1 mt-1">
+                    <AlertCircle size={14} />
+                    {errors["socialPreview.description"]}
+                  </div>
+                )}
+                <p className="text-xs text-slate-400">
+                  Keep it under 155 characters for optimal display on social platforms
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Switch
+                    id="useCustomImage"
+                    checked={config.socialPreview.useCustomImage}
+                    onCheckedChange={(checked) => updateSocialPreviewStyle("useCustomImage", checked)}
+                  />
+                  <Label htmlFor="useCustomImage">Use custom image</Label>
                 </div>
                 
-                <div className="bg-slate-800/30 rounded-lg p-4 space-y-4">
+                {config.socialPreview.useCustomImage && (
                   <div className="space-y-2">
-                    <Label>Use Gradient Background</Label>
-                    <Switch
-                      id="useGradient"
-                      checked={useGradient}
-                      onCheckedChange={(checked) => {
-                        setUseGradient(checked);
-                        if (checked) {
-                          handleGradientChange(selectedGradient === "none" ? GRADIENT_OPTIONS[1].value : selectedGradient);
-                        } else {
-                          handleGradientChange("none");
-                        }
-                      }}
-                    />
-                  </div>
-                  
-                  {useGradient && (
-                    <div className="space-y-2">
-                      <Label htmlFor="gradient">Select Gradient</Label>
-                      <RadioGroup defaultValue={selectedGradient} onValueChange={handleGradientChange}>
-                        <div className="grid grid-cols-3 gap-3">
-                          {GRADIENT_OPTIONS.map((option) => (
-                            <div key={option.value} className="flex items-center space-x-2">
-                              <RadioGroupItem value={option.value} id={`gradient-${option.value}`} />
-                              <Label htmlFor={`gradient-${option.value}`}>{option.label}</Label>
-                            </div>
-                          ))}
+                    <div className="flex items-center gap-2">
+                      {config.socialPreview.imageUrl && (
+                        <div className="w-12 h-12 rounded overflow-hidden">
+                          <img 
+                            src={config.socialPreview.imageUrl} 
+                            alt="Preview"
+                            className="w-full h-full object-cover"
+                          />
                         </div>
-                      </RadioGroup>
-                    </div>
-                  )}
-                  
-                  {!useGradient && (
-                    <div className="space-y-2">
-                      <Label htmlFor="backgroundColor">Background Color</Label>
-                      <ColorPicker
-                        color={config.buttonStyle.backgroundColor}
-                        onChange={(color) => updateButtonStyle("backgroundColor", color)}
-                      />
-                      {errors["buttonStyle.backgroundColor"] && (
-                        <p className="text-sm text-destructive mt-1">{errors["buttonStyle.backgroundColor"]}</p>
                       )}
-                    </div>
-                  )}
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="textColor">Text Color</Label>
-                    <ColorPicker
-                      color={config.buttonStyle.textColor}
-                      onChange={(color) => updateButtonStyle("textColor", color)}
-                    />
-                    {errors["buttonStyle.textColor"] && (
-                      <p className="text-sm text-destructive mt-1">{errors["buttonStyle.textColor"]}</p>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="borderRadius">Border Radius</Label>
-                    <Input
-                      id="borderRadius"
-                      type="text"
-                      value={config.buttonStyle.borderRadius}
-                      onChange={(e) => updateButtonStyle("borderRadius", e.target.value)}
-                      placeholder="9999px"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="fontSize">Font Size</Label>
-                    <Input
-                      id="fontSize"
-                      type="text"
-                      value={config.buttonStyle.fontSize}
-                      onChange={(e) => updateButtonStyle("fontSize", e.target.value)}
-                      placeholder="16px"
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="paddingVertical">Padding Vertical</Label>
-                      <Input
-                        id="paddingVertical"
-                        type="number"
-                        value={paddingVertical}
-                        onChange={(e) => {
-                          const value = parseInt(e.target.value);
-                          setPaddingVertical(isNaN(value) ? 12 : value);
-                          updatePadding();
-                        }}
-                        placeholder="12px"
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="paddingHorizontal">Padding Horizontal</Label>
-                      <Input
-                        id="paddingHorizontal"
-                        type="number"
-                        value={paddingHorizontal}
-                        onChange={(e) => {
-                          const value = parseInt(e.target.value);
-                          setPaddingHorizontal(isNaN(value) ? 24 : value);
-                          updatePadding();
-                        }}
-                        placeholder="24px"
-                      />
+                      <div className="flex-1">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="max-w-sm"
+                        />
+                        <p className="text-xs text-slate-400 mt-1">
+                          Recommended size: 1200x630 pixels
+                        </p>
+                      </div>
                     </div>
                   </div>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="yodl" className="space-y-6">
+              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-4">
+                <h3 className="text-lg font-semibold mb-4 flex items-center">
+                  <img 
+                    src="https://yodl.me/_next/static/media/new_logo.be0c2fdb.svg" 
+                    alt="Yodl"
+                    className="w-5 h-5 mr-2 drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]"
+                  />
+                  Yodl Payment Settings
+                </h3>
+                <p className="text-sm text-slate-300 mb-2">
+                  Yodl is a protocol that makes it easy to accept crypto payments across 
+                  multiple chains and tokens.
+                </p>
+                <div className="flex items-center mt-4">
+                  <a 
+                    href="https://yodl.me" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-xs flex items-center gap-1 text-indigo-400 hover:text-indigo-300 transition-colors"
+                  >
+                    <ExternalLink size={12} />
+                    Learn more about Yodl
+                  </a>
                 </div>
               </div>
+
+              <YodlConfig 
+                config={config.yodlConfig || DEFAULT_CONFIG.yodlConfig!} 
+                onChange={(yodlConfig) => updateConfig("yodlConfig", yodlConfig)}
+              />
             </TabsContent>
           </Tabs>
         </CardContent>
 
         <div className="px-6 py-4 border-t border-slate-700/20 flex justify-end">
-          <Button
-            type="submit"
+          <Button 
+            type="submit" 
+            className="px-6 flex items-center gap-2"
             disabled={isSubmitting}
-            className="flex items-center gap-2"
           >
             {isSubmitting ? (
-              <LoadingSpinner size="sm" />
+              <>
+                <LoadingSpinner size="sm" />
+                Saving...
+              </>
             ) : (
               <>
-                Save Configuration
-                <ArrowRight className="w-5 h-5" />
+                <Check className="w-4 h-4" />
+                Save and Create Button
               </>
             )}
           </Button>
@@ -847,3 +902,4 @@ const ConfigurationForm = ({
 };
 
 export default ConfigurationForm;
+

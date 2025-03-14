@@ -1,6 +1,7 @@
+
 import { ButtonStyle, YodlPaymentConfig } from "@/types";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Heart, Star, Coffee, HandCoins } from "lucide-react";
+import { Coffee, ArrowRight, ExternalLink } from "lucide-react";
 import { generateYodlPaymentLink } from "@/utils/yodl";
 import { useToast } from "@/hooks/use-toast";
 
@@ -33,7 +34,6 @@ const PaymentButton = ({
       // Set the redirect URL if it's not already set
       if (!yodlConfigWithRedirect.redirectUrl) {
         // Use the thank you page URL for this specific user's slug
-        // Use un-encoded URL - the generateYodlPaymentLink function will handle encoding
         yodlConfigWithRedirect.redirectUrl = `${window.location.origin}/thank-you/${slug}`;
       }
       
@@ -59,26 +59,6 @@ const PaymentButton = ({
     navigate(`/thank-you/${slug}`);
   };
   
-  // Get the icon based on iconType
-  const getButtonIcon = () => {
-    if (!style.iconType || style.iconType === "none") return null;
-    
-    switch (style.iconType) {
-      case "hand-coins":
-        return <HandCoins className="mr-2" size={20} />;
-      case "heart":
-        return <Heart className="mr-2" size={20} />;
-      case "star":
-        return <Star className="mr-2" size={20} />;
-      case "coffee":
-        return <Coffee className="mr-2" size={20} />;
-      default:
-        return null;
-    }
-  };
-  
-  const buttonIcon = getButtonIcon();
-  
   return (
     <button
       className={`inline-flex items-center justify-center transition-all-300 shadow-[0_4px_14px_rgba(0,0,0,0.25)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.35)] hover:-translate-y-1 ${className}`}
@@ -100,11 +80,11 @@ const PaymentButton = ({
               className="w-full h-full drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]"
             />
           </div>
-          <span>{style.buttonText}</span>
+          <span>{style.buttonText} with Yodl</span>
         </>
       ) : (
         <>
-          {buttonIcon}
+          <Coffee className="mr-2" size={20} />
           <span>{style.buttonText}</span>
         </>
       )}

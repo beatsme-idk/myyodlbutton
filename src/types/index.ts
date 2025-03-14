@@ -1,4 +1,3 @@
-
 export interface ButtonStyle {
   backgroundColor: string;
   textColor: string;
@@ -6,7 +5,6 @@ export interface ButtonStyle {
   fontSize: string;
   padding: string;
   buttonText: string;
-  iconType?: "hand-coins" | "heart" | "star" | "coffee" | "none";
 }
 
 export interface ThankYouPageStyle {
@@ -14,12 +12,6 @@ export interface ThankYouPageStyle {
   textColor: string;
   message: string;
   showConfetti: boolean;
-  accentColor?: string;
-  headerText?: string;
-  showTransactionDetails?: boolean;
-  showReturnHomeButton?: boolean;
-  showShareButton?: boolean;
-  animation?: "bounce" | "pulse" | "wave" | "none";
 }
 
 export interface SocialPreviewStyle {
@@ -65,12 +57,6 @@ export interface ThankYouProps {
     showConfetti: boolean;
     backgroundColor: string;
     textColor: string;
-    accentColor?: string;
-    headerText?: string;
-    showTransactionDetails?: boolean;
-    showReturnHomeButton?: boolean;
-    showShareButton?: boolean;
-    animation?: "bounce" | "pulse" | "wave" | "none";
   };
 }
 

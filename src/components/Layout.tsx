@@ -3,6 +3,7 @@ import React, { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import WalletConnect from './WalletConnect';
 
 interface LayoutProps {
   children: ReactNode;
@@ -23,6 +24,38 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <Link to="/" className="text-xl font-bold tracking-tight">
               Tributee
             </Link>
+            <nav className="hidden md:flex gap-6">
+              <Link
+                to="/"
+                className={cn(
+                  "text-sm font-medium transition-colors hover:text-primary",
+                  isActive("/") ? "text-foreground" : "text-muted-foreground"
+                )}
+              >
+                Home
+              </Link>
+              <Link
+                to="/payment-history"
+                className={cn(
+                  "text-sm font-medium transition-colors hover:text-primary",
+                  isActive("/payment-history") ? "text-foreground" : "text-muted-foreground"
+                )}
+              >
+                Payment Analytics
+              </Link>
+              <Link
+                to="/profile"
+                className={cn(
+                  "text-sm font-medium transition-colors hover:text-primary",
+                  isActive("/profile") ? "text-foreground" : "text-muted-foreground"
+                )}
+              >
+                My Profile
+              </Link>
+            </nav>
+          </div>
+          <div className="flex items-center gap-4">
+            <WalletConnect />
           </div>
         </div>
       </header>

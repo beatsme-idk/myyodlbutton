@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from "react";
-import { YodlPaymentConfig, UserConfig } from "@/types";
+import { YodlPaymentConfig } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -36,22 +35,21 @@ const SUPPORTED_CHAINS = [
 ];
 
 interface YodlConfigProps {
-  config: UserConfig;
-  onConfigChange: (config: UserConfig) => void;
-  updateConfig?: (key: keyof UserConfig, value: any) => void;
+  config: YodlPaymentConfig;
+  onChange: (config: YodlPaymentConfig) => void;
 }
 
-const YodlConfig = ({ config, onConfigChange, updateConfig }: YodlConfigProps) => {
+const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
   const [loading, setLoading] = useState(false);
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
-  const [webhooks, setWebhooks] = useState<string[]>(config.yodlConfig?.webhooks || []);
+  const [webhooks, setWebhooks] = useState<string[]>(config.webhooks || []);
   const { address, isConnected } = useAccount();
   
   const [selectedTokens, setSelectedTokens] = useState<string[]>(
-    config.yodlConfig?.tokens ? config.yodlConfig.tokens.split(',').map(token => token.trim()) : []
+    config.tokens ? config.tokens.split(',').map(token => token.trim()) : []
   );
   const [selectedChains, setSelectedChains] = useState<string[]>(
-    config.yodlConfig?.chains ? config.yodlConfig.chains.split(',').map(chain => chain.trim()) : []
+    config.chains ? config.chains.split(',').map(chain => chain.trim()) : []
   );
   
   useEffect(() => {
@@ -61,23 +59,21 @@ const YodlConfig = ({ config, onConfigChange, updateConfig }: YodlConfigProps) =
         try {
           const ensYodlConfig = await parseYodlConfigFromENS(address);
           if (ensYodlConfig) {
-            const yodlConfig = {
-              ...config.yodlConfig,
+            onChange({
+              ...config,
               ...ensYodlConfig,
               enabled: true,
-              webhooks: ensYodlConfig.webhooks || config.yodlConfig?.webhooks || []
-            };
+              webhooks: ensYodlConfig.webhooks || config.webhooks || []
+            });
             
-            updateYodlConfig(yodlConfig);
+            setWebhooks(ensYodlConfig.webhooks || config.webhooks || []);
             
-            setWebhooks(yodlConfig.webhooks || []);
-            
-            if (yodlConfig.tokens) {
-              setSelectedTokens(yodlConfig.tokens.split(',').map(token => token.trim()));
+            if (ensYodlConfig.tokens) {
+              setSelectedTokens(ensYodlConfig.tokens.split(',').map(token => token.trim()));
             }
             
-            if (yodlConfig.chains) {
-              setSelectedChains(yodlConfig.chains.split(',').map(chain => chain.trim()));
+            if (ensYodlConfig.chains) {
+              setSelectedChains(ensYodlConfig.chains.split(',').map(chain => chain.trim()));
             }
             
             toast({
@@ -96,37 +92,27 @@ const YodlConfig = ({ config, onConfigChange, updateConfig }: YodlConfigProps) =
     }
   }, [isConnected, address]);
 
-  const updateYodlConfig = (yodlConfig: YodlPaymentConfig) => {
-    const newConfig = { ...config, yodlConfig };
-    onConfigChange(newConfig);
-    
-    if (updateConfig) {
-      updateConfig("yodlConfig", yodlConfig);
-    }
-  };
-
-  const updateYodlConfigField = (key: keyof YodlPaymentConfig, value: any) => {
-    const newYodlConfig = { ...config.yodlConfig, [key]: value, enabled: true };
-    updateYodlConfig(newYodlConfig);
+  const updateConfig = (key: keyof YodlPaymentConfig, value: any) => {
+    onChange({ ...config, [key]: value });
   };
 
   const handleAddWebhook = () => {
     const newWebhooks = [...webhooks, ""];
     setWebhooks(newWebhooks);
-    updateYodlConfigField("webhooks", newWebhooks);
+    updateConfig("webhooks", newWebhooks);
   };
 
   const handleWebhookChange = (index: number, value: string) => {
     const newWebhooks = [...webhooks];
     newWebhooks[index] = value;
     setWebhooks(newWebhooks);
-    updateYodlConfigField("webhooks", newWebhooks);
+    updateConfig("webhooks", newWebhooks);
   };
 
   const handleRemoveWebhook = (index: number) => {
     const newWebhooks = webhooks.filter((_, i) => i !== index);
     setWebhooks(newWebhooks);
-    updateYodlConfigField("webhooks", newWebhooks);
+    updateConfig("webhooks", newWebhooks);
   };
 
   const toggleToken = (value: string) => {
@@ -135,7 +121,7 @@ const YodlConfig = ({ config, onConfigChange, updateConfig }: YodlConfigProps) =
       : [...selectedTokens, value];
       
     setSelectedTokens(newSelectedTokens);
-    updateYodlConfigField("tokens", newSelectedTokens.join(','));
+    updateConfig("tokens", newSelectedTokens.join(','));
   };
 
   const toggleChain = (value: string) => {
@@ -144,7 +130,7 @@ const YodlConfig = ({ config, onConfigChange, updateConfig }: YodlConfigProps) =
       : [...selectedChains, value];
       
     setSelectedChains(newSelectedChains);
-    updateYodlConfigField("chains", newSelectedChains.join(','));
+    updateConfig("chains", newSelectedChains.join(','));
   };
 
   return (
