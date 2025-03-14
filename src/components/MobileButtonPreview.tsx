@@ -25,15 +25,15 @@ const MobileButtonPreview = ({ buttonStyle }: MobileButtonPreviewProps) => {
 
   return (
     <div 
-      className={`fixed bottom-4 left-0 right-0 z-50 flex justify-center transition-all duration-300 ${
+      className={`fixed bottom-6 left-0 right-0 z-50 flex justify-center transition-all duration-300 ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
       }`}
     >
-      <div className="bg-slate-900/95 backdrop-blur-md border border-indigo-500/30 rounded-xl p-4 shadow-xl w-11/12 max-w-md">
-        <div className="text-xs text-slate-400 mb-2 text-center">Live Preview</div>
-        <div className="flex items-center justify-center p-4">
+      <div className="bg-slate-900/90 backdrop-blur-md border border-indigo-500/30 rounded-xl p-3 shadow-xl w-auto max-w-[90%] mx-auto">
+        <div className="text-xs text-slate-400 mb-1 text-center">Live Preview</div>
+        <div className="flex items-center justify-center p-3">
           <button
-            className="inline-flex items-center justify-center shadow-lg"
+            className="inline-flex items-center justify-center shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
             style={{
               background: buttonStyle.backgroundColor,
               color: buttonStyle.textColor,

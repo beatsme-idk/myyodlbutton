@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { UserConfig, ButtonStyle, ThankYouPageStyle, SocialPreviewStyle, YodlPaymentConfig } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -538,216 +537,208 @@ const ConfigurationForm = ({
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-1">
                   <Droplet className="w-5 h-5 text-indigo-400" />
-                  <Label>Background Style</Label>
+                  <Label className="text-base font-medium">Style & Colors</Label>
                 </div>
                 
-                <RadioGroup 
-                  value={selectedGradient} 
-                  onValueChange={handleGradientChange}
-                  className="grid grid-cols-1 md:grid-cols-2 gap-3"
-                >
-                  {GRADIENT_OPTIONS.map((option) => (
-                    <div key={option.value} className="flex items-center space-x-2">
-                      <RadioGroupItem value={option.value} id={option.value} />
-                      <Label htmlFor={option.value} className="flex items-center">
-                        <div 
-                          className="w-6 h-6 rounded-full mr-2 border border-gray-600"
-                          style={{ 
-                            background: option.value === "none" ? config.buttonStyle.backgroundColor : option.value 
-                          }}
-                        ></div>
-                        {option.label}
-                      </Label>
-                    </div>
-                  ))}
-                </RadioGroup>
-              </div>
-              
-              {!useGradient && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-3">
-                    <Label htmlFor="backgroundColor">Background Color</Label>
-                    <ColorPicker 
-                      color={config.buttonStyle.backgroundColor} 
-                      onChange={(color) => updateButtonStyle("backgroundColor", color)}
-                    />
-                    {errors["buttonStyle.backgroundColor"] && (
-                      <div className="text-destructive text-sm flex items-center gap-1">
-                        <AlertCircle size={14} />
-                        {errors["buttonStyle.backgroundColor"]}
-                      </div>
-                    )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-slate-800/30 rounded-lg p-4">
+                    <Label className="block mb-2">Background Style</Label>
+                    <RadioGroup 
+                      value={selectedGradient} 
+                      onValueChange={handleGradientChange}
+                      className="grid grid-cols-1 sm:grid-cols-2 gap-2"
+                    >
+                      {GRADIENT_OPTIONS.slice(0, 3).map((option) => (
+                        <div key={option.value} className="flex items-center space-x-2">
+                          <RadioGroupItem value={option.value} id={option.value} />
+                          <Label htmlFor={option.value} className="flex items-center text-sm">
+                            <div 
+                              className="w-4 h-4 rounded-full mr-1 border border-gray-600"
+                              style={{ 
+                                background: option.value === "none" ? config.buttonStyle.backgroundColor : option.value 
+                              }}
+                            ></div>
+                            {option.label}
+                          </Label>
+                        </div>
+                      ))}
+                      {GRADIENT_OPTIONS.length > 3 && (
+                        <div className="col-span-full mt-1">
+                          <select 
+                            className="w-full text-xs bg-slate-700/50 border border-slate-600 rounded px-2 py-1"
+                            value={selectedGradient}
+                            onChange={(e) => handleGradientChange(e.target.value)}
+                          >
+                            <option value="">More styles...</option>
+                            {GRADIENT_OPTIONS.slice(3).map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+                    </RadioGroup>
                   </div>
                   
-                  <div className="space-y-3">
-                    <Label htmlFor="textColor">Text Color</Label>
-                    <ColorPicker 
-                      color={config.buttonStyle.textColor} 
-                      onChange={(color) => updateButtonStyle("textColor", color)}
-                    />
-                    {errors["buttonStyle.textColor"] && (
-                      <div className="text-destructive text-sm flex items-center gap-1">
-                        <AlertCircle size={14} />
-                        {errors["buttonStyle.textColor"]}
+                  <div className="bg-slate-800/30 rounded-lg p-4 space-y-4">
+                    {!useGradient && (
+                      <div className="space-y-2">
+                        <Label htmlFor="backgroundColor" className="block text-sm">Background</Label>
+                        <ColorPicker 
+                          color={config.buttonStyle.backgroundColor} 
+                          onChange={(color) => updateButtonStyle("backgroundColor", color)}
+                        />
                       </div>
                     )}
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="textColor" className="block text-sm">Text Color</Label>
+                      <ColorPicker 
+                        color={config.buttonStyle.textColor} 
+                        onChange={(color) => updateButtonStyle("textColor", color)}
+                      />
+                    </div>
                   </div>
                 </div>
-              )}
-              
-              {useGradient && (
-                <div className="space-y-3">
-                  <Label htmlFor="textColor">Text Color</Label>
-                  <ColorPicker 
-                    color={config.buttonStyle.textColor} 
-                    onChange={(color) => updateButtonStyle("textColor", color)}
-                  />
-                  {errors["buttonStyle.textColor"] && (
-                    <div className="text-destructive text-sm flex items-center gap-1">
-                      <AlertCircle size={14} />
-                      {errors["buttonStyle.textColor"]}
-                    </div>
-                  )}
-                </div>
-              )}
+              </div>
               
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-1">
                   <Book className="w-5 h-5 text-indigo-400" />
-                  <Label>Button Text Type</Label>
+                  <Label className="text-base font-medium">Button Text</Label>
                 </div>
                 
                 <RadioGroup 
                   value={config.buttonStyle.buttonTextType || "custom"} 
                   onValueChange={(value) => handleButtonTextTypeChange(value as ButtonStyle["buttonTextType"])}
-                  className="grid grid-cols-2 gap-3"
+                  className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3"
                 >
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
                     <RadioGroupItem value="tip" id="tip-text" />
-                    <Label htmlFor="tip-text" className="flex items-center">
-                      <HandCoins className="w-4 h-4 mr-2 text-green-400" />
+                    <Label htmlFor="tip-text" className="flex items-center text-sm">
+                      <HandCoins className="w-3 h-3 mr-1 text-green-400" />
                       Tip
                     </Label>
                   </div>
                   
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
                     <RadioGroupItem value="donate" id="donate-text" />
-                    <Label htmlFor="donate-text" className="flex items-center">
-                      <Heart className="w-4 h-4 mr-2 text-pink-400" />
+                    <Label htmlFor="donate-text" className="flex items-center text-sm">
+                      <Heart className="w-3 h-3 mr-1 text-pink-400" />
                       Donate
                     </Label>
                   </div>
                   
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
                     <RadioGroupItem value="pay" id="pay-text" />
-                    <Label htmlFor="pay-text" className="flex items-center">
-                      <DollarSign className="w-4 h-4 mr-2 text-blue-400" />
+                    <Label htmlFor="pay-text" className="flex items-center text-sm">
+                      <DollarSign className="w-3 h-3 mr-1 text-blue-400" />
                       Pay
                     </Label>
                   </div>
                   
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1">
                     <RadioGroupItem value="custom" id="custom-text" />
-                    <Label htmlFor="custom-text" className="flex items-center">
-                      <Coffee className="w-4 h-4 mr-2 text-amber-400" />
+                    <Label htmlFor="custom-text" className="flex items-center text-sm">
+                      <Coffee className="w-3 h-3 mr-1 text-amber-400" />
                       Custom
                     </Label>
                   </div>
                 </RadioGroup>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="buttonText">Button Text</Label>
-                <Input
-                  id="buttonText"
-                  value={config.buttonStyle.buttonText}
-                  onChange={(e) => updateButtonStyle("buttonText", e.target.value)}
-                  placeholder="Yodl me a coffee"
-                  className={errors["buttonStyle.buttonText"] ? "border-destructive" : ""}
-                  disabled={config.buttonStyle.buttonTextType !== "custom"}
-                />
-                {config.buttonStyle.buttonTextType !== "custom" && (
-                  <p className="text-xs text-slate-400 mt-1">
-                    Select "Custom" to use your own button text
-                  </p>
-                )}
-                {errors["buttonStyle.buttonText"] && (
-                  <div className="text-destructive text-sm flex items-center gap-1 mt-1">
-                    <AlertCircle size={14} />
-                    {errors["buttonStyle.buttonText"]}
-                  </div>
-                )}
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="borderRadius">Border Radius</Label>
-                  <div className="space-y-2">
-                    <input
-                      type="range"
-                      min="0"
-                      max="24"
-                      value={parseInt(config.buttonStyle.borderRadius)}
-                      onChange={(e) => updateButtonStyle("borderRadius", `${e.target.value}px`)}
-                      className="w-full"
-                    />
-                    <div className="text-xs text-muted-foreground">
-                      {config.buttonStyle.borderRadius}
-                    </div>
-                  </div>
-                </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="fontSize">Font Size</Label>
+                  <Input
+                    id="buttonText"
+                    value={config.buttonStyle.buttonText}
+                    onChange={(e) => updateButtonStyle("buttonText", e.target.value)}
+                    placeholder="Yodl me a coffee"
+                    className={errors["buttonStyle.buttonText"] ? "border-destructive" : ""}
+                    disabled={config.buttonStyle.buttonTextType !== "custom"}
+                  />
+                  {config.buttonStyle.buttonTextType !== "custom" && (
+                    <p className="text-xs text-slate-400">
+                      Select "Custom" to use your own button text
+                    </p>
+                  )}
+                </div>
+              </div>
+              
+              <div className="bg-slate-800/30 rounded-lg p-4">
+                <Label className="block text-base font-medium mb-3">Size & Shape</Label>
+                
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <input
-                      type="range"
-                      min="12"
-                      max="24"
-                      value={parseInt(config.buttonStyle.fontSize)}
-                      onChange={(e) => updateButtonStyle("fontSize", `${e.target.value}px`)}
-                      className="w-full"
-                    />
-                    <div className="text-xs text-muted-foreground">
-                      {config.buttonStyle.fontSize}
+                    <Label htmlFor="borderRadius" className="text-sm">Border Radius</Label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="range"
+                        min="0"
+                        max="24"
+                        value={parseInt(config.buttonStyle.borderRadius)}
+                        onChange={(e) => updateButtonStyle("borderRadius", `${e.target.value}px`)}
+                        className="flex-1"
+                      />
+                      <span className="text-xs w-10 text-right">
+                        {config.buttonStyle.borderRadius}
+                      </span>
                     </div>
                   </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="padding">Padding</Label>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-xs">Vertical: {paddingVertical}px</span>
-                      </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="fontSize" className="text-sm">Font Size</Label>
+                    <div className="flex items-center gap-2">
                       <input
                         type="range"
-                        min="4"
-                        max="32"
-                        value={paddingVertical}
-                        onChange={(e) => {
-                          setPaddingVertical(parseInt(e.target.value));
-                          updatePadding();
-                        }}
-                        className="w-full"
+                        min="12"
+                        max="24"
+                        value={parseInt(config.buttonStyle.fontSize)}
+                        onChange={(e) => updateButtonStyle("fontSize", `${e.target.value}px`)}
+                        className="flex-1"
                       />
+                      <span className="text-xs w-10 text-right">
+                        {config.buttonStyle.fontSize}
+                      </span>
                     </div>
-                    <div>
-                      <div className="flex justify-between mb-1">
-                        <span className="text-xs">Horizontal: {paddingHorizontal}px</span>
+                  </div>
+                  
+                  <div className="col-span-2 space-y-1">
+                    <Label htmlFor="padding" className="text-sm">Padding</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs">Vertical</span>
+                          <span className="text-xs">{paddingVertical}px</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="4"
+                          max="32"
+                          value={paddingVertical}
+                          onChange={(e) => {
+                            setPaddingVertical(parseInt(e.target.value));
+                            updatePadding();
+                          }}
+                          className="w-full"
+                        />
                       </div>
-                      <input
-                        type="range"
-                        min="8"
-                        max="48"
-                        value={paddingHorizontal}
-                        onChange={(e) => {
-                          setPaddingHorizontal(parseInt(e.target.value));
-                          updatePadding();
-                        }}
-                        className="w-full"
-                      />
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs">Horizontal</span>
+                          <span className="text-xs">{paddingHorizontal}px</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="8"
+                          max="48"
+                          value={paddingHorizontal}
+                          onChange={(e) => {
+                            setPaddingHorizontal(parseInt(e.target.value));
+                            updatePadding();
+                          }}
+                          className="w-full"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -85,7 +85,7 @@ const Index = ({ savedConfig, onConfigSave }: IndexProps) => {
           </p>
         </div>
         
-        <div className="neo-blur rounded-3xl shadow-xl overflow-hidden border border-indigo-500/30 animate-slide-up">
+        <div className="neo-blur rounded-3xl shadow-xl overflow-hidden border border-indigo-500/30 animate-slide-up mb-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
             <div className="p-6 md:p-8 border-b lg:border-b-0 lg:border-r border-indigo-500/20">
               <h2 className="text-2xl font-semibold mb-8 text-gradient-blue flex items-center">
