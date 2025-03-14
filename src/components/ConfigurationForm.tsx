@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { UserConfig, ButtonStyle, ThankYouPageStyle, SocialPreviewStyle, YodlPaymentConfig } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -827,3 +828,22 @@ const ConfigurationForm = ({
         <div className="px-6 py-4 border-t border-slate-700/20 flex justify-end">
           <Button
             type="submit"
+            disabled={isSubmitting}
+            className="flex items-center gap-2"
+          >
+            {isSubmitting ? (
+              <LoadingSpinner size="sm" />
+            ) : (
+              <>
+                Save Configuration
+                <ArrowRight className="w-5 h-5" />
+              </>
+            )}
+          </Button>
+        </div>
+      </Card>
+    </form>
+  );
+};
+
+export default ConfigurationForm;
