@@ -342,34 +342,6 @@ const ConfigurationForm = ({
     }
   };
 
-  const handleButtonTextTypeChange = (type: ButtonStyle["buttonTextType"]) => {
-    let buttonText = config.buttonStyle.buttonText;
-    
-    switch (type) {
-      case "tip":
-        buttonText = config.buttonStyle.tipText || "Tip me";
-        break;
-      case "donate":
-        buttonText = config.buttonStyle.donateText || "Donate";
-        break;
-      case "pay":
-        buttonText = config.buttonStyle.payText || "Pay now";
-        break;
-      case "custom":
-        break;
-    }
-    
-    const newButtonStyle = { 
-      ...config.buttonStyle, 
-      buttonTextType: type,
-      buttonText: buttonText
-    };
-    
-    const newConfig = { ...config, buttonStyle: newButtonStyle };
-    setConfig(newConfig);
-    onConfigChange(newConfig);
-  };
-
   const handleIconTypeChange = (iconType: ButtonStyle["iconType"]) => {
     const newButtonStyle = { 
       ...config.buttonStyle, 
@@ -505,35 +477,352 @@ const ConfigurationForm = ({
               </div>
             </TabsContent>
             
-            {/* Rest of the form remains the same */}
+            <TabsContent value="thankYou" className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <Heart className="w-5 h-5 text-indigo-400" />
+                  <Label className="text-base font-medium">Thank You Page Settings</Label>
+                </div>
+                
+                <div className="bg-slate-800/30 rounded-lg p-4 space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="headerText">Header Text</Label>
+                    <Input
+                      id="headerText"
+                      value={config.thankYouPage.headerText || ""}
+                      onChange={(e) => updateThankYouStyle("headerText", e.target.value)}
+                      placeholder="Thank You!"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="message">Message</Label>
+                    <Textarea
+                      id="message"
+                      value={config.thankYouPage.message}
+                      onChange={(e) => updateThankYouStyle("message", e.target.value)}
+                      placeholder="Thank you for your support! It means a lot to me."
+                      className={errors["thankYouPage.message"] ? "border-destructive" : ""}
+                    />
+                    {errors["thankYouPage.message"] && (
+                      <p className="text-sm text-destructive mt-1">{errors["thankYouPage.message"]}</p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="animation">Animation</Label>
+                    <RadioGroup defaultValue={config.thankYouPage.animation || "none"} onValueChange={handleAnimationChange}>
+                      <div className="grid grid-cols-4 gap-2">
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="none" id="animation-none" />
+                          <Label htmlFor="animation-none">None</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="bounce" id="animation-bounce" />
+                          <Label htmlFor="animation-bounce">Bounce</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="pulse" id="animation-pulse" />
+                          <Label htmlFor="animation-pulse">Pulse</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="wave" id="animation-wave" />
+                          <Label htmlFor="animation-wave">Wave</Label>
+                        </div>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>Show Confetti</Label>
+                    <Switch
+                      id="showConfetti"
+                      checked={config.thankYouPage.showConfetti}
+                      onCheckedChange={(checked) => updateThankYouStyle("showConfetti", checked)}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>Show Transaction Details</Label>
+                    <Switch
+                      id="showTransactionDetails"
+                      checked={config.thankYouPage.showTransactionDetails === undefined ? true : config.thankYouPage.showTransactionDetails}
+                      onCheckedChange={(checked) => updateThankYouStyle("showTransactionDetails", checked)}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>Show Return Home Button</Label>
+                    <Switch
+                      id="showReturnHomeButton"
+                      checked={config.thankYouPage.showReturnHomeButton === undefined ? true : config.thankYouPage.showReturnHomeButton}
+                      onCheckedChange={(checked) => updateThankYouStyle("showReturnHomeButton", checked)}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>Show Share Button</Label>
+                    <Switch
+                      id="showShareButton"
+                      checked={config.thankYouPage.showShareButton === undefined ? true : config.thankYouPage.showShareButton}
+                      onCheckedChange={(checked) => updateThankYouStyle("showShareButton", checked)}
+                    />
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
             
+            <TabsContent value="social" className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <Share2 className="w-5 h-5 text-indigo-400" />
+                  <Label className="text-base font-medium">Social Media Preview</Label>
+                </div>
+                
+                <div className="bg-slate-800/30 rounded-lg p-4 space-y-4">
+                  <SocialPreviewCard
+                    ensNameOrAddress={config.ensNameOrAddress}
+                    socialPreview={config.socialPreview}
+                  />
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="socialTitle">Title</Label>
+                    <Input
+                      id="socialTitle"
+                      value={config.socialPreview.title}
+                      onChange={(e) => updateSocialPreviewStyle("title", e.target.value)}
+                      placeholder="Support My Work"
+                      className={errors["socialPreview.title"] ? "border-destructive" : ""}
+                    />
+                    {errors["socialPreview.title"] && (
+                      <p className="text-sm text-destructive mt-1">{errors["socialPreview.title"]}</p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="socialDescription">Description</Label>
+                    <Textarea
+                      id="socialDescription"
+                      value={config.socialPreview.description}
+                      onChange={(e) => updateSocialPreviewStyle("description", e.target.value)}
+                      placeholder="Every contribution helps me continue creating awesome content for you!"
+                      className={errors["socialPreview.description"] ? "border-destructive" : ""}
+                    />
+                    {errors["socialPreview.description"] && (
+                      <p className="text-sm text-destructive mt-1">{errors["socialPreview.description"]}</p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="socialImage">Image URL</Label>
+                    <div className="flex items-center space-x-2">
+                      <Input
+                        type="file"
+                        id="socialImage"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                      <Label htmlFor="socialImage" className="cursor-pointer bg-secondary hover:bg-secondary/80 rounded-md px-3 py-2 text-sm">
+                        {config.socialPreview.useCustomImage ? "Change Image" : "Upload Image"}
+                      </Label>
+                      {config.socialPreview.useCustomImage && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            updateSocialPreviewStyle('imageUrl', '');
+                            updateSocialPreviewStyle('useCustomImage', false);
+                          }}
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="yodl" className="space-y-6">
+              <YodlConfig
+                config={config}
+                onConfigChange={onConfigChange}
+                updateConfig={updateConfig}
+              />
+            </TabsContent>
+            
+            <TabsContent value="general" className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <Settings className="w-5 h-5 text-indigo-400" />
+                  <Label className="text-base font-medium">General Settings</Label>
+                </div>
+                
+                <div className="bg-slate-800/30 rounded-lg p-4 space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="ensNameOrAddress">ENS Name or Address</Label>
+                    <Input
+                      id="ensNameOrAddress"
+                      value={config.ensNameOrAddress}
+                      onChange={(e) => updateConfig("ensNameOrAddress", e.target.value)}
+                      placeholder="vitalik.eth or 0xAb5801a7D398351b8bE11C439e05C5B3259cbCe9"
+                      className={errors["ensNameOrAddress"] ? "border-destructive" : ""}
+                    />
+                    {errors["ensNameOrAddress"] && (
+                      <p className="text-sm text-destructive mt-1">{errors["ensNameOrAddress"]}</p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="slug">Slug</Label>
+                    <div className="flex items-center">
+                      <Input
+                        id="slug"
+                        value={config.slug}
+                        onChange={(e) => updateConfig("slug", e.target.value)}
+                        placeholder="vitalik"
+                        className={`flex-grow ${errors["slug"] ? "border-destructive" : ""}`}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="ml-2"
+                        onClick={generateRandomSlug}
+                      >
+                        Generate
+                      </Button>
+                    </div>
+                    {errors["slug"] && (
+                      <p className="text-sm text-destructive mt-1">{errors["slug"]}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <Palette className="w-5 h-5 text-indigo-400" />
+                  <Label className="text-base font-medium">Button Styling</Label>
+                </div>
+                
+                <div className="bg-slate-800/30 rounded-lg p-4 space-y-4">
+                  <div className="space-y-2">
+                    <Label>Use Gradient Background</Label>
+                    <Switch
+                      id="useGradient"
+                      checked={useGradient}
+                      onCheckedChange={(checked) => {
+                        setUseGradient(checked);
+                        if (checked) {
+                          handleGradientChange(selectedGradient === "none" ? GRADIENT_OPTIONS[1].value : selectedGradient);
+                        } else {
+                          handleGradientChange("none");
+                        }
+                      }}
+                    />
+                  </div>
+                  
+                  {useGradient && (
+                    <div className="space-y-2">
+                      <Label htmlFor="gradient">Select Gradient</Label>
+                      <RadioGroup defaultValue={selectedGradient} onValueChange={handleGradientChange}>
+                        <div className="grid grid-cols-3 gap-3">
+                          {GRADIENT_OPTIONS.map((option) => (
+                            <div key={option.value} className="flex items-center space-x-2">
+                              <RadioGroupItem value={option.value} id={`gradient-${option.value}`} />
+                              <Label htmlFor={`gradient-${option.value}`}>{option.label}</Label>
+                            </div>
+                          ))}
+                        </div>
+                      </RadioGroup>
+                    </div>
+                  )}
+                  
+                  {!useGradient && (
+                    <div className="space-y-2">
+                      <Label htmlFor="backgroundColor">Background Color</Label>
+                      <ColorPicker
+                        color={config.buttonStyle.backgroundColor}
+                        onColorChange={(color) => updateButtonStyle("backgroundColor", color)}
+                      />
+                      {errors["buttonStyle.backgroundColor"] && (
+                        <p className="text-sm text-destructive mt-1">{errors["buttonStyle.backgroundColor"]}</p>
+                      )}
+                    </div>
+                  )}
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="textColor">Text Color</Label>
+                    <ColorPicker
+                      color={config.buttonStyle.textColor}
+                      onColorChange={(color) => updateButtonStyle("textColor", color)}
+                    />
+                    {errors["buttonStyle.textColor"] && (
+                      <p className="text-sm text-destructive mt-1">{errors["buttonStyle.textColor"]}</p>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="borderRadius">Border Radius</Label>
+                    <Input
+                      id="borderRadius"
+                      type="text"
+                      value={config.buttonStyle.borderRadius}
+                      onChange={(e) => updateButtonStyle("borderRadius", e.target.value)}
+                      placeholder="9999px"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="fontSize">Font Size</Label>
+                    <Input
+                      id="fontSize"
+                      type="text"
+                      value={config.buttonStyle.fontSize}
+                      onChange={(e) => updateButtonStyle("fontSize", e.target.value)}
+                      placeholder="16px"
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="paddingVertical">Padding Vertical</Label>
+                      <Input
+                        id="paddingVertical"
+                        type="number"
+                        value={paddingVertical}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value);
+                          setPaddingVertical(isNaN(value) ? 12 : value);
+                          updatePadding();
+                        }}
+                        placeholder="12px"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="paddingHorizontal">Padding Horizontal</Label>
+                      <Input
+                        id="paddingHorizontal"
+                        type="number"
+                        value={paddingHorizontal}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value);
+                          setPaddingHorizontal(isNaN(value) ? 24 : value);
+                          updatePadding();
+                        }}
+                        placeholder="24px"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
           </Tabs>
         </CardContent>
 
         <div className="px-6 py-4 border-t border-slate-700/20 flex justify-end">
-          <Button 
-            type="submit" 
-            className="px-6 flex items-center gap-2"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <LoadingSpinner size="sm" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Check className="w-4 h-4" />
-                Save and Create Button
-              </>
-            )}
-          </Button>
-        </div>
-      </Card>
-      
-      {isMobile && <MobileButtonPreview buttonStyle={config.buttonStyle} />}
-    </form>
-  );
-};
-
-export default ConfigurationForm;
+          <Button
