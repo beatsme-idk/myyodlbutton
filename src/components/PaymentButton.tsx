@@ -1,7 +1,6 @@
-
 import { ButtonStyle, YodlPaymentConfig } from "@/types";
 import { useNavigate } from "react-router-dom";
-import { Coffee, ArrowRight, DollarSign, Heart, HandCoins } from "lucide-react";
+import { ArrowRight, Heart, Star, Check } from "lucide-react";
 import { generateYodlPaymentLink } from "@/utils/yodl";
 import { useToast } from "@/hooks/use-toast";
 
@@ -60,56 +59,25 @@ const PaymentButton = ({
     navigate(`/thank-you/${slug}`);
   };
   
-  // Get the appropriate icon based on button text type or explicit icon type
+  // Get the icon based on iconType
   const getButtonIcon = () => {
-    // Use iconType if explicitly set
-    if (style.iconType) {
-      switch (style.iconType) {
-        case "coffee":
-          return <Coffee className="mr-2" size={20} />;
-        case "heart":
-          return <Heart className="mr-2" size={20} />;
-        case "dollar-sign":
-          return <DollarSign className="mr-2" size={20} />;
-        case "hand-coins":
-          return <HandCoins className="mr-2" size={20} />;
-        case "none":
-          return null;
-        default:
-          return <Coffee className="mr-2" size={20} />;
-      }
-    }
+    if (!style.iconType || style.iconType === "none") return null;
     
-    // Fall back to buttonTextType if iconType not set
-    switch (style.buttonTextType) {
-      case "tip":
-        return <HandCoins className="mr-2" size={20} />;
-      case "donate":
+    switch (style.iconType) {
+      case "arrow-right":
+        return <ArrowRight className="mr-2" size={20} />;
+      case "heart":
         return <Heart className="mr-2" size={20} />;
-      case "pay":
-        return <DollarSign className="mr-2" size={20} />;
-      case "custom":
+      case "star":
+        return <Star className="mr-2" size={20} />;
+      case "check":
+        return <Check className="mr-2" size={20} />;
       default:
-        return <Coffee className="mr-2" size={20} />;
+        return null;
     }
-  };
-  
-  // Get the appropriate text based on button type
-  const getButtonText = () => {
-    if (style.buttonTextType === "tip" && style.tipText) {
-      return style.tipText;
-    } else if (style.buttonTextType === "donate" && style.donateText) {
-      return style.donateText;
-    } else if (style.buttonTextType === "pay" && style.payText) {
-      return style.payText;
-    }
-    
-    // Fallback to the default buttonText
-    return style.buttonText;
   };
   
   const buttonIcon = getButtonIcon();
-  const buttonText = getButtonText();
   
   return (
     <button
@@ -132,12 +100,12 @@ const PaymentButton = ({
               className="w-full h-full drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]"
             />
           </div>
-          <span>{buttonText}</span>
+          <span>{style.buttonText}</span>
         </>
       ) : (
         <>
           {buttonIcon}
-          <span>{buttonText}</span>
+          <span>{style.buttonText}</span>
         </>
       )}
       <ArrowRight className="ml-2 opacity-70" size={16} />

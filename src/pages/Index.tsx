@@ -14,10 +14,8 @@ const DEFAULT_BUTTON_STYLE = {
   borderRadius: "9999px",
   fontSize: "16px",
   padding: "12px 24px",
-  buttonText: "Yodl me a coffee",
-  tipText: "Tip me",
-  donateText: "Donate",
-  payText: "Pay now"
+  buttonText: "Support me",
+  iconType: "none"
 };
 
 const DEFAULT_THANK_YOU_STYLE = {
@@ -70,26 +68,26 @@ const Index = ({ savedConfig, onConfigSave }: IndexProps) => {
   return (
     <Layout>
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-4 md:mb-6 space-y-2">
-          <div className="flex justify-center mb-3">
-            <div className="animate-pulse-subtle inline-flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 shadow-glow">
-              <svg className="w-6 h-6 md:w-8 md:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="text-center mb-3 md:mb-5 space-y-1">
+          <div className="flex justify-center mb-2">
+            <div className="animate-pulse-subtle inline-flex h-10 w-10 md:h-12 md:w-12 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 shadow-glow">
+              <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
           </div>
           
-          <h1 className="text-2xl md:text-4xl font-bold tracking-tight text-gradient animate-fade-in">
+          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-gradient animate-fade-in">
             Create Payment Buttons
           </h1>
           
-          <p className="text-sm md:text-base text-slate-300 max-w-2xl mx-auto animate-fade-in-up delay-150">
+          <p className="text-xs md:text-sm text-slate-300 max-w-2xl mx-auto animate-fade-in-up delay-150">
             Design a donation button and start accepting crypto tips without any technical knowledge.
           </p>
         </div>
 
         {isMobile && (
-          <div className="mb-4 px-2">
+          <div className="mb-3">
             <MobileButtonPreview buttonStyle={userConfig.buttonStyle} />
           </div>
         )}

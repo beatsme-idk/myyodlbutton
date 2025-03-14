@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { validateHexColor, isValidEnsOrAddress, isValidSlug } from "@/utils/validation";
-import { Check, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload, ExternalLink, Book, Droplet, HandCoins, DollarSign, Coffee } from "lucide-react";
+import { Check, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload, ExternalLink, Book, Droplet, HandCoins, DollarSign, Coffee, ArrowRight, Star } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import ColorPicker from "./ColorPicker";
 import LoadingSpinner from "./LoadingSpinner";
@@ -30,12 +30,8 @@ const DEFAULT_BUTTON_STYLE: ButtonStyle = {
   borderRadius: "9999px",
   fontSize: "16px",
   padding: "12px 24px",
-  buttonText: "Yodl me a coffee",
-  buttonTextType: "custom",
-  iconType: "coffee",
-  tipText: "Tip me",
-  donateText: "Donate",
-  payText: "Pay now"
+  buttonText: "Support me",
+  iconType: "none"
 };
 
 const DEFAULT_THANK_YOU_STYLE: ThankYouPageStyle = {
@@ -377,7 +373,7 @@ const ConfigurationForm = ({
     onConfigChange(newConfig);
   };
 
-  const handleButtonIconTypeChange = (iconType: ButtonStyle["iconType"]) => {
+  const handleIconTypeChange = (iconType: ButtonStyle["iconType"]) => {
     const newButtonStyle = { 
       ...config.buttonStyle, 
       iconType: iconType
@@ -400,7 +396,7 @@ const ConfigurationForm = ({
             Configure Your Payment Button
           </CardTitle>
           <CardDescription>
-            Customize how your "Yodl Me a Coffee" button looks and behaves
+            Customize how your button looks and behaves
           </CardDescription>
         </CardHeader>
         
@@ -528,7 +524,16 @@ const ConfigurationForm = ({
                         padding: config.buttonStyle.padding,
                       }}
                     >
+                      {config.buttonStyle.iconType && config.buttonStyle.iconType !== "none" && (
+                        <>
+                          {config.buttonStyle.iconType === "arrow-right" && <ArrowRight className="mr-2" size={16} />}
+                          {config.buttonStyle.iconType === "heart" && <Heart className="mr-2" size={16} />}
+                          {config.buttonStyle.iconType === "star" && <Star className="mr-2" size={16} />}
+                          {config.buttonStyle.iconType === "check" && <Check className="mr-2" size={16} />}
+                        </>
+                      )}
                       {config.buttonStyle.buttonText}
+                      <ArrowRight className="ml-2 opacity-70" size={14} />
                     </button>
                   </div>
                 </div>
@@ -606,68 +611,82 @@ const ConfigurationForm = ({
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-1">
                   <Book className="w-5 h-5 text-indigo-400" />
-                  <Label className="text-base font-medium">Button Text</Label>
+                  <Label className="text-base font-medium">Button Text & Icon</Label>
                 </div>
                 
-                <RadioGroup 
-                  value={config.buttonStyle.buttonTextType || "custom"} 
-                  onValueChange={(value) => handleButtonTextTypeChange(value as ButtonStyle["buttonTextType"])}
-                  className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3"
-                >
-                  <div className="flex items-center space-x-1">
-                    <RadioGroupItem value="tip" id="tip-text" />
-                    <Label htmlFor="tip-text" className="flex items-center text-sm">
-                      <HandCoins className="w-3 h-3 mr-1 text-green-400" />
-                      Tip
-                    </Label>
+                <div className="bg-slate-800/30 rounded-lg p-4 space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="buttonText">Button Text</Label>
+                    <Input
+                      id="buttonText"
+                      value={config.buttonStyle.buttonText}
+                      onChange={(e) => updateButtonStyle("buttonText", e.target.value)}
+                      placeholder="Support me"
+                      className={errors["buttonStyle.buttonText"] ? "border-destructive" : ""}
+                    />
                   </div>
                   
-                  <div className="flex items-center space-x-1">
-                    <RadioGroupItem value="donate" id="donate-text" />
-                    <Label htmlFor="donate-text" className="flex items-center text-sm">
-                      <Heart className="w-3 h-3 mr-1 text-pink-400" />
-                      Donate
-                    </Label>
+                  <div className="space-y-2">
+                    <Label className="block mb-2">Icon (Optional)</Label>
+                    <div className="grid grid-cols-5 gap-2">
+                      <Button
+                        type="button"
+                        variant={config.buttonStyle.iconType === "none" ? "default" : "outline"}
+                        size="sm"
+                        className="h-10 p-0 flex justify-center items-center"
+                        onClick={() => handleIconTypeChange("none")}
+                      >
+                        None
+                      </Button>
+                      
+                      <Button
+                        type="button"
+                        variant={config.buttonStyle.iconType === "heart" ? "default" : "outline"}
+                        size="sm"
+                        className="h-10 p-0 flex justify-center items-center"
+                        onClick={() => handleIconTypeChange("heart")}
+                      >
+                        <Heart size={16} />
+                      </Button>
+                      
+                      <Button
+                        type="button"
+                        variant={config.buttonStyle.iconType === "star" ? "default" : "outline"}
+                        size="sm"
+                        className="h-10 p-0 flex justify-center items-center"
+                        onClick={() => handleIconTypeChange("star")}
+                      >
+                        <Star size={16} />
+                      </Button>
+                      
+                      <Button
+                        type="button"
+                        variant={config.buttonStyle.iconType === "arrow-right" ? "default" : "outline"}
+                        size="sm"
+                        className="h-10 p-0 flex justify-center items-center"
+                        onClick={() => handleIconTypeChange("arrow-right")}
+                      >
+                        <ArrowRight size={16} />
+                      </Button>
+                      
+                      <Button
+                        type="button"
+                        variant={config.buttonStyle.iconType === "check" ? "default" : "outline"}
+                        size="sm"
+                        className="h-10 p-0 flex justify-center items-center"
+                        onClick={() => handleIconTypeChange("check")}
+                      >
+                        <Check size={16} />
+                      </Button>
+                    </div>
                   </div>
-                  
-                  <div className="flex items-center space-x-1">
-                    <RadioGroupItem value="pay" id="pay-text" />
-                    <Label htmlFor="pay-text" className="flex items-center text-sm">
-                      <DollarSign className="w-3 h-3 mr-1 text-blue-400" />
-                      Pay
-                    </Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-1">
-                    <RadioGroupItem value="custom" id="custom-text" />
-                    <Label htmlFor="custom-text" className="flex items-center text-sm">
-                      <Coffee className="w-3 h-3 mr-1 text-amber-400" />
-                      Custom
-                    </Label>
-                  </div>
-                </RadioGroup>
-                
-                <div className="space-y-2">
-                  <Input
-                    id="buttonText"
-                    value={config.buttonStyle.buttonText}
-                    onChange={(e) => updateButtonStyle("buttonText", e.target.value)}
-                    placeholder="Yodl me a coffee"
-                    className={errors["buttonStyle.buttonText"] ? "border-destructive" : ""}
-                    disabled={config.buttonStyle.buttonTextType !== "custom"}
-                  />
-                  {config.buttonStyle.buttonTextType !== "custom" && (
-                    <p className="text-xs text-slate-400">
-                      Select "Custom" to use your own button text
-                    </p>
-                  )}
                 </div>
               </div>
               
               <div className="bg-slate-800/30 rounded-lg p-4">
                 <Label className="block text-base font-medium mb-3">Size & Shape</Label>
                 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="borderRadius" className="text-sm">Border Radius</Label>
                     <div className="flex items-center gap-2">
@@ -702,7 +721,7 @@ const ConfigurationForm = ({
                     </div>
                   </div>
                   
-                  <div className="col-span-2 space-y-1">
+                  <div className="space-y-1">
                     <Label htmlFor="padding" className="text-sm">Padding</Label>
                     <div className="grid grid-cols-2 gap-3">
                       <div>

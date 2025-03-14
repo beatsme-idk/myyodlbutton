@@ -1,4 +1,3 @@
-
 export interface ButtonStyle {
   backgroundColor: string;
   textColor: string;
@@ -6,11 +5,7 @@ export interface ButtonStyle {
   fontSize: string;
   padding: string;
   buttonText: string;
-  buttonTextType?: "tip" | "donate" | "pay" | "custom";
-  iconType?: "coffee" | "heart" | "dollar-sign" | "hand-coins" | "custom" | "none";
-  tipText?: string;
-  donateText?: string;
-  payText?: string;
+  iconType?: "arrow-right" | "heart" | "star" | "check" | "none";
 }
 
 export interface ThankYouPageStyle {
