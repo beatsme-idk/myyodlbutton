@@ -15,6 +15,8 @@ import LoadingSpinner from "./LoadingSpinner";
 import SocialPreviewCard from "./SocialPreviewCard";
 import YodlConfig from "./YodlConfig";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import MobileButtonPreview from "./MobileButtonPreview";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ConfigurationFormProps {
   initialConfig?: UserConfig;
@@ -116,6 +118,7 @@ const ConfigurationForm = ({
   const [selectedGradient, setSelectedGradient] = useState("none");
   const [paddingHorizontal, setPaddingHorizontal] = useState(24);
   const [paddingVertical, setPaddingVertical] = useState(12);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (config.buttonStyle.padding) {
@@ -511,23 +514,25 @@ const ConfigurationForm = ({
             </TabsContent>
             
             <TabsContent value="button" className="space-y-6">
-              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-4">
-                <h3 className="text-lg font-semibold mb-4">Button Preview</h3>
-                <div className="flex items-center justify-center p-8 bg-slate-900/50 rounded-lg">
-                  <button
-                    className="inline-flex items-center justify-center shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
-                    style={{
-                      background: config.buttonStyle.backgroundColor,
-                      color: config.buttonStyle.textColor,
-                      borderRadius: config.buttonStyle.borderRadius,
-                      fontSize: config.buttonStyle.fontSize,
-                      padding: config.buttonStyle.padding,
-                    }}
-                  >
-                    {config.buttonStyle.buttonText}
-                  </button>
+              {!isMobile && (
+                <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-4">
+                  <h3 className="text-lg font-semibold mb-4">Button Preview</h3>
+                  <div className="flex items-center justify-center p-8 bg-slate-900/50 rounded-lg">
+                    <button
+                      className="inline-flex items-center justify-center shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200"
+                      style={{
+                        background: config.buttonStyle.backgroundColor,
+                        color: config.buttonStyle.textColor,
+                        borderRadius: config.buttonStyle.borderRadius,
+                        fontSize: config.buttonStyle.fontSize,
+                        padding: config.buttonStyle.padding,
+                      }}
+                    >
+                      {config.buttonStyle.buttonText}
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
             
               <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-1">
@@ -1056,8 +1061,6 @@ const ConfigurationForm = ({
           </Button>
         </div>
       </Card>
-    </form>
-  );
-};
+      
+      <
 
-export default ConfigurationForm;
