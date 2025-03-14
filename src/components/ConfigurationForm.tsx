@@ -747,7 +747,7 @@ const ConfigurationForm = ({
                       <Label htmlFor="backgroundColor">Background Color</Label>
                       <ColorPicker
                         color={config.buttonStyle.backgroundColor}
-                        onColorChange={(color) => updateButtonStyle("backgroundColor", color)}
+                        onChange={(color) => updateButtonStyle("backgroundColor", color)}
                       />
                       {errors["buttonStyle.backgroundColor"] && (
                         <p className="text-sm text-destructive mt-1">{errors["buttonStyle.backgroundColor"]}</p>
@@ -759,7 +759,7 @@ const ConfigurationForm = ({
                     <Label htmlFor="textColor">Text Color</Label>
                     <ColorPicker
                       color={config.buttonStyle.textColor}
-                      onColorChange={(color) => updateButtonStyle("textColor", color)}
+                      onChange={(color) => updateButtonStyle("textColor", color)}
                     />
                     {errors["buttonStyle.textColor"] && (
                       <p className="text-sm text-destructive mt-1">{errors["buttonStyle.textColor"]}</p>
