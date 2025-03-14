@@ -5,8 +5,6 @@ import ConfigurationForm from "@/components/ConfigurationForm";
 import PreviewCard from "@/components/PreviewCard";
 import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { Button } from "@/components/ui/button";
-import { ReceiptIcon } from "lucide-react";
 
 const DEFAULT_BUTTON_STYLE = {
   backgroundColor: "#6366F1",
@@ -85,18 +83,6 @@ const Index = ({ savedConfig, onConfigSave }: IndexProps) => {
           <p className="text-xl text-slate-300 max-w-2xl mx-auto animate-fade-in-up delay-150">
             Design and share a sleek donation button in minutes and start accepting crypto tips and donations without any technical knowledge. Instantly shareable.
           </p>
-          
-          <div className="mt-8 flex flex-wrap justify-center">
-            <Button 
-              onClick={() => navigate("/payment-history")}
-              variant="default" 
-              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 shadow-md"
-              size="lg"
-            >
-              <ReceiptIcon className="w-5 h-5" />
-              View Payment History
-            </Button>
-          </div>
         </div>
         
         <div className="neo-blur rounded-3xl shadow-xl overflow-hidden border border-indigo-500/30 animate-slide-up">

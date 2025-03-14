@@ -9,9 +9,7 @@ import Index from "./pages/Index";
 import PaymentPage from "./pages/PaymentPage";
 import ThankYouPage from "./pages/ThankYouPage";
 import NotFound from "./pages/NotFound";
-import PaymentHistoryPage from "./pages/YodlConfigPage";
 import { UserConfig, YodlPaymentConfig } from "./types";
-import MyProfilePage from "./components/MyProfilePage";
 
 const queryClient = new QueryClient();
 
@@ -120,8 +118,6 @@ const App = () => {
             <Route path="/" element={<Index savedConfig={userConfig} onConfigSave={handleConfigSave} />} />
             <Route path="/pay/:slug" element={<PaymentPage />} />
             <Route path="/thank-you/:slug" element={<ThankYouPage />} />
-            <Route path="/payment-history" element={<PaymentHistoryPage />} />
-            <Route path="/profile" element={<MyProfilePage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
