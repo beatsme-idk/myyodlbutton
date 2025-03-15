@@ -1,3 +1,5 @@
+
+// Add the necessary imports for the icons
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import PaymentButton from "./PaymentButton";
 import { PreviewProps } from "@/types";
@@ -5,7 +7,7 @@ import SocialShareButtons from "./SocialShareButtons";
 import AvatarGenerator from "./AvatarGenerator";
 import SocialPreviewCard from "./SocialPreviewCard";
 import QRCodeGenerator from "./QRCodeGenerator";
-import { Sparkles, Link as LinkIcon, CopyIcon, Check, Share2, Wallet, QrCode, Scan } from "lucide-react";
+import { Sparkles, Link as LinkIcon, CopyIcon, Check, Share2, Wallet, QrCode, Scan, ArrowRight, Heart, Coffee, Hand, Gift, Zap } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
 

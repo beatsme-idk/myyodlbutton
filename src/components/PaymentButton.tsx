@@ -1,7 +1,7 @@
 
 import { ButtonStyle, YodlPaymentConfig } from "@/types";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Heart, Coffee, Hand, Gift, Zap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { generateYodlPaymentLink } from "@/utils/yodl";
 
@@ -24,6 +24,19 @@ const PaymentButton = ({
 }: PaymentButtonProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  // Map icon names to Lucide components
+  const iconMap = {
+    "heart": Heart,
+    "coffee": Coffee,
+    "hand": Hand,
+    "gift": Gift,
+    "zap": Zap,
+    "none": () => null
+  };
+  
+  // Get the icon component based on style.icon (defaulting to none)
+  const IconComponent = iconMap[style.icon as keyof typeof iconMap] || iconMap.none;
   
   const handleClick = () => {
     // Generate Yodl payment link
@@ -67,6 +80,7 @@ const PaymentButton = ({
           className="w-full h-full drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]"
         />
       </div>
+      {IconComponent !== iconMap.none && <IconComponent className="mr-2" size={16} />}
       <span>{style.buttonText}</span>
       <ArrowRight className="ml-2 opacity-70" size={16} />
     </button>

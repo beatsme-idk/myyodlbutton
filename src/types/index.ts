@@ -6,6 +6,7 @@ export interface ButtonStyle {
   fontSize: string;
   padding: string;
   buttonText: string;
+  icon?: string;  // Added icon property
 }
 
 export interface ThankYouPageStyle {

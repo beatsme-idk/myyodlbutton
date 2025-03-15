@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -16,13 +15,12 @@ const queryClient = new QueryClient();
 const STORAGE_KEY = "myyodlbutton_config";
 
 const DEFAULT_YODL_CONFIG: YodlPaymentConfig = {
-  enabled: false,
-  tokens: "USDC,USDT",
-  chains: "base,oeth",
+  tokens: ["USDC", "USDT"],
+  chains: ["base", "oeth"],
   currency: "USD",
   amount: "",
   memo: "",
-  webhooks: []
+  redirectUrl: ""
 };
 
 const App = () => {

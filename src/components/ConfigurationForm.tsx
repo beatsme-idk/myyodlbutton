@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { validateHexColor, isValidEnsOrAddress, isValidSlug } from "@/utils/validation";
-import { Check, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload, ExternalLink, Book, Wallet, Droplet, Twitter, Instagram, Github, Linkedin, Link2 } from "lucide-react";
+import { Check, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload, ExternalLink, Book, Wallet, Droplet, Twitter, Instagram, Github, Linkedin, Link2, ArrowRight } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import ColorPicker from "./ColorPicker";
 import LoadingSpinner from "./LoadingSpinner";
@@ -28,7 +28,8 @@ const DEFAULT_BUTTON_STYLE: ButtonStyle = {
   borderRadius: "9999px",
   fontSize: "16px",
   padding: "12px 24px",
-  buttonText: "Yodl me a coffee"
+  buttonText: "Yodl me a coffee",
+  icon: "none"
 };
 
 const DEFAULT_THANK_YOU_STYLE: ThankYouPageStyle = {
@@ -106,6 +107,7 @@ const ConfigurationForm = ({
   const [paddingHorizontal, setPaddingHorizontal] = useState(24);
   const [paddingVertical, setPaddingVertical] = useState(12);
   const [customLinkActive, setCustomLinkActive] = useState(!!config.thankYouPage.customLink);
+  const [selectedIcon, setSelectedIcon] = useState<string>(config.buttonStyle.icon || "none");
 
   useEffect(() => {
     if (config.buttonStyle.padding) {
@@ -498,7 +500,24 @@ const ConfigurationForm = ({
                       padding: config.buttonStyle.padding,
                     }}
                   >
-                    {config.buttonStyle.buttonText}
+                    <div className="relative mr-2 w-5 h-5">
+                      <img 
+                        src="https://yodl.me/_next/static/media/new_logo.be0c2fdb.svg" 
+                        alt="Yodl"
+                        className="w-full h-full drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]"
+                      />
+                    </div>
+                    {selectedIcon !== "none" && (
+                      <>
+                        {selectedIcon === "heart" && <Heart className="mr-2" size={16} />}
+                        {selectedIcon === "coffee" && <Coffee className="mr-2" size={16} />}
+                        {selectedIcon === "hand" && <Hand className="mr-2" size={16} />}
+                        {selectedIcon === "gift" && <Gift className="mr-2" size={16} />}
+                        {selectedIcon === "zap" && <Zap className="mr-2" size={16} />}
+                      </>
+                    )}
+                    <span>{config.buttonStyle.buttonText}</span>
+                    <ArrowRight className="ml-2 opacity-70" size={16} />
                   </button>
                 </div>
               </div>
@@ -921,28 +940,16 @@ const ConfigurationForm = ({
                 
                 {config.socialPreview.useCustomImage && (
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      {config.socialPreview.imageUrl && (
-                        <div className="w-12 h-12 rounded overflow-hidden">
-                          <img 
-                            src={config.socialPreview.imageUrl} 
-                            alt="Preview"
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      )}
-                      <div className="flex-1">
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                          className="max-w-sm"
-                        />
-                        <p className="text-xs text-slate-400 mt-1">
-                          Recommended size: 1200x630 pixels
-                        </p>
-                      </div>
-                    </div>
+                    <Label>Image URL</Label>
+                    <Input
+                      type="text"
+                      placeholder="https://example.com/your-image.jpg"
+                      value={config.socialPreview.imageUrl}
+                      onChange={(e) => updateSocialPreviewStyle("imageUrl", e.target.value)}
+                    />
+                    <p className="text-xs text-slate-400 mt-1">
+                      Enter a direct URL to your image. Recommended size: 1200x630 pixels
+                    </p>
                   </div>
                 )}
               </div>

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { UserConfig } from "@/types";
 import ConfigurationForm from "@/components/ConfigurationForm";
@@ -12,7 +11,8 @@ const DEFAULT_BUTTON_STYLE = {
   borderRadius: "9999px",
   fontSize: "16px",
   padding: "12px 24px",
-  buttonText: "Yodl me a coffee"
+  buttonText: "Yodl me a coffee",
+  icon: "coffee"
 };
 
 const DEFAULT_THANK_YOU_STYLE = {

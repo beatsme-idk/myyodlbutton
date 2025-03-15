@@ -24,22 +24,6 @@ export const generateYodlPaymentLink = (address: string, config?: YodlPaymentCon
     if (config.chains.includes('all')) {
       // Don't specify chains to allow all
     } else {
-      // Map friendly chain names to their prefixes if needed
-      const chainMapping: Record<string, string> = {
-        'Ethereum': 'eth',
-        'mainnet': 'eth',
-        'Arbitrum': 'arb1',
-        'arbitrum': 'arb1',
-        'Base': 'base',
-        'base': 'base',
-        'Polygon': 'pol',
-        'polygon': 'pol',
-        'Optimism': 'oeth',
-        'optimism': 'oeth',
-        'oeth': 'oeth'
-      };
-      
-      // The chains are already in the right format from our UI
       params.append("chains", config.chains.join(','));
     }
   }
@@ -56,9 +40,12 @@ export const generateYodlPaymentLink = (address: string, config?: YodlPaymentCon
     params.append("memo", config.memo);
   }
   
-  // Add redirect URL parameter
+  // Add redirect URL parameter without encoding
   if (config.redirectUrl) {
-    params.append("redirectUrl", config.redirectUrl);
+    // Using URLSearchParams but ensuring the redirect URL doesn't get encoded with %
+    const baseUrl = new URL(url);
+    const fullUrl = baseUrl.toString() + (params.toString() ? '?' + params.toString() : '');
+    return fullUrl + (params.toString() ? '&' : '?') + 'redirectUrl=' + config.redirectUrl + '&buttonText=Return+to+Site';
   }
   
   // Add button text for return
