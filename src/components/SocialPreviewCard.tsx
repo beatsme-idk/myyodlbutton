@@ -4,11 +4,22 @@ import { SocialPreviewStyle } from "@/types";
 import AvatarGenerator from "./AvatarGenerator";
 
 interface SocialPreviewCardProps {
-  ensNameOrAddress: string;
-  socialPreview: SocialPreviewStyle;
+  ensNameOrAddress?: string;
+  socialPreview?: SocialPreviewStyle;
+  preview?: SocialPreviewStyle;  // Added this to handle both usage patterns
 }
 
-const SocialPreviewCard = ({ ensNameOrAddress, socialPreview }: SocialPreviewCardProps) => {
+const SocialPreviewCard = ({ ensNameOrAddress, socialPreview, preview }: SocialPreviewCardProps) => {
+  // Use the preview prop if provided, otherwise use socialPreview
+  const previewData = preview || socialPreview;
+  
+  // Use a default ENS name if none is provided
+  const displayEnsOrAddress = ensNameOrAddress || "username.eth";
+  
+  if (!previewData) {
+    return null;
+  }
+  
   return (
     <Card className="w-full overflow-hidden glass-panel border-0 rounded-xl shadow-md transform transition-all duration-300 hover:shadow-xl">
       <div className="bg-gradient-to-r from-gray-900 to-slate-900 pt-2 px-2">
@@ -21,27 +32,27 @@ const SocialPreviewCard = ({ ensNameOrAddress, socialPreview }: SocialPreviewCar
       </div>
       
       <div className="bg-slate-800 p-4 flex items-center gap-3">
-        {socialPreview.useCustomImage && socialPreview.imageUrl ? (
+        {previewData.useCustomImage && previewData.imageUrl ? (
           <img 
-            src={socialPreview.imageUrl} 
+            src={previewData.imageUrl} 
             alt="Preview" 
             className="w-16 h-16 rounded-full object-cover"
           />
         ) : (
           <div className="w-16 h-16 rounded-full overflow-hidden flex items-center justify-center bg-indigo-600/20">
-            <AvatarGenerator ensNameOrAddress={ensNameOrAddress} size="large" />
+            <AvatarGenerator ensNameOrAddress={displayEnsOrAddress} size="large" />
           </div>
         )}
         
         <div className="flex-1 min-w-0">
           <h3 className="text-md font-semibold text-white truncate">
-            {socialPreview.title || `Support me with crypto`}
+            {previewData.title || `Support me with crypto`}
           </h3>
           <p className="text-sm text-slate-300 line-clamp-2 mt-1">
-            {socialPreview.description || `Send crypto to ${ensNameOrAddress} to show your support.`}
+            {previewData.description || `Send crypto to ${displayEnsOrAddress} to show your support.`}
           </p>
           <div className="mt-2 text-xs text-slate-400 truncate">
-            myyodlbutton.lovable.app/{ensNameOrAddress.replace('.eth', '')}
+            myyodlbutton.lovable.app/{displayEnsOrAddress.replace('.eth', '')}
           </div>
         </div>
       </div>
