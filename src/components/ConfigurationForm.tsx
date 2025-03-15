@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { UserConfig, ButtonStyle, ThankYouPageStyle, SocialPreviewStyle, YodlPaymentConfig } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -52,7 +51,16 @@ const DEFAULT_CONFIG: UserConfig = {
   buttonStyle: DEFAULT_BUTTON_STYLE,
   thankYouPage: DEFAULT_THANK_YOU_STYLE,
   socialPreview: DEFAULT_SOCIAL_PREVIEW,
-  slug: ""
+  slug: "",
+  yodlConfig: {
+    enabled: false,
+    tokens: "USDC,USDT",
+    chains: "base,oeth",
+    currency: "USD",
+    amount: "",
+    memo: "",
+    webhooks: []
+  }
 };
 
 const GRADIENT_OPTIONS = [
@@ -462,6 +470,41 @@ const ConfigurationForm = ({
                 )}
                 <div className="text-muted-foreground text-xs mt-1">
                   This will be used in your payment URL: https://myyodlbutton.lovable.app/pay/<strong>{config.slug || "your-slug"}</strong>
+                </div>
+              </div>
+              
+              <div className="mt-6 pt-6 border-t border-slate-700/50">
+                <h3 className="text-lg font-semibold mb-4 flex items-center">
+                  <Wallet className="w-5 h-5 text-green-500 mr-2" />
+                  Yodl Payment Settings
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2 mb-4">
+                    <Switch
+                      id="yodlEnabled"
+                      checked={config.yodlConfig?.enabled || false}
+                      onCheckedChange={(checked) => {
+                        const yodlConfig = config.yodlConfig || {
+                          enabled: false,
+                          tokens: "USDC,USDT",
+                          chains: "base,oeth",
+                          currency: "USD",
+                          amount: "",
+                          memo: "",
+                          webhooks: []
+                        };
+                        updateConfig("yodlConfig", { ...yodlConfig, enabled: checked });
+                      }}
+                    />
+                    <Label htmlFor="yodlEnabled">Enable Yodl payments</Label>
+                  </div>
+                  
+                  {config.yodlConfig?.enabled && (
+                    <YodlConfig 
+                      config={config.yodlConfig} 
+                      onChange={(yodlConfig) => updateConfig("yodlConfig", yodlConfig)} 
+                    />
+                  )}
                 </div>
               </div>
             </TabsContent>
