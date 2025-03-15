@@ -78,7 +78,7 @@ const Index = ({ savedConfig, onConfigSave }: IndexProps) => {
           </div>
           
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold tracking-tight text-gradient animate-fade-in px-2">
-            Create Beautiful Payment Buttons
+            Create Beautiful Yodl Buttons
           </h1>
           
           <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-2xl mx-auto animate-fade-in-up delay-150 px-2">

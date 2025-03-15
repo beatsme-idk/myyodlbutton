@@ -15,7 +15,7 @@ const PreviewCard = ({ preview }: PreviewProps) => {
   const [copied, setCopied] = useState(false);
   const [showSocialPreview, setShowSocialPreview] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
-  const paymentUrl = `https://tributee.lovable.app/pay/${preview.slug}`;
+  const paymentUrl = `https://myyodlbutton.lovable.app/pay/${preview.slug}`;
   
   // Add the thank you page redirect URL to the Yodl config if needed
   const yodlConfig = preview.yodlConfig?.enabled 

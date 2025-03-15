@@ -16,7 +16,7 @@ import MyProfilePage from "./components/MyProfilePage";
 
 const queryClient = new QueryClient();
 
-const STORAGE_KEY = "buymeacoffee_config";
+const STORAGE_KEY = "myyodlbutton_config";
 
 const DEFAULT_YODL_CONFIG: YodlPaymentConfig = {
   enabled: false,
