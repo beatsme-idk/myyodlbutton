@@ -813,4 +813,254 @@ const ConfigurationForm = ({
                   {errors["thankYouPage.backgroundColor"] && (
                     <div className="text-destructive text-sm flex items-center gap-1">
                       <AlertCircle size={14} />
-                      {errors["thankYouPage
+                      {errors["thankYouPage.backgroundColor"]}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="space-y-3">
+                  <Label htmlFor="tyTextColor">Text Color</Label>
+                  <ColorPicker 
+                    color={config.thankYouPage.textColor} 
+                    onChange={(color) => updateThankYouStyle("textColor", color)}
+                  />
+                  {errors["thankYouPage.textColor"] && (
+                    <div className="text-destructive text-sm flex items-center gap-1">
+                      <AlertCircle size={14} />
+                      {errors["thankYouPage.textColor"]}
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="tyMessage">Thank You Message</Label>
+                <Textarea
+                  id="tyMessage"
+                  value={config.thankYouPage.message}
+                  onChange={(e) => updateThankYouStyle("message", e.target.value)}
+                  placeholder="Thank you for your support!"
+                  className={errors["thankYouPage.message"] ? "border-destructive" : ""}
+                />
+                {errors["thankYouPage.message"] && (
+                  <div className="text-destructive text-sm flex items-center gap-1 mt-1">
+                    <AlertCircle size={14} />
+                    {errors["thankYouPage.message"]}
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Switch 
+                  id="showConfetti" 
+                  checked={config.thankYouPage.showConfetti}
+                  onCheckedChange={(checked) => updateThankYouStyle("showConfetti", checked)}
+                />
+                <Label htmlFor="showConfetti">Show Confetti Animation</Label>
+              </div>
+              
+              <div className="space-y-4 pt-4 border-t border-slate-700/50">
+                <h3 className="text-lg font-semibold">Social Media Links</h3>
+                <div className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="twitterLink" className="flex items-center gap-2">
+                        <Twitter size={16} />
+                        Twitter Link
+                      </Label>
+                      <Input
+                        id="twitterLink"
+                        value={config.thankYouPage.socialLinks?.twitter || ""}
+                        onChange={(e) => updateSocialLinks("twitter", e.target.value)}
+                        placeholder="https://twitter.com/yourusername"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="instagramLink" className="flex items-center gap-2">
+                        <Instagram size={16} />
+                        Instagram Link
+                      </Label>
+                      <Input
+                        id="instagramLink"
+                        value={config.thankYouPage.socialLinks?.instagram || ""}
+                        onChange={(e) => updateSocialLinks("instagram", e.target.value)}
+                        placeholder="https://instagram.com/yourusername"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="githubLink" className="flex items-center gap-2">
+                        <Github size={16} />
+                        GitHub Link
+                      </Label>
+                      <Input
+                        id="githubLink"
+                        value={config.thankYouPage.socialLinks?.github || ""}
+                        onChange={(e) => updateSocialLinks("github", e.target.value)}
+                        placeholder="https://github.com/yourusername"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="linkedinLink" className="flex items-center gap-2">
+                        <Linkedin size={16} />
+                        LinkedIn Link
+                      </Label>
+                      <Input
+                        id="linkedinLink"
+                        value={config.thankYouPage.socialLinks?.linkedin || ""}
+                        onChange={(e) => updateSocialLinks("linkedin", e.target.value)}
+                        placeholder="https://linkedin.com/in/yourusername"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-4 pt-4 border-t border-slate-700/50">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Custom Link</h3>
+                  <Switch 
+                    id="customLinkToggle" 
+                    checked={customLinkActive}
+                    onCheckedChange={toggleCustomLink}
+                  />
+                </div>
+                
+                {customLinkActive && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="customLinkText">Link Text</Label>
+                      <Input
+                        id="customLinkText"
+                        value={config.thankYouPage.customLink?.text || ""}
+                        onChange={(e) => updateCustomLink("text", e.target.value)}
+                        placeholder="Visit my website"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="customLinkUrl">Link URL</Label>
+                      <Input
+                        id="customLinkUrl"
+                        value={config.thankYouPage.customLink?.url || ""}
+                        onChange={(e) => updateCustomLink("url", e.target.value)}
+                        placeholder="https://example.com"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="social" className="space-y-6">
+              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-4">
+                <h3 className="text-lg font-semibold mb-4">Social Preview</h3>
+                <SocialPreviewCard preview={config.socialPreview} />
+              </div>
+            
+              <div className="space-y-2">
+                <Label htmlFor="previewTitle">Page Title</Label>
+                <Input
+                  id="previewTitle"
+                  value={config.socialPreview.title}
+                  onChange={(e) => updateSocialPreviewStyle("title", e.target.value)}
+                  placeholder="Support My Work"
+                  className={errors["socialPreview.title"] ? "border-destructive" : ""}
+                />
+                {errors["socialPreview.title"] && (
+                  <div className="text-destructive text-sm flex items-center gap-1 mt-1">
+                    <AlertCircle size={14} />
+                    {errors["socialPreview.title"]}
+                  </div>
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="previewDescription">Description</Label>
+                <Textarea
+                  id="previewDescription"
+                  value={config.socialPreview.description}
+                  onChange={(e) => updateSocialPreviewStyle("description", e.target.value)}
+                  placeholder="Every contribution helps me continue creating awesome content for you!"
+                  className={errors["socialPreview.description"] ? "border-destructive" : ""}
+                />
+                {errors["socialPreview.description"] && (
+                  <div className="text-destructive text-sm flex items-center gap-1 mt-1">
+                    <AlertCircle size={14} />
+                    {errors["socialPreview.description"]}
+                  </div>
+                )}
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="customImage">Custom Preview Image</Label>
+                  <Switch 
+                    id="customImage" 
+                    checked={config.socialPreview.useCustomImage}
+                    onCheckedChange={(checked) => updateSocialPreviewStyle("useCustomImage", checked)}
+                  />
+                </div>
+                
+                {config.socialPreview.useCustomImage && (
+                  <div className="space-y-4">
+                    {config.socialPreview.imageUrl && (
+                      <div className="relative w-full h-48 rounded-lg overflow-hidden border border-slate-700/50">
+                        <img 
+                          src={config.socialPreview.imageUrl} 
+                          alt="Preview" 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    
+                    <div className="flex items-center gap-2">
+                      <Button type="button" variant="outline" onClick={() => document.getElementById('upload-image')?.click()}>
+                        <Upload className="mr-2 h-4 w-4" />
+                        Upload Image
+                      </Button>
+                      <input
+                        id="upload-image"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                      <div className="text-xs text-muted-foreground">
+                        Recommended size: 1200 x 630 pixels (16:9 ratio)
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
+          
+          <div className="flex justify-end mt-8 pt-6 border-t border-slate-700/50">
+            <Button 
+              type="submit" 
+              className="w-full md:w-auto"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <LoadingSpinner className="mr-2" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Check className="mr-2 h-4 w-4" />
+                  Save Configuration
+                </>
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </form>
+  );
+};
+
+export default ConfigurationForm;
