@@ -37,13 +37,11 @@ export interface SocialPreviewStyle {
 }
 
 export interface YodlPaymentConfig {
-  enabled: boolean;
-  tokens?: string;
-  chains?: string;
-  currency?: string;
-  amount?: string;
+  tokens: string[];
+  chains: string[];
+  currency: string;
+  amount: string;
   memo?: string;
-  webhooks?: string[];
   redirectUrl?: string;
 }
 
@@ -53,7 +51,7 @@ export interface UserConfig {
   thankYouPage: ThankYouPageStyle;
   socialPreview: SocialPreviewStyle;
   slug: string;
-  yodlConfig?: YodlPaymentConfig;
+  yodlConfig: YodlPaymentConfig;
 }
 
 export interface PreviewProps {
@@ -88,4 +86,20 @@ export interface Payment {
   token: string;
   chain: string;
   memo?: string;
+}
+
+// Yodl specific types
+export enum ChainPrefix {
+  ETH = 'eth',
+  ARB = 'arb1',
+  BASE = 'base',
+  POL = 'pol',
+  OETH = 'oeth'
+}
+
+export interface PaymentPreferences {
+  ensName?: string;
+  address: string;
+  preferredCurrency: string;
+  chainPreferences: Record<string, { isEnabled: boolean }>;
 }

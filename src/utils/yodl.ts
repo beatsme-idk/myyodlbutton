@@ -2,7 +2,7 @@
 import { YodlPaymentConfig } from "@/types";
 
 export const generateYodlPaymentLink = (address: string, config?: YodlPaymentConfig): string => {
-  if (!config || !config.enabled) {
+  if (!config) {
     return "";
   }
 
@@ -12,12 +12,33 @@ export const generateYodlPaymentLink = (address: string, config?: YodlPaymentCon
   // Build query parameters
   const params = new URLSearchParams();
   
-  if (config.tokens) {
-    params.append("tokens", config.tokens);
+  if (config.tokens && config.tokens.length > 0) {
+    params.append("tokens", Array.isArray(config.tokens) ? config.tokens.join(',') : config.tokens);
   }
   
-  if (config.chains) {
-    params.append("chains", config.chains);
+  if (config.chains && config.chains.length > 0) {
+    // Map friendly chain names to their prefixes
+    const chainMapping: Record<string, string> = {
+      'Ethereum': 'eth',
+      'mainnet': 'eth',
+      'Arbitrum': 'arb1',
+      'arbitrum': 'arb1',
+      'Base': 'base',
+      'base': 'base',
+      'Polygon': 'pol',
+      'polygon': 'pol',
+      'Optimism': 'oeth',
+      'optimism': 'oeth',
+      'oeth': 'oeth'
+    };
+    
+    const chainPrefixes = Array.isArray(config.chains) 
+      ? config.chains.map(chain => chainMapping[chain] || chain).filter(Boolean)
+      : [config.chains];
+      
+    if (chainPrefixes.length > 0) {
+      params.append("chains", chainPrefixes.join(','));
+    }
   }
   
   if (config.currency) {
@@ -36,6 +57,9 @@ export const generateYodlPaymentLink = (address: string, config?: YodlPaymentCon
   if (config.redirectUrl) {
     params.append("redirectUrl", config.redirectUrl);
   }
+  
+  // Add button text for return
+  params.append("buttonText", "Return to Site");
   
   const queryString = params.toString();
   if (queryString) {
@@ -58,11 +82,12 @@ export const parseYodlConfigFromENS = async (ensName: string): Promise<YodlPayme
   // For demo purposes, we'll just simulate a response for 'vitalik.eth'
   if (ensName === 'vitalik.eth') {
     return {
-      enabled: true,
-      tokens: "USDC,USDT",
-      chains: "base,oeth",
+      tokens: ["USDC", "USDT", "ETH"],
+      chains: ["mainnet", "base", "optimism"],
       currency: "USD",
-      webhooks: ["https://tgbot.yodl.me/v1/tx?id=demo"]
+      amount: "",
+      memo: "Thanks for supporting my work!",
+      redirectUrl: ""
     };
   }
   

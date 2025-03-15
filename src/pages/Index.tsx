@@ -35,7 +35,15 @@ const DEFAULT_CONFIG: UserConfig = {
   buttonStyle: DEFAULT_BUTTON_STYLE,
   thankYouPage: DEFAULT_THANK_YOU_STYLE,
   socialPreview: DEFAULT_SOCIAL_PREVIEW,
-  slug: "demo"
+  slug: "demo",
+  yodlConfig: {
+    tokens: ["USDC", "USDT", "ETH"],
+    chains: ["base", "oeth", "mainnet"],
+    currency: "USD",
+    amount: "",
+    memo: "Thanks for the support!",
+    redirectUrl: ""
+  }
 };
 
 interface IndexProps {

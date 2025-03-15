@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import PaymentButton from "./PaymentButton";
 import { PreviewProps } from "@/types";
@@ -9,7 +8,6 @@ import QRCodeGenerator from "./QRCodeGenerator";
 import { Sparkles, Link as LinkIcon, CopyIcon, Check, Share2, Wallet, QrCode, Scan } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
-import { generateYodlPaymentLink } from "@/utils/yodl";
 
 const PreviewCard = ({ preview }: PreviewProps) => {
   const [copied, setCopied] = useState(false);
@@ -17,17 +15,53 @@ const PreviewCard = ({ preview }: PreviewProps) => {
   const [showQRCode, setShowQRCode] = useState(false);
   const paymentUrl = `https://myyodlbutton.lovable.app/pay/${preview.slug}`;
   
-  // Add the thank you page redirect URL to the Yodl config if needed
-  const yodlConfig = preview.yodlConfig?.enabled 
+  const yodlConfig = preview.yodlConfig 
     ? {
         ...preview.yodlConfig,
         redirectUrl: preview.yodlConfig.redirectUrl || `${window.location.origin}/thank-you/${preview.slug}`
       }
-    : null;
+    : undefined;
+  
+  const generateYodlUrl = (address: string, config?: any): string => {
+    if (!config) return "";
     
-  const yodlUrl = yodlConfig 
-    ? generateYodlPaymentLink(preview.ensNameOrAddress, yodlConfig)
-    : null;
+    let url = `https://yodl.me/${address}`;
+    
+    const params = new URLSearchParams();
+    
+    if (config.tokens && config.tokens.length > 0) {
+      params.append("tokens", Array.isArray(config.tokens) ? config.tokens.join(',') : config.tokens);
+    }
+    
+    if (config.chains && config.chains.length > 0) {
+      params.append("chains", Array.isArray(config.chains) ? config.chains.join(',') : config.chains);
+    }
+    
+    if (config.currency) {
+      params.append("currency", config.currency);
+    }
+    
+    if (config.amount) {
+      params.append("amount", config.amount);
+    }
+    
+    if (config.memo) {
+      params.append("memo", config.memo);
+    }
+    
+    if (config.redirectUrl) {
+      params.append("redirectUrl", config.redirectUrl);
+    }
+    
+    const queryString = params.toString();
+    if (queryString) {
+      url += `?${queryString}`;
+    }
+    
+    return url;
+  };
+  
+  const yodlUrl = preview.yodlConfig ? generateYodlUrl(preview.ensNameOrAddress, yodlConfig) : null;
   
   const handleCopy = (url: string) => {
     navigator.clipboard.writeText(url);
@@ -178,7 +212,6 @@ const PreviewCard = ({ preview }: PreviewProps) => {
               Your audience will be able to pay you with various tokens on multiple blockchains
             </div>
             
-            {/* Display redirect information */}
             {yodlConfig?.redirectUrl && (
               <div className="text-xs text-slate-400 mt-1 flex items-center gap-2">
                 <Sparkles size={12} className="text-green-400" />
