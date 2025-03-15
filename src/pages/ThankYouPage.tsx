@@ -7,7 +7,7 @@ import { ThankYouPageStyle } from "@/types";
 // In a real app, this would fetch from an API or database
 const getThankYouConfig = (slug: string): ThankYouPageStyle | null => {
   // Try to load from localStorage first
-  const savedConfig = localStorage.getItem("buymeacoffee_config");
+  const savedConfig = localStorage.getItem("myyodlbutton_config");
   if (savedConfig) {
     const config = JSON.parse(savedConfig);
     if (config.slug === slug) {
@@ -21,7 +21,15 @@ const getThankYouConfig = (slug: string): ThankYouPageStyle | null => {
       backgroundColor: "#F9FAFB",
       textColor: "#111827",
       message: "Thank you for your support! It means a lot to me.",
-      showConfetti: true
+      showConfetti: true,
+      socialLinks: {
+        twitter: "https://twitter.com/example",
+        instagram: "https://instagram.com/example"
+      },
+      customLink: {
+        text: "Visit my website",
+        url: "https://example.com"
+      }
     }
   };
   
@@ -73,7 +81,9 @@ const ThankYouPage = () => {
         message: config.message,
         showConfetti: config.showConfetti,
         backgroundColor: config.backgroundColor,
-        textColor: config.textColor
+        textColor: config.textColor,
+        socialLinks: config.socialLinks,
+        customLink: config.customLink
       }}
     />
   );

@@ -3,10 +3,7 @@ import { useState, useEffect } from "react";
 import { UserConfig } from "@/types";
 import ConfigurationForm from "@/components/ConfigurationForm";
 import PreviewCard from "@/components/PreviewCard";
-import { useNavigate } from "react-router-dom";
 import Layout from "@/components/Layout";
-import { Button } from "@/components/ui/button";
-import { ReceiptIcon } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const DEFAULT_BUTTON_STYLE = {
@@ -22,7 +19,8 @@ const DEFAULT_THANK_YOU_STYLE = {
   backgroundColor: "#1E1E2E",
   textColor: "#FFFFFF",
   message: "Thank you for your support! It means a lot to me.",
-  showConfetti: true
+  showConfetti: true,
+  socialLinks: {}
 };
 
 const DEFAULT_SOCIAL_PREVIEW = {
@@ -46,7 +44,6 @@ interface IndexProps {
 }
 
 const Index = ({ savedConfig, onConfigSave }: IndexProps) => {
-  const navigate = useNavigate();
   const [userConfig, setUserConfig] = useState<UserConfig>(savedConfig || DEFAULT_CONFIG);
   const isMobile = useIsMobile();
   
@@ -62,7 +59,6 @@ const Index = ({ savedConfig, onConfigSave }: IndexProps) => {
   
   const handleSave = (config: UserConfig) => {
     onConfigSave(config);
-    navigate(`/pay/${config.slug}`);
   };
   
   return (
@@ -84,18 +80,6 @@ const Index = ({ savedConfig, onConfigSave }: IndexProps) => {
           <p className="text-base sm:text-lg md:text-xl text-slate-300 max-w-2xl mx-auto animate-fade-in-up delay-150 px-2">
             Design and share a sleek donation button in minutes and start accepting crypto tips and donations without any technical knowledge.
           </p>
-          
-          <div className="mt-6 flex justify-center">
-            <Button 
-              onClick={() => navigate("/payment-history")}
-              variant="default" 
-              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 shadow-md"
-              size={isMobile ? "default" : "lg"}
-            >
-              <ReceiptIcon className="w-4 h-4 md:w-5 md:h-5" />
-              View Payment History
-            </Button>
-          </div>
         </div>
         
         <div className="neo-blur rounded-2xl md:rounded-3xl shadow-xl overflow-hidden border border-indigo-500/30 animate-slide-up">
@@ -128,7 +112,8 @@ const Index = ({ savedConfig, onConfigSave }: IndexProps) => {
                     buttonStyle: userConfig.buttonStyle,
                     slug: userConfig.slug,
                     ensNameOrAddress: userConfig.ensNameOrAddress,
-                    socialPreview: userConfig.socialPreview
+                    socialPreview: userConfig.socialPreview,
+                    yodlConfig: userConfig.yodlConfig
                   }}
                 />
               </div>

@@ -3,7 +3,6 @@ import React, { ReactNode, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import WalletConnect from './WalletConnect';
 import { Menu, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -40,30 +39,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               >
                 Home
               </Link>
-              <Link
-                to="/payment-history"
-                className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary",
-                  isActive("/payment-history") ? "text-foreground" : "text-muted-foreground"
-                )}
-              >
-                Payment Analytics
-              </Link>
-              <Link
-                to="/profile"
-                className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary",
-                  isActive("/profile") ? "text-foreground" : "text-muted-foreground"
-                )}
-              >
-                My Profile
-              </Link>
             </nav>
           </div>
           
           <div className="flex items-center gap-2">
-            <WalletConnect />
-            
             {/* Mobile Menu Button */}
             {isMobile && (
               <button 
@@ -89,26 +68,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 )}
               >
                 Home
-              </Link>
-              <Link
-                to="/payment-history"
-                onClick={() => setMobileMenuOpen(false)}
-                className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary py-2",
-                  isActive("/payment-history") ? "text-foreground" : "text-muted-foreground"
-                )}
-              >
-                Payment Analytics
-              </Link>
-              <Link
-                to="/profile"
-                onClick={() => setMobileMenuOpen(false)}
-                className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary py-2",
-                  isActive("/profile") ? "text-foreground" : "text-muted-foreground"
-                )}
-              >
-                My Profile
               </Link>
             </nav>
           </div>

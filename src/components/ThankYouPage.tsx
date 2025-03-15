@@ -2,7 +2,7 @@
 import { ThankYouProps } from "@/types";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Home, Heart, Share, ArrowLeft, Check, Copy } from "lucide-react";
+import { Home, Heart, Share, ArrowLeft, Check, Copy, Twitter, Instagram, Github, Linkedin, ExternalLink } from "lucide-react";
 import ConfettiEffect from "./ConfettiEffect";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
@@ -19,6 +19,13 @@ const ThankYouPage = ({ thankYou }: ThankYouProps) => {
       description: "The payment link has been copied to your clipboard",
     });
   };
+
+  const hasSocialLinks = thankYou.socialLinks && (
+    thankYou.socialLinks.twitter || 
+    thankYou.socialLinks.instagram || 
+    thankYou.socialLinks.github || 
+    thankYou.socialLinks.linkedin
+  );
   
   return (
     <div 
@@ -81,6 +88,75 @@ const ThankYouPage = ({ thankYou }: ThankYouProps) => {
             </div>
           </div>
         </div>
+        
+        {/* Social links */}
+        {hasSocialLinks && (
+          <div className="flex justify-center space-x-4 animate-slide-up delay-375">
+            {thankYou.socialLinks?.twitter && (
+              <a 
+                href={thankYou.socialLinks.twitter} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-3 rounded-full backdrop-blur-sm border border-current border-opacity-10 hover:bg-white/10 transition-colors"
+                style={{ backgroundColor: `${thankYou.textColor}05` }}
+              >
+                <Twitter size={20} />
+              </a>
+            )}
+            
+            {thankYou.socialLinks?.instagram && (
+              <a 
+                href={thankYou.socialLinks.instagram} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-3 rounded-full backdrop-blur-sm border border-current border-opacity-10 hover:bg-white/10 transition-colors"
+                style={{ backgroundColor: `${thankYou.textColor}05` }}
+              >
+                <Instagram size={20} />
+              </a>
+            )}
+            
+            {thankYou.socialLinks?.github && (
+              <a 
+                href={thankYou.socialLinks.github} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-3 rounded-full backdrop-blur-sm border border-current border-opacity-10 hover:bg-white/10 transition-colors"
+                style={{ backgroundColor: `${thankYou.textColor}05` }}
+              >
+                <Github size={20} />
+              </a>
+            )}
+            
+            {thankYou.socialLinks?.linkedin && (
+              <a 
+                href={thankYou.socialLinks.linkedin} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-3 rounded-full backdrop-blur-sm border border-current border-opacity-10 hover:bg-white/10 transition-colors"
+                style={{ backgroundColor: `${thankYou.textColor}05` }}
+              >
+                <Linkedin size={20} />
+              </a>
+            )}
+          </div>
+        )}
+        
+        {/* Custom link */}
+        {thankYou.customLink && (
+          <div className="animate-slide-up delay-400">
+            <a 
+              href={thankYou.customLink.url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-sm border border-current border-opacity-10 hover:bg-white/10 transition-colors"
+              style={{ backgroundColor: `${thankYou.textColor}05` }}
+            >
+              <ExternalLink size={16} />
+              {thankYou.customLink.text}
+            </a>
+          </div>
+        )}
         
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row items-center gap-3 justify-center animate-slide-up delay-450">

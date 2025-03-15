@@ -1,3 +1,4 @@
+
 export interface ButtonStyle {
   backgroundColor: string;
   textColor: string;
@@ -12,6 +13,20 @@ export interface ThankYouPageStyle {
   textColor: string;
   message: string;
   showConfetti: boolean;
+  socialLinks?: SocialLinks;
+  customLink?: CustomLink;
+}
+
+export interface SocialLinks {
+  twitter?: string;
+  instagram?: string;
+  github?: string;
+  linkedin?: string;
+}
+
+export interface CustomLink {
+  text: string;
+  url: string;
 }
 
 export interface SocialPreviewStyle {
@@ -57,6 +72,8 @@ export interface ThankYouProps {
     showConfetti: boolean;
     backgroundColor: string;
     textColor: string;
+    socialLinks?: SocialLinks;
+    customLink?: CustomLink;
   };
 }
 

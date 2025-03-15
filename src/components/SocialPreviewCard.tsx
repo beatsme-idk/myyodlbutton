@@ -1,5 +1,5 @@
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { SocialPreviewStyle } from "@/types";
 import AvatarGenerator from "./AvatarGenerator";
 
@@ -20,15 +20,15 @@ const SocialPreviewCard = ({ ensNameOrAddress, socialPreview }: SocialPreviewCar
         </div>
       </div>
       
-      <div className="bg-slate-800 p-4 flex items-start gap-3">
+      <div className="bg-slate-800 p-4 flex items-center gap-3">
         {socialPreview.useCustomImage && socialPreview.imageUrl ? (
           <img 
             src={socialPreview.imageUrl} 
             alt="Preview" 
-            className="w-16 h-16 rounded-md object-cover"
+            className="w-16 h-16 rounded-full object-cover"
           />
         ) : (
-          <div className="w-16 h-16 rounded-md overflow-hidden flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full overflow-hidden flex items-center justify-center bg-indigo-600/20">
             <AvatarGenerator ensNameOrAddress={ensNameOrAddress} size="large" />
           </div>
         )}
@@ -41,7 +41,7 @@ const SocialPreviewCard = ({ ensNameOrAddress, socialPreview }: SocialPreviewCar
             {socialPreview.description || `Send crypto to ${ensNameOrAddress} to show your support.`}
           </p>
           <div className="mt-2 text-xs text-slate-400 truncate">
-            https://tributee.lovable.app/pay/{ensNameOrAddress.replace('.eth', '')}
+            myyodlbutton.lovable.app/pay/{ensNameOrAddress.replace('.eth', '')}
           </div>
         </div>
       </div>

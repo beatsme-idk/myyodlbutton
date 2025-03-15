@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { UserConfig, ButtonStyle, ThankYouPageStyle, SocialPreviewStyle, YodlPaymentConfig } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,9 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { validateHexColor, isValidEnsOrAddress, isValidSlug } from "@/utils/validation";
-import { Check, ChevronsUpDown, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload, ExternalLink, Book, Wallet, Droplet } from "lucide-react";
+import { Check, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload, ExternalLink, Book, Wallet, Droplet, Twitter, Instagram, Github, Linkedin, Link2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { useWeb3 } from "@/contexts/Web3Context";
 import ColorPicker from "./ColorPicker";
 import LoadingSpinner from "./LoadingSpinner";
 import SocialPreviewCard from "./SocialPreviewCard";
@@ -36,7 +36,8 @@ const DEFAULT_THANK_YOU_STYLE: ThankYouPageStyle = {
   backgroundColor: "#F9FAFB",
   textColor: "#111827",
   message: "Thank you for your support! It means a lot to me.",
-  showConfetti: true
+  showConfetti: true,
+  socialLinks: {}
 };
 
 const DEFAULT_SOCIAL_PREVIEW: SocialPreviewStyle = {
@@ -51,16 +52,7 @@ const DEFAULT_CONFIG: UserConfig = {
   buttonStyle: DEFAULT_BUTTON_STYLE,
   thankYouPage: DEFAULT_THANK_YOU_STYLE,
   socialPreview: DEFAULT_SOCIAL_PREVIEW,
-  slug: "",
-  yodlConfig: {
-    enabled: true,
-    tokens: "USDC,USDT",
-    chains: "base,oeth",
-    currency: "USD",
-    amount: "",
-    memo: "",
-    webhooks: []
-  }
+  slug: ""
 };
 
 const GRADIENT_OPTIONS = [
@@ -102,39 +94,13 @@ const ConfigurationForm = ({
   const [config, setConfig] = useState<UserConfig>(initialConfig);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { ensNameOrAddress: connectedWalletENS, isConnected } = useWeb3();
   const [useGradient, setUseGradient] = useState(false);
   const [selectedGradient, setSelectedGradient] = useState("none");
   const [paddingHorizontal, setPaddingHorizontal] = useState(24);
   const [paddingVertical, setPaddingVertical] = useState(12);
+  const [customLinkActive, setCustomLinkActive] = useState(!!config.thankYouPage.customLink);
 
   useEffect(() => {
-    if (isConnected && connectedWalletENS && !config.ensNameOrAddress) {
-      const newConfig = { ...config, ensNameOrAddress: connectedWalletENS };
-      
-      if (!config.slug) {
-        const autoSlug = connectedWalletENS
-          .toLowerCase()
-          .replace('.eth', '')
-          .replace(/[^a-z0-9-]/g, '-')
-          .replace(/-+/g, '-')
-          .replace(/^-|-$/g, '');
-        newConfig.slug = autoSlug;
-      }
-      
-      if (newConfig.yodlConfig) {
-        newConfig.yodlConfig.enabled = true;
-      } else {
-        newConfig.yodlConfig = {
-          ...DEFAULT_CONFIG.yodlConfig!,
-          enabled: true
-        };
-      }
-      
-      setConfig(newConfig);
-      onConfigChange(newConfig);
-    }
-    
     if (config.buttonStyle.padding) {
       const paddingValues = config.buttonStyle.padding.split(" ");
       if (paddingValues.length === 2) {
@@ -150,14 +116,12 @@ const ConfigurationForm = ({
       setUseGradient(false);
       setSelectedGradient("none");
     }
-  }, [isConnected, connectedWalletENS, config.buttonStyle.padding, config.buttonStyle.backgroundColor]);
+    
+    setCustomLinkActive(!!config.thankYouPage.customLink);
+  }, [config.buttonStyle.padding, config.buttonStyle.backgroundColor, config.thankYouPage.customLink]);
 
   const updateConfig = (key: keyof UserConfig, value: any) => {
     const newConfig = { ...config, [key]: value };
-    
-    if (key === 'yodlConfig' && newConfig.yodlConfig) {
-      newConfig.yodlConfig.enabled = true;
-    }
     
     setConfig(newConfig);
     onConfigChange(newConfig);
@@ -188,6 +152,27 @@ const ConfigurationForm = ({
     setConfig(newConfig);
     onConfigChange(newConfig);
     validateField(`thankYouPage.${key}`, value);
+  };
+
+  const updateSocialLinks = (network: string, value: string) => {
+    const socialLinks = { ...(config.thankYouPage.socialLinks || {}) };
+    
+    if (value) {
+      socialLinks[network as keyof typeof socialLinks] = value;
+    } else {
+      delete socialLinks[network as keyof typeof socialLinks];
+    }
+    
+    updateThankYouStyle('socialLinks', socialLinks);
+  };
+
+  const updateCustomLink = (key: string, value: string) => {
+    const customLink = { 
+      ...(config.thankYouPage.customLink || { text: '', url: '' }),
+      [key]: value
+    };
+    
+    updateThankYouStyle('customLink', customLink);
   };
 
   const updateSocialPreviewStyle = (key: keyof SocialPreviewStyle, value: any) => {
@@ -360,6 +345,15 @@ const ConfigurationForm = ({
       updateButtonStyle("backgroundColor", value);
     }
   };
+
+  const toggleCustomLink = (active: boolean) => {
+    setCustomLinkActive(active);
+    if (active) {
+      updateThankYouStyle('customLink', { text: 'Visit my website', url: 'https://example.com' });
+    } else {
+      updateThankYouStyle('customLink', undefined);
+    }
+  };
   
   return (
     <form onSubmit={handleSubmit}>
@@ -375,7 +369,7 @@ const ConfigurationForm = ({
         
         <CardContent>
           <Tabs defaultValue="general" className="w-full">
-            <TabsList className="grid grid-cols-5 mb-6">
+            <TabsList className="grid grid-cols-4 mb-6">
               <TabsTrigger value="general" className="flex items-center gap-2">
                 <Settings className="w-4 h-4" />
                 <span className="hidden sm:inline">General</span>
@@ -391,16 +385,6 @@ const ConfigurationForm = ({
               <TabsTrigger value="social" className="flex items-center gap-2">
                 <Share2 className="w-4 h-4" />
                 <span className="hidden sm:inline">Social</span>
-              </TabsTrigger>
-              <TabsTrigger value="yodl" className="flex items-center gap-2">
-                <div className="w-4 h-4">
-                  <img 
-                    src="https://yodl.me/_next/static/media/new_logo.be0c2fdb.svg" 
-                    alt="Yodl"
-                    className="w-full h-full drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]"
-                  />
-                </div>
-                <span className="hidden sm:inline">Yodl</span>
               </TabsTrigger>
             </TabsList>
             
@@ -436,13 +420,7 @@ const ConfigurationForm = ({
                   onChange={(e) => updateConfig("ensNameOrAddress", e.target.value)}
                   placeholder="vitalik.eth or donations.vitalik.eth or 0x123..."
                   className={errors.ensNameOrAddress ? "border-destructive" : ""}
-                  disabled={isConnected}
                 />
-                {isConnected && (
-                  <p className="text-xs text-indigo-400 mt-1">
-                    Using your connected wallet's address
-                  </p>
-                )}
                 {errors.ensNameOrAddress && (
                   <div className="text-destructive text-sm flex items-center gap-1 mt-1">
                     <AlertCircle size={14} />
@@ -466,7 +444,7 @@ const ConfigurationForm = ({
                 </div>
                 <div className="flex rounded-lg shadow-sm">
                   <span className="inline-flex items-center px-4 bg-slate-800/50 border border-r-0 border-slate-700/50 rounded-l-lg text-slate-400 text-sm">
-                    https://tributee.lovable.app/pay/
+                    https://myyodlbutton.lovable.app/pay/
                   </span>
                   <Input
                     id="slug"
@@ -483,7 +461,7 @@ const ConfigurationForm = ({
                   </div>
                 )}
                 <div className="text-muted-foreground text-xs mt-1">
-                  This will be used in your payment URL: https://tributee.lovable.app/pay/<strong>{config.slug || "your-slug"}</strong>
+                  This will be used in your payment URL: https://myyodlbutton.lovable.app/pay/<strong>{config.slug || "your-slug"}</strong>
                 </div>
               </div>
             </TabsContent>
@@ -690,6 +668,22 @@ const ConfigurationForm = ({
                   {config.thankYouPage.showConfetti && (
                     <div className="mt-4 text-sm">✨ Confetti will appear here ✨</div>
                   )}
+                  {config.thankYouPage.socialLinks && (
+                    <div className="flex justify-center mt-4 space-x-3">
+                      {config.thankYouPage.socialLinks.twitter && <Twitter size={20} />}
+                      {config.thankYouPage.socialLinks.instagram && <Instagram size={20} />}
+                      {config.thankYouPage.socialLinks.github && <Github size={20} />}
+                      {config.thankYouPage.socialLinks.linkedin && <Linkedin size={20} />}
+                    </div>
+                  )}
+                  {config.thankYouPage.customLink && (
+                    <div className="mt-4">
+                      <div className="inline-flex items-center gap-1 text-sm px-4 py-2 rounded-full border border-current border-opacity-20">
+                        <ExternalLink size={14} />
+                        {config.thankYouPage.customLink.text}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             
@@ -747,6 +741,100 @@ const ConfigurationForm = ({
                   onCheckedChange={(checked) => updateThankYouStyle("showConfetti", checked)}
                 />
                 <Label htmlFor="showConfetti">Show confetti animation</Label>
+              </div>
+
+              <div className="space-y-4 pt-4 border-t border-gray-800">
+                <h3 className="text-md font-medium flex items-center">
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Social Media Links
+                </h3>
+                <p className="text-sm text-slate-400">These links will be displayed on your thank you page.</p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="flex items-center">
+                      <Twitter className="mr-2 h-4 w-4 text-blue-400" />
+                      Twitter / X
+                    </Label>
+                    <Input
+                      placeholder="https://twitter.com/yourusername"
+                      value={config.thankYouPage.socialLinks?.twitter || ''}
+                      onChange={(e) => updateSocialLinks('twitter', e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label className="flex items-center">
+                      <Instagram className="mr-2 h-4 w-4 text-pink-500" />
+                      Instagram
+                    </Label>
+                    <Input
+                      placeholder="https://instagram.com/yourusername"
+                      value={config.thankYouPage.socialLinks?.instagram || ''}
+                      onChange={(e) => updateSocialLinks('instagram', e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label className="flex items-center">
+                      <Github className="mr-2 h-4 w-4 text-slate-300" />
+                      GitHub
+                    </Label>
+                    <Input
+                      placeholder="https://github.com/yourusername"
+                      value={config.thankYouPage.socialLinks?.github || ''}
+                      onChange={(e) => updateSocialLinks('github', e.target.value)}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label className="flex items-center">
+                      <Linkedin className="mr-2 h-4 w-4 text-blue-500" />
+                      LinkedIn
+                    </Label>
+                    <Input
+                      placeholder="https://linkedin.com/in/yourusername"
+                      value={config.thankYouPage.socialLinks?.linkedin || ''}
+                      onChange={(e) => updateSocialLinks('linkedin', e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4 pt-4 border-t border-gray-800">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-md font-medium flex items-center">
+                    <Link2 className="mr-2 h-4 w-4" />
+                    Custom Link
+                  </h3>
+                  <Switch
+                    id="customLinkActive"
+                    checked={customLinkActive}
+                    onCheckedChange={toggleCustomLink}
+                  />
+                </div>
+                
+                {customLinkActive && (
+                  <div className="space-y-4 pt-2">
+                    <div className="space-y-2">
+                      <Label>Link Text</Label>
+                      <Input
+                        placeholder="Visit my website"
+                        value={config.thankYouPage.customLink?.text || ''}
+                        onChange={(e) => updateCustomLink('text', e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label>Link URL</Label>
+                      <Input
+                        placeholder="https://example.com"
+                        value={config.thankYouPage.customLink?.url || ''}
+                        onChange={(e) => updateCustomLink('url', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </TabsContent>
 
@@ -841,39 +929,6 @@ const ConfigurationForm = ({
                 )}
               </div>
             </TabsContent>
-
-            <TabsContent value="yodl" className="space-y-6">
-              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-4">
-                <h3 className="text-lg font-semibold mb-4 flex items-center">
-                  <img 
-                    src="https://yodl.me/_next/static/media/new_logo.be0c2fdb.svg" 
-                    alt="Yodl"
-                    className="w-5 h-5 mr-2 drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]"
-                  />
-                  Yodl Payment Settings
-                </h3>
-                <p className="text-sm text-slate-300 mb-2">
-                  Yodl is a protocol that makes it easy to accept crypto payments across 
-                  multiple chains and tokens.
-                </p>
-                <div className="flex items-center mt-4">
-                  <a 
-                    href="https://yodl.me" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="text-xs flex items-center gap-1 text-indigo-400 hover:text-indigo-300 transition-colors"
-                  >
-                    <ExternalLink size={12} />
-                    Learn more about Yodl
-                  </a>
-                </div>
-              </div>
-
-              <YodlConfig 
-                config={config.yodlConfig || DEFAULT_CONFIG.yodlConfig!} 
-                onChange={(yodlConfig) => updateConfig("yodlConfig", yodlConfig)}
-              />
-            </TabsContent>
           </Tabs>
         </CardContent>
 
@@ -902,4 +957,3 @@ const ConfigurationForm = ({
 };
 
 export default ConfigurationForm;
-
