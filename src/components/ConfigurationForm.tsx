@@ -54,8 +54,8 @@ const DEFAULT_CONFIG: UserConfig = {
   socialPreview: DEFAULT_SOCIAL_PREVIEW,
   slug: "",
   yodlConfig: {
-    tokens: ["USDC", "USDT"],
-    chains: ["base", "oeth"],
+    tokens: ["all"],
+    chains: ["all"],
     currency: "USD",
     amount: "",
     memo: "",
@@ -364,6 +364,11 @@ const ConfigurationForm = ({
     }
   };
   
+  const handleIconSelection = (icon: string) => {
+    setSelectedIcon(icon);
+    updateButtonStyle("icon", icon);
+  };
+
   return (
     <form onSubmit={handleSubmit}>
       <Card className="w-full animate-slide-up">
@@ -453,7 +458,7 @@ const ConfigurationForm = ({
                 </div>
                 <div className="flex rounded-lg shadow-sm">
                   <span className="inline-flex items-center px-4 bg-slate-800/50 border border-r-0 border-slate-700/50 rounded-l-lg text-slate-400 text-sm">
-                    https://myyodlbutton.lovable.app/pay/
+                    https://myyodlbutton.lovable.app/
                   </span>
                   <Input
                     id="slug"
@@ -470,7 +475,7 @@ const ConfigurationForm = ({
                   </div>
                 )}
                 <div className="text-muted-foreground text-xs mt-1">
-                  This will be used in your payment URL: https://myyodlbutton.lovable.app/pay/<strong>{config.slug || "your-slug"}</strong>
+                  This will be used in your payment URL: https://myyodlbutton.lovable.app/<strong>{config.slug || "your-slug"}</strong>
                 </div>
               </div>
               
@@ -688,6 +693,80 @@ const ConfigurationForm = ({
                   </div>
                 </div>
               </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-1">
+                  <Droplet className="w-5 h-5 text-indigo-400" />
+                  <Label>Button Icon</Label>
+                </div>
+                
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant={selectedIcon === "none" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleIconSelection("none")}
+                    className="rounded-full"
+                  >
+                    No Icon
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant={selectedIcon === "heart" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleIconSelection("heart")}
+                    className="rounded-full flex items-center gap-1"
+                  >
+                    <Heart size={14} />
+                    Heart
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant={selectedIcon === "coffee" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleIconSelection("coffee")}
+                    className="rounded-full flex items-center gap-1"
+                  >
+                    <Coffee size={14} />
+                    Coffee
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant={selectedIcon === "hand" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleIconSelection("hand")}
+                    className="rounded-full flex items-center gap-1"
+                  >
+                    <Hand size={14} />
+                    Hand
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant={selectedIcon === "gift" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleIconSelection("gift")}
+                    className="rounded-full flex items-center gap-1"
+                  >
+                    <Gift size={14} />
+                    Gift
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant={selectedIcon === "zap" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleIconSelection("zap")}
+                    className="rounded-full flex items-center gap-1"
+                  >
+                    <Zap size={14} />
+                    Zap
+                  </Button>
+                </div>
+              </div>
             </TabsContent>
             
             <TabsContent value="thankYou" className="space-y-6">
@@ -734,251 +813,4 @@ const ConfigurationForm = ({
                   {errors["thankYouPage.backgroundColor"] && (
                     <div className="text-destructive text-sm flex items-center gap-1">
                       <AlertCircle size={14} />
-                      {errors["thankYouPage.backgroundColor"]}
-                    </div>
-                  )}
-                </div>
-                
-                <div className="space-y-3">
-                  <Label htmlFor="tyTextColor">Text Color</Label>
-                  <ColorPicker 
-                    color={config.thankYouPage.textColor} 
-                    onChange={(color) => updateThankYouStyle("textColor", color)}
-                  />
-                  {errors["thankYouPage.textColor"] && (
-                    <div className="text-destructive text-sm flex items-center gap-1">
-                      <AlertCircle size={14} />
-                      {errors["thankYouPage.textColor"]}
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="tyMessage">Thank You Message</Label>
-                <Textarea
-                  id="tyMessage"
-                  value={config.thankYouPage.message}
-                  onChange={(e) => updateThankYouStyle("message", e.target.value)}
-                  placeholder="Thank you for your support!"
-                  className={errors["thankYouPage.message"] ? "border-destructive" : "min-h-[100px]"}
-                />
-                {errors["thankYouPage.message"] && (
-                  <div className="text-destructive text-sm flex items-center gap-1 mt-1">
-                    <AlertCircle size={14} />
-                    {errors["thankYouPage.message"]}
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="showConfetti"
-                  checked={config.thankYouPage.showConfetti}
-                  onCheckedChange={(checked) => updateThankYouStyle("showConfetti", checked)}
-                />
-                <Label htmlFor="showConfetti">Show confetti animation</Label>
-              </div>
-
-              <div className="space-y-4 pt-4 border-t border-gray-800">
-                <h3 className="text-md font-medium flex items-center">
-                  <Share2 className="mr-2 h-4 w-4" />
-                  Social Media Links
-                </h3>
-                <p className="text-sm text-slate-400">These links will be displayed on your thank you page.</p>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="flex items-center">
-                      <Twitter className="mr-2 h-4 w-4 text-blue-400" />
-                      Twitter / X
-                    </Label>
-                    <Input
-                      placeholder="https://twitter.com/yourusername"
-                      value={config.thankYouPage.socialLinks?.twitter || ''}
-                      onChange={(e) => updateSocialLinks('twitter', e.target.value)}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label className="flex items-center">
-                      <Instagram className="mr-2 h-4 w-4 text-pink-500" />
-                      Instagram
-                    </Label>
-                    <Input
-                      placeholder="https://instagram.com/yourusername"
-                      value={config.thankYouPage.socialLinks?.instagram || ''}
-                      onChange={(e) => updateSocialLinks('instagram', e.target.value)}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label className="flex items-center">
-                      <Github className="mr-2 h-4 w-4 text-slate-300" />
-                      GitHub
-                    </Label>
-                    <Input
-                      placeholder="https://github.com/yourusername"
-                      value={config.thankYouPage.socialLinks?.github || ''}
-                      onChange={(e) => updateSocialLinks('github', e.target.value)}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label className="flex items-center">
-                      <Linkedin className="mr-2 h-4 w-4 text-blue-500" />
-                      LinkedIn
-                    </Label>
-                    <Input
-                      placeholder="https://linkedin.com/in/yourusername"
-                      value={config.thankYouPage.socialLinks?.linkedin || ''}
-                      onChange={(e) => updateSocialLinks('linkedin', e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4 pt-4 border-t border-gray-800">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-md font-medium flex items-center">
-                    <Link2 className="mr-2 h-4 w-4" />
-                    Custom Link
-                  </h3>
-                  <Switch
-                    id="customLinkActive"
-                    checked={customLinkActive}
-                    onCheckedChange={toggleCustomLink}
-                  />
-                </div>
-                
-                {customLinkActive && (
-                  <div className="space-y-4 pt-2">
-                    <div className="space-y-2">
-                      <Label>Link Text</Label>
-                      <Input
-                        placeholder="Visit my website"
-                        value={config.thankYouPage.customLink?.text || ''}
-                        onChange={(e) => updateCustomLink('text', e.target.value)}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label>Link URL</Label>
-                      <Input
-                        placeholder="https://example.com"
-                        value={config.thankYouPage.customLink?.url || ''}
-                        onChange={(e) => updateCustomLink('url', e.target.value)}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="social" className="space-y-6">
-              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-4">
-                <h3 className="text-lg font-semibold mb-4 flex items-center">
-                  <Share2 className="w-5 h-5 text-indigo-400 mr-2" />
-                  Social Media Preview
-                </h3>
-                <p className="text-sm text-slate-300 mb-4">
-                  Customize how your payment link appears when shared on social media platforms 
-                  like Twitter, Facebook, and LinkedIn.
-                </p>
-                <SocialPreviewCard 
-                  ensNameOrAddress={config.ensNameOrAddress || "your.name.eth"}
-                  socialPreview={config.socialPreview}
-                />
-              </div>
-
-              <div className="space-y-3">
-                <Label htmlFor="socialTitle">Title</Label>
-                <Input
-                  id="socialTitle"
-                  value={config.socialPreview.title}
-                  onChange={(e) => updateSocialPreviewStyle("title", e.target.value)}
-                  placeholder="Support My Work"
-                  className={errors["socialPreview.title"] ? "border-destructive" : ""}
-                />
-                {errors["socialPreview.title"] && (
-                  <div className="text-destructive text-sm flex items-center gap-1 mt-1">
-                    <AlertCircle size={14} />
-                    {errors["socialPreview.title"]}
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-3">
-                <Label htmlFor="socialDescription">Description</Label>
-                <Textarea
-                  id="socialDescription"
-                  value={config.socialPreview.description}
-                  onChange={(e) => updateSocialPreviewStyle("description", e.target.value)}
-                  placeholder="Every contribution helps me continue creating awesome content for you!"
-                  className={errors["socialPreview.description"] ? "border-destructive" : ""}
-                />
-                {errors["socialPreview.description"] && (
-                  <div className="text-destructive text-sm flex items-center gap-1 mt-1">
-                    <AlertCircle size={14} />
-                    {errors["socialPreview.description"]}
-                  </div>
-                )}
-                <p className="text-xs text-slate-400">
-                  Keep it under 155 characters for optimal display on social platforms
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2 mb-2">
-                  <Switch
-                    id="useCustomImage"
-                    checked={config.socialPreview.useCustomImage}
-                    onCheckedChange={(checked) => updateSocialPreviewStyle("useCustomImage", checked)}
-                  />
-                  <Label htmlFor="useCustomImage">Use custom image</Label>
-                </div>
-                
-                {config.socialPreview.useCustomImage && (
-                  <div className="space-y-2">
-                    <Label>Image URL</Label>
-                    <Input
-                      type="text"
-                      placeholder="https://example.com/your-image.jpg"
-                      value={config.socialPreview.imageUrl}
-                      onChange={(e) => updateSocialPreviewStyle("imageUrl", e.target.value)}
-                    />
-                    <p className="text-xs text-slate-400 mt-1">
-                      Enter a direct URL to your image. Recommended size: 1200x630 pixels
-                    </p>
-                  </div>
-                )}
-              </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-
-        <div className="px-6 py-4 border-t border-slate-700/20 flex justify-end">
-          <Button 
-            type="submit" 
-            className="px-6 flex items-center gap-2"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <LoadingSpinner size="sm" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Check className="w-4 h-4" />
-                Save and Create Button
-              </>
-            )}
-          </Button>
-        </div>
-      </Card>
-    </form>
-  );
-};
-
-export default ConfigurationForm;
+                      {errors["thankYouPage

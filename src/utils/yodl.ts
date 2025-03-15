@@ -40,23 +40,22 @@ export const generateYodlPaymentLink = (address: string, config?: YodlPaymentCon
     params.append("memo", config.memo);
   }
   
-  // Add redirect URL parameter without encoding
+  // Convert params to string first
+  const queryString = params.toString();
+  const separator = queryString ? '?' : '';
+  
+  // Add redirect URL parameter directly at the end without encoding
   if (config.redirectUrl) {
-    // Using URLSearchParams but ensuring the redirect URL doesn't get encoded with %
-    const baseUrl = new URL(url);
-    const fullUrl = baseUrl.toString() + (params.toString() ? '?' + params.toString() : '');
-    return fullUrl + (params.toString() ? '&' : '?') + 'redirectUrl=' + config.redirectUrl + '&buttonText=Return+to+Site';
+    // We'll manually add the redirectUrl to avoid encoding
+    return `${url}${separator}${queryString}${queryString ? '&' : '?'}redirectUrl=${config.redirectUrl}&buttonText=Return+to+Site`;
   }
   
   // Add button text for return
-  params.append("buttonText", "Return to Site");
-  
-  const queryString = params.toString();
   if (queryString) {
-    url += `?${queryString}`;
+    return `${url}?${queryString}&buttonText=Return+to+Site`;
   }
   
-  return url;
+  return `${url}?buttonText=Return+to+Site`;
 };
 
 // Helper function to parse ENS text records for Yodl configuration
@@ -76,7 +75,7 @@ export const parseYodlConfigFromENS = async (ensName: string): Promise<YodlPayme
       chains: ["all"],
       currency: "USD",
       amount: "",
-      memo: "Thanks for supporting my work!",
+      memo: "",
       redirectUrl: ""
     };
   }

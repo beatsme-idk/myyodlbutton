@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -116,7 +117,7 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index savedConfig={userConfig} onConfigSave={handleConfigSave} />} />
-            <Route path="/pay/:slug" element={<PaymentPage />} />
+            <Route path="/:slug" element={<PaymentPage />} />
             <Route path="/thank-you/:slug" element={<ThankYouPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
