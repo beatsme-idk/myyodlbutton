@@ -1,13 +1,19 @@
 
 import { useMemo } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
 interface AvatarGeneratorProps {
   ensNameOrAddress: string;
-  size?: "default" | "large";
+  size?: "default" | "large" | "xxlarge";
+  className?: string;
 }
 
-const AvatarGenerator = ({ ensNameOrAddress, size = "default" }: AvatarGeneratorProps) => {
+const AvatarGenerator = ({ 
+  ensNameOrAddress, 
+  size = "default", 
+  className 
+}: AvatarGeneratorProps) => {
   const initial = useMemo(() => {
     if (!ensNameOrAddress) return "?";
     
@@ -32,11 +38,15 @@ const AvatarGenerator = ({ ensNameOrAddress, size = "default" }: AvatarGenerator
     const hue = Math.abs(hash % 360);
     return `hsl(${hue}, 70%, 70%)`;
   }, [ensNameOrAddress]);
+
+  const sizeClasses = {
+    default: "h-9 w-9",
+    large: "h-16 w-16",
+    xxlarge: "h-24 w-24"
+  };
   
-  // Currently, we're just using a placeholder avatar for demo
-  // In a real app, you'd fetch the actual ENS avatar if available
   return (
-    <Avatar className={size === "large" ? "h-16 w-16" : "h-9 w-9"}>
+    <Avatar className={cn(sizeClasses[size], className)}>
       <AvatarImage src={`https://avatars.dicebear.com/api/identicon/${ensNameOrAddress}.svg`} alt={ensNameOrAddress} />
       <AvatarFallback 
         style={{ backgroundColor }}
