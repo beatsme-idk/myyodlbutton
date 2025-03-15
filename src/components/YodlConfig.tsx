@@ -1,12 +1,11 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { YodlPaymentConfig } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronDown, Plus, Trash2 } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Wallet } from "lucide-react";
 
 const SUPPORTED_TOKENS = [
   { value: "USDC", label: "USDC" },
@@ -14,19 +13,15 @@ const SUPPORTED_TOKENS = [
   { value: "ETH", label: "ETH" },
   { value: "DAI", label: "DAI" },
   { value: "USDGLO", label: "USDGLO" },
-  { value: "USDM", label: "USDM" },
-  { value: "CRVUSD", label: "CRVUSD" },
-  { value: "XDAI", label: "XDAI" },
-  { value: "WXDAI", label: "WXDAI" },
+  { value: "USDM", label: "USDM" }
 ];
 
 const SUPPORTED_CHAINS = [
-  { value: "mainnet", label: "Ethereum" },
-  { value: "base", label: "Base" },
-  { value: "optimism", label: "Optimism" },
-  { value: "arbitrum", label: "Arbitrum" },
-  { value: "polygon", label: "Polygon" },
-  { value: "oeth", label: "Optimism ETH" },
+  { id: "eth", name: "Ethereum" },
+  { id: "base", name: "Base" },
+  { id: "oeth", name: "Optimism" },
+  { id: "arb1", name: "Arbitrum" },
+  { id: "pol", name: "Polygon" }
 ];
 
 interface YodlConfigProps {
@@ -38,6 +33,7 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
   const [selectedTokens, setSelectedTokens] = useState<string[]>(
     Array.isArray(config.tokens) ? config.tokens : []
   );
+  
   const [selectedChains, setSelectedChains] = useState<string[]>(
     Array.isArray(config.chains) ? config.chains : []
   );
@@ -46,20 +42,40 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
     onChange({ ...config, [key]: value });
   };
 
-  const toggleToken = (value: string) => {
-    const newSelectedTokens = selectedTokens.includes(value)
-      ? selectedTokens.filter(token => token !== value)
-      : [...selectedTokens, value];
-      
+  const handleTokenSelection = (token: string) => {
+    let newSelectedTokens: string[];
+    
+    if (token === 'all') {
+      newSelectedTokens = ['all'];
+    } else {
+      if (selectedTokens.includes('all')) {
+        newSelectedTokens = [token];
+      } else {
+        newSelectedTokens = selectedTokens.includes(token)
+          ? selectedTokens.filter(t => t !== token)
+          : [...selectedTokens, token];
+      }
+    }
+    
     setSelectedTokens(newSelectedTokens);
     updateConfig("tokens", newSelectedTokens);
   };
 
-  const toggleChain = (value: string) => {
-    const newSelectedChains = selectedChains.includes(value)
-      ? selectedChains.filter(chain => chain !== value)
-      : [...selectedChains, value];
-      
+  const handleChainSelection = (chain: string) => {
+    let newSelectedChains: string[];
+    
+    if (chain === 'all') {
+      newSelectedChains = ['all'];
+    } else {
+      if (selectedChains.includes('all')) {
+        newSelectedChains = [chain];
+      } else {
+        newSelectedChains = selectedChains.includes(chain)
+          ? selectedChains.filter(c => c !== chain)
+          : [...selectedChains, chain];
+      }
+    }
+    
     setSelectedChains(newSelectedChains);
     updateConfig("chains", newSelectedChains);
   };
@@ -78,27 +94,33 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
       </div>
 
       <div className="space-y-3">
-        <Label htmlFor="tokens">
+        <Label className="block text-sm font-medium mb-2">
           Accepted Tokens
         </Label>
-        <div className="border border-input bg-background rounded-md p-3">
-          <div className="grid grid-cols-3 gap-2">
-            {SUPPORTED_TOKENS.map((token) => (
-              <div key={token.value} className="flex items-center space-x-2">
-                <Checkbox 
-                  id={`token-${token.value}`}
-                  checked={selectedTokens.includes(token.value)}
-                  onCheckedChange={() => toggleToken(token.value)}
-                />
-                <Label 
-                  htmlFor={`token-${token.value}`}
-                  className="text-sm cursor-pointer"
-                >
-                  {token.label}
-                </Label>
-              </div>
-            ))}
-          </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => handleTokenSelection('all')}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              selectedTokens.includes('all')
+                ? 'bg-indigo-600 text-white'
+                : 'bg-indigo-100 text-indigo-800 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
+            }`}
+          >
+            All Tokens
+          </button>
+          {SUPPORTED_TOKENS.map((token) => (
+            <button
+              key={token.value}
+              onClick={() => handleTokenSelection(token.value)}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                selectedTokens.includes(token.value) && !selectedTokens.includes('all')
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-indigo-100 text-indigo-800 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
+              }`}
+            >
+              {token.label}
+            </button>
+          ))}
         </div>
         <p className="text-xs text-slate-400">
           Select the tokens you want to accept for payments
@@ -106,27 +128,33 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
       </div>
       
       <div className="space-y-3">
-        <Label htmlFor="chains">
+        <Label className="block text-sm font-medium mb-2">
           Supported Chains
         </Label>
-        <div className="border border-input bg-background rounded-md p-3">
-          <div className="grid grid-cols-2 gap-2">
-            {SUPPORTED_CHAINS.map((chain) => (
-              <div key={chain.value} className="flex items-center space-x-2">
-                <Checkbox 
-                  id={`chain-${chain.value}`}
-                  checked={selectedChains.includes(chain.value)}
-                  onCheckedChange={() => toggleChain(chain.value)}
-                />
-                <Label 
-                  htmlFor={`chain-${chain.value}`}
-                  className="text-sm cursor-pointer"
-                >
-                  {chain.label}
-                </Label>
-              </div>
-            ))}
-          </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => handleChainSelection('all')}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              selectedChains.includes('all')
+                ? 'bg-indigo-600 text-white'
+                : 'bg-indigo-100 text-indigo-800 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
+            }`}
+          >
+            All Networks
+          </button>
+          {SUPPORTED_CHAINS.map((chain) => (
+            <button
+              key={chain.id}
+              onClick={() => handleChainSelection(chain.id)}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                selectedChains.includes(chain.id) && !selectedChains.includes('all')
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-indigo-100 text-indigo-800 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
+              }`}
+            >
+              {chain.name}
+            </button>
+          ))}
         </div>
         <p className="text-xs text-slate-400">
           Select the blockchains you want to support for payments
@@ -176,7 +204,7 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
         </Label>
         <Textarea
           id="memo"
-          value={config.memo}
+          value={config.memo || ""}
           onChange={(e) => updateConfig("memo", e.target.value)}
           placeholder="Thanks for the coffee!"
         />

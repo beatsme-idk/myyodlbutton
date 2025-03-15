@@ -53,13 +53,12 @@ const DEFAULT_CONFIG: UserConfig = {
   socialPreview: DEFAULT_SOCIAL_PREVIEW,
   slug: "",
   yodlConfig: {
-    enabled: false,
-    tokens: "USDC,USDT",
-    chains: "base,oeth",
+    tokens: ["USDC", "USDT"],
+    chains: ["base", "oeth"],
     currency: "USD",
     amount: "",
     memo: "",
-    webhooks: []
+    redirectUrl: ""
   }
 };
 
@@ -478,34 +477,10 @@ const ConfigurationForm = ({
                   <Wallet className="w-5 h-5 text-green-500 mr-2" />
                   Yodl Payment Settings
                 </h3>
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2 mb-4">
-                    <Switch
-                      id="yodlEnabled"
-                      checked={config.yodlConfig?.enabled || false}
-                      onCheckedChange={(checked) => {
-                        const yodlConfig = config.yodlConfig || {
-                          enabled: false,
-                          tokens: "USDC,USDT",
-                          chains: "base,oeth",
-                          currency: "USD",
-                          amount: "",
-                          memo: "",
-                          webhooks: []
-                        };
-                        updateConfig("yodlConfig", { ...yodlConfig, enabled: checked });
-                      }}
-                    />
-                    <Label htmlFor="yodlEnabled">Enable Yodl payments</Label>
-                  </div>
-                  
-                  {config.yodlConfig?.enabled && (
-                    <YodlConfig 
-                      config={config.yodlConfig} 
-                      onChange={(yodlConfig) => updateConfig("yodlConfig", yodlConfig)} 
-                    />
-                  )}
-                </div>
+                <YodlConfig 
+                  config={config.yodlConfig} 
+                  onChange={(yodlConfig) => updateConfig("yodlConfig", yodlConfig)} 
+                />
               </div>
             </TabsContent>
             

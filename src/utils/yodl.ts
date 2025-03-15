@@ -13,31 +13,34 @@ export const generateYodlPaymentLink = (address: string, config?: YodlPaymentCon
   const params = new URLSearchParams();
   
   if (config.tokens && config.tokens.length > 0) {
-    params.append("tokens", Array.isArray(config.tokens) ? config.tokens.join(',') : config.tokens);
+    if (config.tokens.includes('all')) {
+      // Don't specify tokens to allow all
+    } else {
+      params.append("tokens", config.tokens.join(','));
+    }
   }
   
   if (config.chains && config.chains.length > 0) {
-    // Map friendly chain names to their prefixes
-    const chainMapping: Record<string, string> = {
-      'Ethereum': 'eth',
-      'mainnet': 'eth',
-      'Arbitrum': 'arb1',
-      'arbitrum': 'arb1',
-      'Base': 'base',
-      'base': 'base',
-      'Polygon': 'pol',
-      'polygon': 'pol',
-      'Optimism': 'oeth',
-      'optimism': 'oeth',
-      'oeth': 'oeth'
-    };
-    
-    const chainPrefixes = Array.isArray(config.chains) 
-      ? config.chains.map(chain => chainMapping[chain] || chain).filter(Boolean)
-      : [config.chains];
+    if (config.chains.includes('all')) {
+      // Don't specify chains to allow all
+    } else {
+      // Map friendly chain names to their prefixes if needed
+      const chainMapping: Record<string, string> = {
+        'Ethereum': 'eth',
+        'mainnet': 'eth',
+        'Arbitrum': 'arb1',
+        'arbitrum': 'arb1',
+        'Base': 'base',
+        'base': 'base',
+        'Polygon': 'pol',
+        'polygon': 'pol',
+        'Optimism': 'oeth',
+        'optimism': 'oeth',
+        'oeth': 'oeth'
+      };
       
-    if (chainPrefixes.length > 0) {
-      params.append("chains", chainPrefixes.join(','));
+      // The chains are already in the right format from our UI
+      params.append("chains", config.chains.join(','));
     }
   }
   
@@ -83,7 +86,7 @@ export const parseYodlConfigFromENS = async (ensName: string): Promise<YodlPayme
   if (ensName === 'vitalik.eth') {
     return {
       tokens: ["USDC", "USDT", "ETH"],
-      chains: ["mainnet", "base", "optimism"],
+      chains: ["eth", "base", "oeth"],
       currency: "USD",
       amount: "",
       memo: "Thanks for supporting my work!",
