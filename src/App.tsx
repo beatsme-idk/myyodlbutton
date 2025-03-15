@@ -15,8 +15,8 @@ const queryClient = new QueryClient();
 const STORAGE_KEY = "myyodlbutton_config";
 
 const DEFAULT_YODL_CONFIG: YodlPaymentConfig = {
-  tokens: ["USDC", "USDT"],
-  chains: ["base", "oeth"],
+  tokens: ["all"],
+  chains: ["all"],
   currency: "USD",
   amount: "",
   memo: "",

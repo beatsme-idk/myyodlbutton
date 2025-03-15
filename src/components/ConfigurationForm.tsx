@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { validateHexColor, isValidEnsOrAddress, isValidSlug } from "@/utils/validation";
-import { Check, AlertCircle, Lightbulb, Settings, Palette, Heart, Share2, Upload, ExternalLink, Book, Wallet, Droplet, Twitter, Instagram, Github, Linkedin, Link2, ArrowRight } from "lucide-react";
+import { Check, AlertCircle, Lightbulb, Settings, Palette, Heart, Coffee, Hand, Gift, Zap, Share2, Upload, ExternalLink, Book, Wallet, Droplet, Twitter, Instagram, Github, Linkedin, Link2, ArrowRight } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import ColorPicker from "./ColorPicker";
 import LoadingSpinner from "./LoadingSpinner";

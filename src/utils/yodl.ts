@@ -72,8 +72,8 @@ export const parseYodlConfigFromENS = async (ensName: string): Promise<YodlPayme
   // For demo purposes, we'll just simulate a response for 'vitalik.eth'
   if (ensName === 'vitalik.eth') {
     return {
-      tokens: ["USDC", "USDT", "ETH"],
-      chains: ["eth", "base", "oeth"],
+      tokens: ["all"],
+      chains: ["all"],
       currency: "USD",
       amount: "",
       memo: "Thanks for supporting my work!",

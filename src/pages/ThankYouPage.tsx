@@ -1,92 +1,62 @@
 
-import { useParams } from "react-router-dom";
-import ThankYouComponent from "@/components/ThankYouPage";
 import { useEffect, useState } from "react";
-import { ThankYouPageStyle } from "@/types";
+import { useParams } from "react-router-dom";
+import { UserConfig } from "@/types";
+import ThankYouPage from "@/components/ThankYouPage";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
-// In a real app, this would fetch from an API or database
-const getThankYouConfig = (slug: string): ThankYouPageStyle | null => {
-  // Try to load from localStorage first
-  const savedConfig = localStorage.getItem("myyodlbutton_config");
-  if (savedConfig) {
-    const config = JSON.parse(savedConfig);
-    if (config.slug === slug) {
-      return config.thankYouPage;
-    }
-  }
-  
-  // Fallback to demo config
-  const mockConfigs: Record<string, ThankYouPageStyle> = {
-    "demo": {
-      backgroundColor: "#F9FAFB",
-      textColor: "#111827",
-      message: "Thank you for your support! It means a lot to me.",
-      showConfetti: true,
-      socialLinks: {
-        twitter: "https://twitter.com/example",
-        instagram: "https://instagram.com/example"
-      },
-      customLink: {
-        text: "Visit my website",
-        url: "https://example.com"
-      }
-    }
-  };
-  
-  return mockConfigs[slug] || null;
-};
-
-const ThankYouPage = () => {
+const ThankYouPageRoute = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [config, setConfig] = useState<ThankYouPageStyle | null>(null);
+  const [config, setConfig] = useState<UserConfig | null>(null);
   const [loading, setLoading] = useState(true);
-  
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
-    if (slug) {
-      // Simulate an API call
-      setTimeout(() => {
-        const thankYouConfig = getThankYouConfig(slug);
-        setConfig(thankYouConfig || {
-          backgroundColor: "#F9FAFB",
-          textColor: "#111827",
-          message: "Thank you for your support!",
-          showConfetti: true
-        });
-        setLoading(false);
-      }, 500);
+    const STORAGE_KEY = "myyodlbutton_config";
+    
+    // Attempt to load from localStorage
+    try {
+      const savedConfig = localStorage.getItem(STORAGE_KEY);
+      if (savedConfig) {
+        const parsedConfig = JSON.parse(savedConfig);
+        
+        // Check if this is the config we're looking for by slug
+        if (parsedConfig && parsedConfig.slug === slug) {
+          setConfig(parsedConfig);
+        } else {
+          setError("Thank you page not found");
+        }
+      } else {
+        setError("Thank you page not found");
+      }
+    } catch (err) {
+      console.error("Error loading configuration:", err);
+      setError("Error loading thank you page");
+    } finally {
+      setLoading(false);
     }
   }, [slug]);
-  
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-lg">Loading...</div>
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
-  
-  if (!config) {
+
+  if (error || !config) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg text-destructive">
-          Configuration not found for slug: {slug}
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="max-w-md text-center space-y-4">
+          <h1 className="text-2xl font-bold text-red-400">Oops! {error}</h1>
+          <p className="text-gray-600 dark:text-gray-300">The thank you page you're looking for doesn't exist or has been removed.</p>
         </div>
       </div>
     );
   }
-  
-  return (
-    <ThankYouComponent
-      thankYou={{
-        message: config.message,
-        showConfetti: config.showConfetti,
-        backgroundColor: config.backgroundColor,
-        textColor: config.textColor,
-        socialLinks: config.socialLinks,
-        customLink: config.customLink
-      }}
-    />
-  );
+
+  return <ThankYouPage thankYou={config.thankYouPage} />;
 };
 
-export default ThankYouPage;
+export default ThankYouPageRoute;

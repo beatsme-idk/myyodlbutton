@@ -1,209 +1,129 @@
 
-import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ButtonStyle, YodlPaymentConfig } from "@/types";
+import { useParams, useNavigate } from "react-router-dom";
+import { UserConfig } from "@/types";
 import PaymentButton from "@/components/PaymentButton";
+import { generateYodlPaymentLink } from "@/utils/yodl";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
 import AvatarGenerator from "@/components/AvatarGenerator";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
 import LoadingSpinner from "@/components/LoadingSpinner";
-import { Wallet } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-
-const getPaymentConfig = (slug: string): {
-  buttonStyle: ButtonStyle, 
-  ensNameOrAddress: string, 
-  socialPreview?: any,
-  yodlConfig?: YodlPaymentConfig
-} | null => {
-  const savedConfig = localStorage.getItem("buymeacoffee_config");
-  if (savedConfig) {
-    try {
-      const config = JSON.parse(savedConfig);
-      if (config.slug === slug) {
-        return {
-          buttonStyle: config.buttonStyle,
-          ensNameOrAddress: config.ensNameOrAddress,
-          socialPreview: config.socialPreview || {
-            title: "Support My Work",
-            description: "Every contribution helps me continue creating amazing content for you!",
-            imageUrl: "",
-            useCustomImage: false
-          },
-          yodlConfig: config.yodlConfig || {
-            tokens: ["USDC", "USDT"],
-            chains: ["base", "oeth"],
-            currency: "USD",
-            amount: ""
-          }
-        };
-      }
-    } catch (e) {
-      console.error("Error parsing saved config:", e);
-    }
-  }
-  
-  const mockConfigs: Record<string, {
-    buttonStyle: ButtonStyle, 
-    ensNameOrAddress: string, 
-    socialPreview?: any,
-    yodlConfig?: YodlPaymentConfig
-  }> = {
-    "demo": {
-      buttonStyle: {
-        backgroundColor: "#1E40AF",
-        textColor: "#FFFFFF",
-        borderRadius: "9999px",
-        fontSize: "16px",
-        padding: "12px 24px",
-        buttonText: "Buy me a coffee"
-      },
-      ensNameOrAddress: "vitalik.eth",
-      socialPreview: {
-        title: "Support My Work",
-        description: "Every contribution helps me continue creating awesome content for you!",
-        imageUrl: "",
-        useCustomImage: false
-      },
-      yodlConfig: {
-        tokens: ["USDC", "USDT"],
-        chains: ["base", "oeth"],
-        currency: "USD",
-        amount: ""
-      }
-    }
-  };
-  
-  return mockConfigs[slug] || null;
-};
 
 const PaymentPage = () => {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [config, setConfig] = useState<{
-    buttonStyle: ButtonStyle, 
-    ensNameOrAddress: string, 
-    socialPreview?: any,
-    yodlConfig?: YodlPaymentConfig
-  } | null>(null);
+  const [config, setConfig] = useState<UserConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+  const navigate = useNavigate();
+
   useEffect(() => {
-    if (slug) {
-      setTimeout(() => {
-        try {
-          const paymentConfig = getPaymentConfig(slug);
-          if (paymentConfig) {
-            if (!paymentConfig.buttonStyle || !paymentConfig.ensNameOrAddress) {
-              throw new Error("Invalid payment configuration");
-            }
-            
-            setConfig(paymentConfig);
-            setError(null);
-            console.log("Payment config loaded:", paymentConfig);
-          } else {
-            const errorMsg = `Payment button not found for: ${slug}`;
-            console.error(errorMsg);
-            setError(errorMsg);
-            toast({
-              title: "Error",
-              description: errorMsg,
-              variant: "destructive"
-            });
-          }
-        } catch (err) {
-          const errorMsg = `Error loading payment page: ${err instanceof Error ? err.message : 'Unknown error'}`;
-          console.error(errorMsg);
-          setError(errorMsg);
-          toast({
-            title: "Error",
-            description: errorMsg,
-            variant: "destructive"
-          });
-        } finally {
-          setLoading(false);
+    const STORAGE_KEY = "myyodlbutton_config";
+    
+    // Attempt to load from localStorage
+    try {
+      const savedConfig = localStorage.getItem(STORAGE_KEY);
+      if (savedConfig) {
+        const parsedConfig = JSON.parse(savedConfig);
+        
+        // Check if this is the config we're looking for by slug
+        if (parsedConfig && parsedConfig.slug === slug) {
+          setConfig(parsedConfig);
+        } else {
+          setError("Payment button not found");
         }
-      }, 500);
+      } else {
+        setError("Payment button not found");
+      }
+    } catch (err) {
+      console.error("Error loading configuration:", err);
+      setError("Error loading payment button");
+    } finally {
+      setLoading(false);
     }
-  }, [slug, toast]);
-  
-  const handlePayment = () => {
-    if (slug) {
-      navigate(`/thank-you/${slug}`);
+  }, [slug]);
+
+  const handlePayNow = () => {
+    if (!config) return;
+    
+    // Set up the redirect URL for the thank you page
+    const yodlConfig = config.yodlConfig 
+      ? {
+          ...config.yodlConfig,
+          redirectUrl: `${window.location.origin}/thank-you/${config.slug}`
+        }
+      : undefined;
+      
+    const paymentLink = generateYodlPaymentLink(config.ensNameOrAddress, yodlConfig);
+    
+    if (paymentLink) {
+      window.location.href = paymentLink;
+    } else {
+      // Fallback if link generation fails
+      toast({
+        title: "Error",
+        description: "Could not generate payment link. Please try again later.",
+        variant: "destructive",
+      });
     }
   };
-  
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" variant="gradient" />
-      </div>
-    );
-  }
-  
-  if (error || !config) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <div className="text-lg text-destructive">
-          {error || `Payment button not found for slug: ${slug}`}
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-white flex items-center justify-center">
+        <div className="text-center">
+          <LoadingSpinner size="lg" />
+          <p className="mt-4 text-slate-300">Loading payment button...</p>
         </div>
       </div>
     );
   }
-  
+
+  if (error || !config) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-white flex items-center justify-center p-4">
+        <div className="max-w-md text-center space-y-4">
+          <h1 className="text-2xl font-bold text-red-400">Oops! {error}</h1>
+          <p className="text-slate-300">The payment button you're looking for doesn't exist or has been removed.</p>
+          <Button variant="outline" onClick={() => navigate("/")}>
+            Return Home
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-      <Card className="max-w-md w-full animate-fade-in">
-        <CardHeader className="pb-6">
-          <div className="flex items-center gap-4">
-            <AvatarGenerator ensNameOrAddress={config?.ensNameOrAddress || ""} size="large" />
-            <div>
-              <CardTitle className="text-2xl font-medium">
-                Support {config?.ensNameOrAddress}
-              </CardTitle>
-              
-              {config?.yodlConfig && (
-                <div className="flex items-center gap-2 mt-2">
-                  <Badge variant="outline" className="bg-green-900/30 text-green-300 border-green-700/50 flex items-center gap-1">
-                    <Wallet className="w-3 h-3" />
-                    Yodl Enabled
-                  </Badge>
-                  
-                  {config.yodlConfig.tokens && config.yodlConfig.tokens.length > 0 && (
-                    <Badge variant="outline" className="bg-slate-800/50 text-slate-300 border-slate-700/50 text-xs">
-                      {config.yodlConfig.tokens.join(', ')}
-                    </Badge>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </CardHeader>
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 text-white flex flex-col items-center justify-center p-4">
+      <div className="max-w-md w-full space-y-8 text-center">
+        <AvatarGenerator 
+          ensNameOrAddress={config.ensNameOrAddress} 
+          size="xxlarge"
+          className="mx-auto"
+        />
         
-        <CardContent className="flex flex-col items-center space-y-6">
-          <div className="text-center text-muted-foreground pb-4">
-            Your contribution helps them continue creating amazing content.
-            {config?.yodlConfig && (
-              <p className="text-sm mt-2 text-green-400">
-                Pay with crypto stablecoins across multiple blockchains.
-              </p>
-            )}
-          </div>
-          
-          {config && (
-            <PaymentButton
-              style={config.buttonStyle}
-              ensNameOrAddress={config.ensNameOrAddress}
-              slug={slug || ""}
-              onClick={handlePayment}
-              className="w-full"
-              yodlConfig={config.yodlConfig}
-            />
-          )}
-        </CardContent>
-      </Card>
+        <h1 className="text-3xl font-bold">
+          Support {config.ensNameOrAddress}
+        </h1>
+        
+        <p className="text-slate-300 mb-8">
+          Your support helps me continue creating content and projects you enjoy!
+        </p>
+        
+        <div className="flex justify-center">
+          <PaymentButton
+            style={config.buttonStyle}
+            ensNameOrAddress={config.ensNameOrAddress}
+            slug={config.slug}
+            onClick={handlePayNow}
+            yodlConfig={config.yodlConfig}
+            className="transform scale-125 origin-center"
+          />
+        </div>
+      </div>
+      
+      <div className="mt-16 text-center text-sm text-slate-500">
+        <p>Powered by Yodl and Lovable</p>
+      </div>
     </div>
   );
 };

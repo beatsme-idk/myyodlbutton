@@ -15,12 +15,12 @@ const PreviewCard = ({ preview }: PreviewProps) => {
   const [copied, setCopied] = useState(false);
   const [showSocialPreview, setShowSocialPreview] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
-  const paymentUrl = `https://myyodlbutton.lovable.app/pay/${preview.slug}`;
+  const paymentUrl = `https://myyodlbutton.lovable.app/${preview.slug}`;
   
   const yodlConfig = preview.yodlConfig 
     ? {
         ...preview.yodlConfig,
-        redirectUrl: preview.yodlConfig.redirectUrl || `${window.location.origin}/thank-you/${preview.slug}`
+        redirectUrl: preview.yodlConfig.redirectUrl || `${window.location.origin}/${preview.slug}`
       }
     : undefined;
   
