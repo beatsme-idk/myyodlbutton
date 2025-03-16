@@ -1,4 +1,3 @@
-
 // Add the necessary imports for the icons
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import PaymentButton from "./PaymentButton";
@@ -10,6 +9,7 @@ import QRCodeGenerator from "./QRCodeGenerator";
 import { Sparkles, Link as LinkIcon, CopyIcon, Check, Share2, Wallet, QrCode, Scan, ArrowRight, Heart, Coffee, Hand, Gift, Zap } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
+import { generateYodlPaymentLink } from "@/utils/yodl";
 
 const PreviewCard = ({ preview }: PreviewProps) => {
   const [copied, setCopied] = useState(false);
@@ -24,46 +24,8 @@ const PreviewCard = ({ preview }: PreviewProps) => {
       }
     : undefined;
   
-  const generateYodlUrl = (address: string, config?: any): string => {
-    if (!config) return "";
-    
-    let url = `https://yodl.me/${address}`;
-    
-    const params = new URLSearchParams();
-    
-    if (config.tokens && config.tokens.length > 0) {
-      params.append("tokens", Array.isArray(config.tokens) ? config.tokens.join(',') : config.tokens);
-    }
-    
-    if (config.chains && config.chains.length > 0) {
-      params.append("chains", Array.isArray(config.chains) ? config.chains.join(',') : config.chains);
-    }
-    
-    if (config.currency) {
-      params.append("currency", config.currency);
-    }
-    
-    if (config.amount) {
-      params.append("amount", config.amount);
-    }
-    
-    if (config.memo) {
-      params.append("memo", config.memo);
-    }
-    
-    if (config.redirectUrl) {
-      params.append("redirectUrl", config.redirectUrl);
-    }
-    
-    const queryString = params.toString();
-    if (queryString) {
-      url += `?${queryString}`;
-    }
-    
-    return url;
-  };
-  
-  const yodlUrl = preview.yodlConfig ? generateYodlUrl(preview.ensNameOrAddress, yodlConfig) : null;
+  // Use the centralized URL generation function
+  const yodlUrl = preview.yodlConfig ? generateYodlPaymentLink(preview.ensNameOrAddress, yodlConfig) : null;
   
   const handleCopy = (url: string) => {
     navigator.clipboard.writeText(url);

@@ -1,4 +1,3 @@
-
 import { YodlPaymentConfig } from "@/types";
 
 export const generateYodlPaymentLink = (address: string, config?: YodlPaymentConfig): string => {
@@ -9,53 +8,50 @@ export const generateYodlPaymentLink = (address: string, config?: YodlPaymentCon
   // Base URL - format is https://yodl.me/{address}
   let url = `https://yodl.me/${address}`;
   
-  // Build query parameters
-  const params = new URLSearchParams();
+  // Build query parameters array to avoid URLSearchParams encoding
+  const queryParams: string[] = [];
   
-  if (config.tokens && config.tokens.length > 0) {
-    if (config.tokens.includes('all')) {
-      // Don't specify tokens to allow all
-    } else {
-      params.append("tokens", config.tokens.join(','));
-    }
+  // Only add tokens if not "all"
+  if (config.tokens && config.tokens.length > 0 && !config.tokens.includes('all')) {
+    queryParams.push(`tokens=${config.tokens.join(',')}`);
   }
   
-  if (config.chains && config.chains.length > 0) {
-    if (config.chains.includes('all')) {
-      // Don't specify chains to allow all
-    } else {
-      params.append("chains", config.chains.join(','));
-    }
+  // Only add chains if not "all"
+  if (config.chains && config.chains.length > 0 && !config.chains.includes('all')) {
+    queryParams.push(`chains=${config.chains.join(',')}`);
   }
   
   if (config.currency) {
-    params.append("currency", config.currency);
+    queryParams.push(`currency=${config.currency}`);
   }
   
   if (config.amount) {
-    params.append("amount", config.amount);
+    queryParams.push(`amount=${config.amount}`);
   }
   
   if (config.memo) {
-    params.append("memo", config.memo);
-  }
-  
-  // Convert params to string first
-  const queryString = params.toString();
-  const separator = queryString ? '?' : '';
-  
-  // Add redirect URL parameter directly at the end without encoding
-  if (config.redirectUrl) {
-    // We'll manually add the redirectUrl to avoid encoding
-    return `${url}${separator}${queryString}${queryString ? '&' : '?'}redirectUrl=${config.redirectUrl}&buttonText=Return+to+Site`;
+    queryParams.push(`memo=${config.memo}`);
   }
   
   // Add button text for return
-  if (queryString) {
-    return `${url}?${queryString}&buttonText=Return+to+Site`;
+  queryParams.push("buttonText=Return+to+Site");
+  
+  // Build the URL with query parameters
+  let finalUrl = url;
+  
+  if (queryParams.length > 0) {
+    finalUrl += `?${queryParams.join('&')}`;
   }
   
-  return `${url}?buttonText=Return+to+Site`;
+  // Add redirect URL parameter directly at the end without encoding
+  if (config.redirectUrl) {
+    const separator = queryParams.length > 0 ? '&' : '?';
+    // Ensure the redirectUrl doesn't contain any % encoding
+    const cleanRedirectUrl = config.redirectUrl.replace(/%/g, '');
+    finalUrl += `${separator}redirectUrl=${cleanRedirectUrl}`;
+  }
+  
+  return finalUrl;
 };
 
 // Helper function to parse ENS text records for Yodl configuration

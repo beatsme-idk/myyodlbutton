@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { YodlPaymentConfig } from "@/types";
 import { Input } from "@/components/ui/input";
@@ -7,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Check, Info } from "lucide-react";
+import { Check, Info, AlertCircle } from "lucide-react";
 
 interface YodlConfigProps {
   config: YodlPaymentConfig;
@@ -25,6 +24,26 @@ const AVAILABLE_CHAINS = [
 ];
 
 const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
+  // Ensure default values are set
+  useEffect(() => {
+    // If tokens or chains are empty, set them to "all"
+    const updatedConfig = { ...config };
+    let updated = false;
+    
+    if (!config.tokens || config.tokens.length === 0) {
+      updatedConfig.tokens = ["all"];
+      updated = true;
+    }
+    
+    if (!config.chains || config.chains.length === 0) {
+      updatedConfig.chains = ["all"];
+      updated = true;
+    }
+    
+    if (updated) {
+      onChange(updatedConfig);
+    }
+  }, []);
   
   const handleCurrencyChange = (value: string) => {
     onChange({ ...config, currency: value });
@@ -42,6 +61,7 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
     let newTokens: string[] = [];
     
     if (token === "all") {
+      // When "all" is selected, clear other selections
       newTokens = ["all"];
     } else {
       // If "all" was previously selected, replace it with just this token
@@ -67,6 +87,7 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
     let newChains: string[] = [];
     
     if (chain === "all") {
+      // When "all" is selected, clear other selections
       newChains = ["all"];
     } else {
       // If "all" was previously selected, replace it with just this chain
@@ -138,7 +159,13 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
       </div>
       
       <div className="space-y-3">
-        <Label>Accepted Tokens</Label>
+        <div className="flex items-center justify-between">
+          <Label>Accepted Tokens</Label>
+          <div className="text-xs text-slate-400 flex items-center">
+            <Info size={12} className="mr-1" />
+            Select specific tokens or accept all
+          </div>
+        </div>
         <div className="flex flex-wrap gap-2">
           <Button
             type="button"
@@ -167,7 +194,13 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
       </div>
       
       <div className="space-y-3">
-        <Label>Accepted Chains</Label>
+        <div className="flex items-center justify-between">
+          <Label>Accepted Chains</Label>
+          <div className="text-xs text-slate-400 flex items-center">
+            <Info size={12} className="mr-1" />
+            Select specific chains or accept all
+          </div>
+        </div>
         <div className="flex flex-wrap gap-2">
           <Button
             type="button"

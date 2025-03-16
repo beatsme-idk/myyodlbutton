@@ -1,7 +1,6 @@
-
 import { ButtonStyle, YodlPaymentConfig } from "@/types";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, Heart, Coffee, Hand, Gift, Zap } from "lucide-react";
+import { ArrowRight, Heart, Coffee, Hand, Gift, Zap, Star, Coins, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { generateYodlPaymentLink } from "@/utils/yodl";
 
@@ -32,6 +31,9 @@ const PaymentButton = ({
     "hand": Hand,
     "gift": Gift,
     "zap": Zap,
+    "star": Star,
+    "coins": Coins,
+    "sparkles": Sparkles,
     "none": () => null
   };
   
@@ -63,7 +65,7 @@ const PaymentButton = ({
   
   return (
     <button
-      className={`inline-flex items-center justify-center transition-all-300 shadow-[0_4px_14px_rgba(0,0,0,0.25)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.35)] hover:-translate-y-1 ${className}`}
+      className={`inline-flex items-center justify-center shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 ${className}`}
       style={{
         background: style.backgroundColor,
         color: style.textColor,
@@ -80,7 +82,9 @@ const PaymentButton = ({
           className="w-full h-full drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]"
         />
       </div>
-      {IconComponent !== iconMap.none && <IconComponent className="mr-2" size={16} />}
+      {style.icon && style.icon !== "none" && (
+        <IconComponent className="mr-2" size={16} />
+      )}
       <span>{style.buttonText}</span>
       <ArrowRight className="ml-2 opacity-70" size={16} />
     </button>

@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { validateHexColor, isValidEnsOrAddress, isValidSlug } from "@/utils/validation";
-import { Check, AlertCircle, Lightbulb, Settings, Palette, Heart, Coffee, Hand, Gift, Zap, Share2, Upload, ExternalLink, Book, Wallet, Droplet, Twitter, Instagram, Github, Linkedin, Link2, ArrowRight } from "lucide-react";
+import { Check, AlertCircle, Lightbulb, Settings, Palette, Heart, Coffee, Hand, Gift, Zap, Share2, Upload, ExternalLink, Book, Wallet, Droplet, Twitter, Instagram, Github, Linkedin, Link2, ArrowRight, Star, Coins, Sparkles } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import ColorPicker from "./ColorPicker";
 import LoadingSpinner from "./LoadingSpinner";
@@ -372,13 +372,13 @@ const ConfigurationForm = ({
   return (
     <form onSubmit={handleSubmit}>
       <Card className="w-full animate-slide-up">
-        <CardHeader>
-          <CardTitle className="text-2xl font-medium">
-            Configure Your Payment Button
+        <CardHeader className="pb-3">
+          <CardTitle className="text-xl md:text-2xl font-semibold text-gradient-blue flex items-center">
+            <svg className="w-5 h-5 mr-2 md:w-6 md:h-6 md:mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Configure Your Button
           </CardTitle>
-          <CardDescription>
-            Customize how your "Yodl Me a Coffee" button looks and behaves
-          </CardDescription>
         </CardHeader>
         
         <CardContent>
@@ -403,27 +403,6 @@ const ConfigurationForm = ({
             </TabsList>
             
             <TabsContent value="general" className="space-y-4">
-              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-6">
-                <div className="flex items-center mb-4">
-                  <Lightbulb className="w-5 h-5 text-yellow-500 mr-2" />
-                  <h3 className="text-lg font-semibold">Quick Tips</h3>
-                </div>
-                <ul className="space-y-2 text-sm text-slate-300">
-                  <li className="flex items-center">
-                    <span className="mr-2 text-indigo-400">•</span>
-                    Use an ENS name for better recognition
-                  </li>
-                  <li className="flex items-center">
-                    <span className="mr-2 text-indigo-400">•</span>
-                    Create a memorable slug for easy sharing
-                  </li>
-                  <li className="flex items-center">
-                    <span className="mr-2 text-indigo-400">•</span>
-                    Subdomains are supported (e.g., donations.vitalik.eth)
-                  </li>
-                </ul>
-              </div>
-              
               <div className="space-y-2">
                 <Label htmlFor="ensNameOrAddress">
                   ENS Name or Ethereum Address
@@ -519,6 +498,9 @@ const ConfigurationForm = ({
                         {selectedIcon === "hand" && <Hand className="mr-2" size={16} />}
                         {selectedIcon === "gift" && <Gift className="mr-2" size={16} />}
                         {selectedIcon === "zap" && <Zap className="mr-2" size={16} />}
+                        {selectedIcon === "star" && <Star className="mr-2" size={16} />}
+                        {selectedIcon === "coins" && <Coins className="mr-2" size={16} />}
+                        {selectedIcon === "sparkles" && <Sparkles className="mr-2" size={16} />}
                       </>
                     )}
                     <span>{config.buttonStyle.buttonText}</span>
@@ -764,6 +746,39 @@ const ConfigurationForm = ({
                   >
                     <Zap size={14} />
                     Zap
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant={selectedIcon === "star" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleIconSelection("star")}
+                    className="rounded-full flex items-center gap-1"
+                  >
+                    <Star size={14} />
+                    Star
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant={selectedIcon === "coins" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleIconSelection("coins")}
+                    className="rounded-full flex items-center gap-1"
+                  >
+                    <Coins size={14} />
+                    Coins
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant={selectedIcon === "sparkles" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleIconSelection("sparkles")}
+                    className="rounded-full flex items-center gap-1"
+                  >
+                    <Sparkles size={14} />
+                    Sparkles
                   </Button>
                 </div>
               </div>
