@@ -1,5 +1,23 @@
 import { YodlPaymentConfig } from "@/types";
 
+// Available tokens and chains for Yodl
+export const AVAILABLE_TOKENS = [
+  { id: "ETH", name: "ETH" },
+  { id: "USDC", name: "USDC" },
+  { id: "USDT", name: "USDT" },
+  { id: "DAI", name: "DAI" },
+  { id: "USDM", name: "USDM" },
+  { id: "USDGLO", name: "USDGLO" }
+];
+
+export const AVAILABLE_CHAINS = [
+  { id: "eth", name: "Ethereum" },
+  { id: "arb1", name: "Arbitrum" },
+  { id: "base", name: "Base" },
+  { id: "oeth", name: "Optimism" },
+  { id: "pol", name: "Polygon" }
+];
+
 export const generateYodlPaymentLink = (address: string, config?: YodlPaymentConfig): string => {
   if (!config) {
     return "";
@@ -46,9 +64,7 @@ export const generateYodlPaymentLink = (address: string, config?: YodlPaymentCon
   // Add redirect URL parameter directly at the end without encoding
   if (config.redirectUrl) {
     const separator = queryParams.length > 0 ? '&' : '?';
-    // Ensure the redirectUrl doesn't contain any % encoding
-    const cleanRedirectUrl = config.redirectUrl.replace(/%/g, '');
-    finalUrl += `${separator}redirectUrl=${cleanRedirectUrl}`;
+    finalUrl += `${separator}redirectUrl=${config.redirectUrl}`;
   }
   
   return finalUrl;

@@ -1,4 +1,3 @@
-
 import { UserConfig, ButtonStyle, ThankYouPageStyle, SocialPreviewStyle } from "@/types";
 
 export const validateButtonStyle = (style: ButtonStyle): boolean => {
@@ -63,12 +62,14 @@ export const isValidSlug = (slug: string): boolean => {
   return /^[a-z0-9-]+$/.test(slug);
 };
 
-export const isValidEnsOrAddress = (ensNameOrAddress: string): boolean => {
-  // Basic validation for Ethereum address
-  const isEthAddress = /^0x[a-fA-F0-9]{40}$/.test(ensNameOrAddress);
+export const isValidEnsOrAddress = (value: string): boolean => {
+  if (!value) return false;
   
-  // Updated validation for ENS name with subdomain support
-  const isEns = /^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+eth$/.test(ensNameOrAddress);
+  // Check if it's an Ethereum address (more lenient check)
+  const isEthAddress = /^0x[a-fA-F0-9]{1,}$/i.test(value);
+  
+  // Check if it's an ENS name (more lenient check)
+  const isEns = value.toLowerCase().endsWith('.eth');
   
   return isEthAddress || isEns;
 };

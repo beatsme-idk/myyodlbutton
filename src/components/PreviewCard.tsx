@@ -3,18 +3,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import PaymentButton from "./PaymentButton";
 import { PreviewProps } from "@/types";
 import SocialShareButtons from "./SocialShareButtons";
-import AvatarGenerator from "./AvatarGenerator";
 import SocialPreviewCard from "./SocialPreviewCard";
 import QRCodeGenerator from "./QRCodeGenerator";
-import { Sparkles, Link as LinkIcon, CopyIcon, Check, Share2, Wallet, QrCode, Scan, ArrowRight, Heart, Coffee, Hand, Gift, Zap } from "lucide-react";
+import { Sparkles, Link as LinkIcon, CopyIcon, Check, Share2, Wallet, QrCode, Scan, ArrowRight, Heart, Coffee, Hand, Gift, Zap, Code } from "lucide-react";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
-import { generateYodlPaymentLink } from "@/utils/yodl";
 
 const PreviewCard = ({ preview }: PreviewProps) => {
   const [copied, setCopied] = useState(false);
   const [showSocialPreview, setShowSocialPreview] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
+  const [showEmbedCode, setShowEmbedCode] = useState(false);
   const paymentUrl = `https://myyodlbutton.lovable.app/${preview.slug}`;
   
   const yodlConfig = preview.yodlConfig 
@@ -24,8 +23,56 @@ const PreviewCard = ({ preview }: PreviewProps) => {
       }
     : undefined;
   
-  // Use the centralized URL generation function
-  const yodlUrl = preview.yodlConfig ? generateYodlPaymentLink(preview.ensNameOrAddress, yodlConfig) : null;
+  const generateYodlUrl = (address: string, config?: any): string => {
+    if (!config) return "";
+    
+    let url = `https://yodl.me/${address}`;
+    
+    // Build query parameters array to avoid URLSearchParams encoding
+    const queryParams: string[] = [];
+    
+    // Only add tokens if not "all"
+    if (config.tokens && config.tokens.length > 0 && !config.tokens.includes('all')) {
+      queryParams.push(`tokens=${Array.isArray(config.tokens) ? config.tokens.join(',') : config.tokens}`);
+    }
+    
+    // Only add chains if not "all"
+    if (config.chains && config.chains.length > 0 && !config.chains.includes('all')) {
+      queryParams.push(`chains=${Array.isArray(config.chains) ? config.chains.join(',') : config.chains}`);
+    }
+    
+    if (config.currency) {
+      queryParams.push(`currency=${config.currency}`);
+    }
+    
+    if (config.amount) {
+      queryParams.push(`amount=${config.amount}`);
+    }
+    
+    if (config.memo) {
+      queryParams.push(`memo=${config.memo}`);
+    }
+    
+    // Add button text for return
+    queryParams.push("buttonText=Return+to+Site");
+    
+    // Build the URL with query parameters
+    let finalUrl = url;
+    
+    if (queryParams.length > 0) {
+      finalUrl += `?${queryParams.join('&')}`;
+    }
+    
+    // Add redirect URL parameter directly at the end without encoding
+    if (config.redirectUrl) {
+      const separator = queryParams.length > 0 ? '&' : '?';
+      finalUrl += `${separator}redirectUrl=${config.redirectUrl}`;
+    }
+    
+    return finalUrl;
+  };
+  
+  const yodlUrl = preview.yodlConfig ? generateYodlUrl(preview.ensNameOrAddress, yodlConfig) : null;
   
   const handleCopy = (url: string) => {
     navigator.clipboard.writeText(url);
@@ -36,12 +83,13 @@ const PreviewCard = ({ preview }: PreviewProps) => {
     });
     setTimeout(() => setCopied(false), 2000);
   };
+
+  const embedCode = `<script src="https://myyodlbutton.lovable.app/embed.js" data-slug="${preview.slug}" async></script>`;
   
   return (
     <Card className="w-full overflow-hidden glass-panel transition-all-200 shadow-xl border-0 rounded-xl">
       <CardHeader className="pb-3 bg-gradient-to-r from-indigo-900/60 to-indigo-950/70 border-b border-indigo-500/20">
-        <CardTitle className="text-2xl font-medium flex items-center gap-3">
-          <AvatarGenerator ensNameOrAddress={preview.ensNameOrAddress} />
+        <CardTitle className="text-2xl font-medium">
           <div className="flex flex-col items-start">
             <span className="text-gradient">Payment Button</span>
             <CardDescription className="text-indigo-300 mt-1">
@@ -78,6 +126,14 @@ const PreviewCard = ({ preview }: PreviewProps) => {
                 {showQRCode ? "Hide" : "Show"} QR code
               </button>
               
+              <button
+                onClick={() => setShowEmbedCode(!showEmbedCode)}
+                className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+              >
+                <Code size={14} />
+                {showEmbedCode ? "Hide" : "Show"} embed code
+              </button>
+              
               {preview.socialPreview && (
                 <button
                   onClick={() => setShowSocialPreview(!showSocialPreview)}
@@ -93,6 +149,33 @@ const PreviewCard = ({ preview }: PreviewProps) => {
           {showQRCode && (
             <div className="my-4 animate-fade-in">
               <QRCodeGenerator paymentUrl={paymentUrl} />
+            </div>
+          )}
+          
+          {showEmbedCode && (
+            <div className="my-4 animate-fade-in">
+              <div className="space-y-2">
+                <div className="relative">
+                  <div className="bg-slate-900/50 rounded-lg border border-slate-700/50 p-4 font-mono text-xs text-slate-300 overflow-x-auto">
+                    {embedCode}
+                  </div>
+                  <button 
+                    className="absolute top-2 right-2 bg-indigo-600/50 hover:bg-indigo-600 px-2 py-1 rounded text-xs text-white transition-colors"
+                    onClick={() => {
+                      navigator.clipboard.writeText(embedCode);
+                      toast({
+                        title: "Copied to clipboard",
+                        description: "Embed code has been copied to your clipboard",
+                      });
+                    }}
+                  >
+                    <CopyIcon size={14} className="inline mr-1" /> Copy
+                  </button>
+                </div>
+                <p className="text-xs text-slate-400 mt-2">
+                  Add this code to your website to embed your Yodl payment button.
+                </p>
+              </div>
             </div>
           )}
           
