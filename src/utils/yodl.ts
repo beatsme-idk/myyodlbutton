@@ -1,21 +1,22 @@
 import { YodlPaymentConfig } from "@/types";
 
-// Available tokens and chains for Yodl
+// Define available tokens
 export const AVAILABLE_TOKENS = [
-  { id: "ETH", name: "ETH" },
-  { id: "USDC", name: "USDC" },
-  { id: "USDT", name: "USDT" },
-  { id: "DAI", name: "DAI" },
-  { id: "USDM", name: "USDM" },
-  { id: "USDGLO", name: "USDGLO" }
+  { id: "eth", name: "ETH" },
+  { id: "usdc", name: "USDC" },
+  { id: "usdt", name: "USDT" },
+  { id: "dai", name: "DAI" },
+  { id: "usdm", name: "USDM" },
+  { id: "usdglo", name: "USDGLO" }
 ];
 
+// Define available chains
 export const AVAILABLE_CHAINS = [
-  { id: "eth", name: "Ethereum" },
-  { id: "arb1", name: "Arbitrum" },
+  { id: "ethereum", name: "Ethereum" },
+  { id: "arbitrum", name: "Arbitrum" },
   { id: "base", name: "Base" },
-  { id: "oeth", name: "Optimism" },
-  { id: "pol", name: "Polygon" }
+  { id: "optimism", name: "Optimism" },
+  { id: "polygon", name: "Polygon" }
 ];
 
 export const generateYodlPaymentLink = (address: string, config?: YodlPaymentConfig): string => {

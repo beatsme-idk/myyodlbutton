@@ -123,7 +123,7 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
               variant={selectedTokens.includes("all") ? "default" : "outline"}
               size="sm"
               onClick={() => toggleToken("all")}
-              className={`${selectedTokens.includes("all") ? "bg-green-600 hover:bg-green-700" : "bg-slate-800/50 border-slate-700 hover:bg-slate-700"} min-h-[40px]`}
+              className={`${selectedTokens.includes("all") ? "bg-green-600 hover:bg-green-700 font-bold" : "bg-slate-800/50 border-slate-700 hover:bg-slate-700"} min-h-[40px]`}
             >
               All tokens
             </Button>
@@ -135,7 +135,7 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
                 variant={selectedTokens.includes(token.id) && !selectedTokens.includes("all") ? "default" : "outline"}
                 size="sm"
                 onClick={() => toggleToken(token.id)}
-                className={`${selectedTokens.includes(token.id) && !selectedTokens.includes("all") ? "bg-green-600 hover:bg-green-700" : "bg-slate-800/50 border-slate-700 hover:bg-slate-700"} min-h-[40px]`}
+                className={`${selectedTokens.includes(token.id) && !selectedTokens.includes("all") ? "bg-green-600 hover:bg-green-700 font-bold" : "bg-slate-800/50 border-slate-700 hover:bg-slate-700"} min-h-[40px]`}
               >
                 {token.name}
               </Button>
@@ -171,7 +171,7 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
               variant={selectedChains.includes("all") ? "default" : "outline"}
               size="sm"
               onClick={() => toggleChain("all")}
-              className={`${selectedChains.includes("all") ? "bg-green-600 hover:bg-green-700" : "bg-slate-800/50 border-slate-700 hover:bg-slate-700"} min-h-[40px]`}
+              className={`${selectedChains.includes("all") ? "bg-green-600 hover:bg-green-700 font-bold" : "bg-slate-800/50 border-slate-700 hover:bg-slate-700"} min-h-[40px]`}
             >
               All chains
             </Button>
@@ -183,7 +183,7 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
                 variant={selectedChains.includes(chain.id) && !selectedChains.includes("all") ? "default" : "outline"}
                 size="sm"
                 onClick={() => toggleChain(chain.id)}
-                className={`${selectedChains.includes(chain.id) && !selectedChains.includes("all") ? "bg-green-600 hover:bg-green-700" : "bg-slate-800/50 border-slate-700 hover:bg-slate-700"} min-h-[40px]`}
+                className={`${selectedChains.includes(chain.id) && !selectedChains.includes("all") ? "bg-green-600 hover:bg-green-700 font-bold" : "bg-slate-800/50 border-slate-700 hover:bg-slate-700"} min-h-[40px]`}
               >
                 {chain.name}
               </Button>
@@ -229,9 +229,9 @@ const YodlConfig = ({ config, onChange }: YodlConfigProps) => {
         
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <Label htmlFor="memo" className="text-base flex items-center gap-2 whitespace-nowrap">
+            <Label htmlFor="memo" className="text-base flex items-center gap-2">
               <MessageSquare size={18} className="text-green-400" />
-              Payment Memo <span className="text-sm opacity-70">(Optional)</span>
+              Payment Memo (Optional)
             </Label>
             <TooltipProvider>
               <Tooltip>

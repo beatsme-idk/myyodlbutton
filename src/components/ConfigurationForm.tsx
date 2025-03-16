@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { validateHexColor, isValidEnsOrAddress, isValidSlug } from "@/utils/validation";
-import { Check, AlertCircle, Lightbulb, Settings, Palette, Heart, Coffee, Hand, Gift, Zap, Share2, Upload, ExternalLink, Book, Wallet, Droplet, Twitter, Instagram, Github, Linkedin, Link2, ArrowRight, Star, Coins, Sparkles, CopyIcon, MessageSquare } from "lucide-react";
+import { Check, AlertCircle, Lightbulb, Settings, Palette, Heart, Coffee, Hand, Gift, Zap, Share2, Upload, ExternalLink, Book, Wallet, Droplet, Twitter, Instagram, Github, Linkedin, Link2, ArrowRight, Star, Coins, Sparkles, CopyIcon, MessageSquare, Type, AlignLeft, Image, Code2, Globe } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import ColorPicker from "./ColorPicker";
 import LoadingSpinner from "./LoadingSpinner";
@@ -56,10 +56,10 @@ const DEFAULT_CONFIG: UserConfig = {
   yodlConfig: {
     tokens: ["all"],
     chains: ["all"],
+    currency: "USD",
     amount: "",
     memo: "",
-    redirectUrl: "",
-    currency: "USD"
+    redirectUrl: ""
   }
 };
 
@@ -94,6 +94,30 @@ const GRADIENT_OPTIONS = [
   }
 ];
 
+const fallAnimations = `
+  @keyframes fall-slow {
+    0% { transform: translateY(-10px) rotate(5deg); }
+    100% { transform: translateY(300px) rotate(20deg); }
+  }
+  @keyframes fall-medium {
+    0% { transform: translateY(-10px) rotate(-5deg); }
+    100% { transform: translateY(300px) rotate(-20deg); }
+  }
+  @keyframes fall-fast {
+    0% { transform: translateY(-10px) rotate(0deg); }
+    100% { transform: translateY(300px) rotate(10deg); }
+  }
+  .animate-fall-slow {
+    animation: fall-slow 5s linear infinite;
+  }
+  .animate-fall-medium {
+    animation: fall-medium 4s linear infinite;
+  }
+  .animate-fall-fast {
+    animation: fall-fast 3s linear infinite;
+  }
+`;
+
 const ConfigurationForm = ({
   initialConfig = DEFAULT_CONFIG,
   onConfigChange,
@@ -110,6 +134,17 @@ const ConfigurationForm = ({
   const [selectedIcon, setSelectedIcon] = useState<string>(config.buttonStyle.icon || "none");
   const [useThankYouGradient, setUseThankYouGradient] = useState(false);
   const [selectedThankYouGradient, setSelectedThankYouGradient] = useState("none");
+
+  // Add fall animations to the document head
+  useEffect(() => {
+    const styleElement = document.createElement('style');
+    styleElement.innerHTML = fallAnimations;
+    document.head.appendChild(styleElement);
+    
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
 
   useEffect(() => {
     if (config.buttonStyle.padding) {
@@ -394,39 +429,27 @@ const ConfigurationForm = ({
         
         <CardContent>
           <Tabs defaultValue="general" className="w-full">
-            <TabsList className="grid grid-cols-4 mb-8 w-full max-w-full overflow-x-auto bg-slate-800/50 p-1.5 rounded-xl">
-              <TabsTrigger 
-                value="general" 
-                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white"
-              >
+            <TabsList className="grid grid-cols-4 mb-8 w-full max-w-full bg-slate-800/50 p-1 rounded-xl">
+              <TabsTrigger value="general" className="flex items-center justify-center gap-1 px-3 py-2 sm:gap-2 sm:px-4 sm:py-2.5 rounded-lg data-[state=active]:bg-indigo-600">
                 <Settings className="w-4 h-4" />
-                <span className="hidden sm:inline font-medium">General</span>
+                <span className="hidden sm:inline">General</span>
               </TabsTrigger>
-              <TabsTrigger 
-                value="button" 
-                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white"
-              >
+              <TabsTrigger value="button" className="flex items-center justify-center gap-1 px-3 py-2 sm:gap-2 sm:px-4 sm:py-2.5 rounded-lg data-[state=active]:bg-indigo-600">
                 <Palette className="w-4 h-4" />
-                <span className="hidden sm:inline font-medium">Button</span>
+                <span className="hidden sm:inline">Button</span>
               </TabsTrigger>
-              <TabsTrigger 
-                value="thankYou" 
-                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white"
-              >
+              <TabsTrigger value="thankYou" className="flex items-center justify-center gap-1 px-3 py-2 sm:gap-2 sm:px-4 sm:py-2.5 rounded-lg data-[state=active]:bg-indigo-600">
                 <Heart className="w-4 h-4" />
-                <span className="hidden sm:inline font-medium">Thank You</span>
+                <span className="hidden sm:inline">Thank You</span>
               </TabsTrigger>
-              <TabsTrigger 
-                value="social" 
-                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white"
-              >
+              <TabsTrigger value="social" className="flex items-center justify-center gap-1 px-3 py-2 sm:gap-2 sm:px-4 sm:py-2.5 rounded-lg data-[state=active]:bg-indigo-600">
                 <Share2 className="w-4 h-4" />
-                <span className="hidden sm:inline font-medium">Preview Cards</span>
+                <span className="hidden sm:inline">Preview Cards</span>
               </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="general" className="space-y-4">
-              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-6">
+            <TabsContent value="general" className="space-y-6">
+              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-4">
                 <div className="flex items-center mb-4">
                   <Lightbulb className="w-5 h-5 text-yellow-500 mr-2" />
                   <h3 className="text-lg font-semibold">Quick Tips</h3>
@@ -447,63 +470,65 @@ const ConfigurationForm = ({
                 </ul>
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="ensNameOrAddress">
-                  ENS Name or Ethereum Address
-                </Label>
-                <Input
-                  id="ensNameOrAddress"
-                  value={config.ensNameOrAddress}
-                  onChange={(e) => updateConfig("ensNameOrAddress", e.target.value)}
-                  placeholder="vitalik.eth or donations.vitalik.eth or 0x123..."
-                  className={errors.ensNameOrAddress ? "border-destructive" : ""}
-                />
-                {errors.ensNameOrAddress && (
-                  <div className="text-destructive text-sm flex items-center gap-1 mt-1">
-                    <AlertCircle size={14} />
-                    {errors.ensNameOrAddress}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="ensNameOrAddress">
+                    ENS Name or Ethereum Address
+                  </Label>
+                  <Input
+                    id="ensNameOrAddress"
+                    value={config.ensNameOrAddress}
+                    onChange={(e) => updateConfig("ensNameOrAddress", e.target.value)}
+                    placeholder="vitalik.eth or tam.yodl.eth or 0x123..."
+                    className={errors.ensNameOrAddress ? "border-destructive" : ""}
+                  />
+                  {errors.ensNameOrAddress && (
+                    <div className="text-destructive text-sm flex items-center gap-1 mt-1">
+                      <AlertCircle size={14} />
+                      {errors.ensNameOrAddress}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="slug">Payment URL</Label>
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={generateRandomSlug}
+                      className="h-8 px-2 text-xs"
+                    >
+                      Generate New Random ID
+                    </Button>
                   </div>
-                )}
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="slug">Payment URL</Label>
-                  <Button 
-                    type="button" 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={generateRandomSlug}
-                    className="h-8 px-2 text-xs"
-                  >
-                    Generate New Random ID
-                  </Button>
-                </div>
-                <div className="flex rounded-lg shadow-sm">
-                  <span className="inline-flex items-center px-4 bg-slate-800/50 border border-r-0 border-slate-700/50 rounded-l-lg text-slate-400 text-sm">
-                    https://myyodlbutton.lovable.app/
-                  </span>
-                  <div className="flex-1 bg-slate-800/30 border border-slate-700/50 rounded-r-lg px-3 py-2 text-sm text-indigo-200 font-mono overflow-x-auto">
-                    {config.slug || "generating..."}
+                  <div className="flex rounded-lg shadow-sm">
+                    <span className="inline-flex items-center px-4 bg-slate-800/50 border border-r-0 border-slate-700/50 rounded-l-lg text-slate-400 text-sm">
+                      https://myyodlbutton.lovable.app/
+                    </span>
+                    <div className="flex-1 bg-slate-800/30 border border-slate-700/50 rounded-r-lg px-3 py-2 text-sm text-indigo-200 font-mono overflow-x-auto">
+                      {config.slug || "generating..."}
+                    </div>
                   </div>
-                </div>
-                <div className="text-muted-foreground text-xs mt-1">
-                  This is your secure payment URL: https://myyodlbutton.lovable.app/<strong>{config.slug || "your-id"}</strong>
-                </div>
-                <div className="bg-amber-900/20 border border-amber-500/20 rounded-md p-3 mt-2">
-                  <div className="flex items-start gap-2">
-                    <AlertCircle size={16} className="text-amber-500 mt-0.5" />
-                    <div>
-                      <p className="text-amber-400 text-sm font-medium">Security Notice</p>
-                      <p className="text-amber-300/80 text-xs mt-1">
-                        For security reasons, your payment URL uses a completely random ID that cannot be guessed or predicted. This prevents impersonation and scams while keeping your payments secure.
-                      </p>
+                  <div className="text-muted-foreground text-xs mt-1">
+                    This is your secure payment URL: https://myyodlbutton.lovable.app/<strong>{config.slug || "your-id"}</strong>
+                  </div>
+                  <div className="bg-amber-900/20 border border-amber-500/20 rounded-md p-3 mt-2">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle size={16} className="text-amber-500 mt-0.5" />
+                      <div>
+                        <p className="text-amber-400 text-sm font-medium">Security Notice</p>
+                        <p className="text-amber-300/80 text-xs mt-1">
+                          For security reasons, your payment URL uses a completely random ID that cannot be guessed or predicted. This prevents impersonation and scams while keeping your payments secure.
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
               
-              <div className="mt-6 pt-6 border-t border-slate-700/50">
+              <div className="mt-4 pt-6 border-t border-slate-700/50">
                 <h3 className="text-lg font-semibold mb-4 flex items-center">
                   <Wallet className="w-5 h-5 text-green-500 mr-2" />
                   Yodl Payment Settings
@@ -516,139 +541,94 @@ const ConfigurationForm = ({
             </TabsContent>
             
             <TabsContent value="button" className="space-y-6">
-              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-4">
-                <h3 className="text-lg font-semibold mb-4">Button Preview</h3>
-                <div className="flex items-center justify-center p-8 bg-slate-900/50 rounded-lg">
-                  <button
-                    className="inline-flex flex-col items-center justify-center shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 min-w-[200px]"
-                    style={{
-                      background: config.buttonStyle.backgroundColor,
-                      color: config.buttonStyle.textColor,
-                      borderRadius: config.buttonStyle.borderRadius,
-                      fontSize: config.buttonStyle.fontSize,
-                      padding: `${parseInt(config.buttonStyle.padding.split(' ')[0]) + 4}px ${parseInt(config.buttonStyle.padding.split(' ')[1]) + 8}px`,
-                    }}
-                  >
-                    <div className="flex items-center w-full mb-2">
-                      <div className="relative mr-2 w-5 h-5">
-                        <img 
-                          src="https://yodl.me/_next/static/media/new_logo.be0c2fdb.svg" 
-                          alt="Yodl"
-                          className="w-full h-full drop-shadow-[0_0_2px_rgba(255,255,255,0.3)]"
-                        />
-                      </div>
-                      {config.buttonStyle.icon !== "none" && (
-                        <>
-                          {config.buttonStyle.icon === "heart" && <Heart className="mr-2" size={16} />}
-                          {config.buttonStyle.icon === "coffee" && <Coffee className="mr-2" size={16} />}
-                          {config.buttonStyle.icon === "hand" && <Hand className="mr-2" size={16} />}
-                          {config.buttonStyle.icon === "gift" && <Gift className="mr-2" size={16} />}
-                          {config.buttonStyle.icon === "zap" && <Zap className="mr-2" size={16} />}
-                          {config.buttonStyle.icon === "star" && <Star className="mr-2" size={16} />}
-                          {config.buttonStyle.icon === "coins" && <Coins className="mr-2" size={16} />}
-                          {config.buttonStyle.icon === "sparkles" && <Sparkles className="mr-2" size={16} />}
-                        </>
-                      )}
-                      <span className="flex-1">{config.buttonStyle.buttonText}</span>
-                      <ArrowRight className="ml-2 opacity-70" size={16} />
-                    </div>
-                    <div className="text-xs opacity-70 self-start mt-1">
-                      To: {config.ensNameOrAddress ? 
-                        (config.ensNameOrAddress.length > 20 ? 
-                          `${config.ensNameOrAddress.substring(0, 10)}...${config.ensNameOrAddress.substring(config.ensNameOrAddress.length - 6)}` : 
-                          config.ensNameOrAddress) : 
-                        "username.eth"}
-                    </div>
-                  </button>
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <Label htmlFor="buttonText" className="text-base flex items-center gap-2">
+                    <Sparkles size={18} className="text-indigo-400" />
+                    Button Text
+                  </Label>
+                  <Input
+                    id="buttonText"
+                    value={config.buttonStyle.buttonText}
+                    onChange={(e) => updateButtonStyle("buttonText", e.target.value)}
+                    className="bg-slate-800/50 border-slate-700"
+                  />
+                  {errors["buttonStyle.buttonText"] && (
+                    <p className="text-red-500 text-xs mt-1">{errors["buttonStyle.buttonText"]}</p>
+                  )}
                 </div>
-              </div>
 
-              <div className="space-y-4">
-                <Label htmlFor="buttonText" className="text-base flex items-center gap-2">
-                  <Sparkles size={18} className="text-indigo-400" />
-                  Button Text
-                </Label>
-                <Input
-                  id="buttonText"
-                  value={config.buttonStyle.buttonText}
-                  onChange={(e) => updateButtonStyle("buttonText", e.target.value)}
-                  className="bg-slate-800/50 border-slate-700"
-                />
-                {errors["buttonStyle.buttonText"] && (
-                  <p className="text-red-500 text-xs mt-1">{errors["buttonStyle.buttonText"]}</p>
-                )}
-              </div>
-
-              <div className="space-y-4">
-                <Label className="text-base flex items-center gap-2">
-                  <Coffee size={18} className="text-indigo-400" />
-                  Button Icon
-                </Label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  <Button
-                    type="button"
-                    variant={config.buttonStyle.icon === 'heart' ? 'default' : 'outline'}
-                    className={`flex items-center justify-center min-h-[44px] ${config.buttonStyle.icon === 'heart' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-800/50 border-slate-700 hover:bg-slate-700'}`}
-                    onClick={() => handleIconSelection("heart")}
-                  >
-                    <Heart size={18} />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={config.buttonStyle.icon === 'coffee' ? 'default' : 'outline'}
-                    className={`flex items-center justify-center min-h-[44px] ${config.buttonStyle.icon === 'coffee' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-800/50 border-slate-700 hover:bg-slate-700'}`}
-                    onClick={() => handleIconSelection("coffee")}
-                  >
-                    <Coffee size={18} />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={config.buttonStyle.icon === 'hand' ? 'default' : 'outline'}
-                    className={`flex items-center justify-center min-h-[44px] ${config.buttonStyle.icon === 'hand' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-800/50 border-slate-700 hover:bg-slate-700'}`}
-                    onClick={() => handleIconSelection("hand")}
-                  >
-                    <Hand size={18} />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={config.buttonStyle.icon === 'gift' ? 'default' : 'outline'}
-                    className={`flex items-center justify-center min-h-[44px] ${config.buttonStyle.icon === 'gift' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-800/50 border-slate-700 hover:bg-slate-700'}`}
-                    onClick={() => handleIconSelection("gift")}
-                  >
-                    <Gift size={18} />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={config.buttonStyle.icon === 'zap' ? 'default' : 'outline'}
-                    className={`flex items-center justify-center min-h-[44px] ${config.buttonStyle.icon === 'zap' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-800/50 border-slate-700 hover:bg-slate-700'}`}
-                    onClick={() => handleIconSelection("zap")}
-                  >
-                    <Zap size={18} />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={config.buttonStyle.icon === 'star' ? 'default' : 'outline'}
-                    className={`flex items-center justify-center min-h-[44px] ${config.buttonStyle.icon === 'star' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-800/50 border-slate-700 hover:bg-slate-700'}`}
-                    onClick={() => handleIconSelection("star")}
-                  >
-                    <Star size={18} />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={config.buttonStyle.icon === 'coins' ? 'default' : 'outline'}
-                    className={`flex items-center justify-center min-h-[44px] ${config.buttonStyle.icon === 'coins' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-800/50 border-slate-700 hover:bg-slate-700'}`}
-                    onClick={() => handleIconSelection("coins")}
-                  >
-                    <Coins size={18} />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={config.buttonStyle.icon === 'sparkles' ? 'default' : 'outline'}
-                    className={`flex items-center justify-center min-h-[44px] ${config.buttonStyle.icon === 'sparkles' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-800/50 border-slate-700 hover:bg-slate-700'}`}
-                    onClick={() => handleIconSelection("sparkles")}
-                  >
-                    <Sparkles size={18} />
-                  </Button>
+                <div className="space-y-4">
+                  <Label className="text-base flex items-center gap-2">
+                    <Coffee size={18} className="text-indigo-400" />
+                    Button Icon
+                  </Label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2">
+                    <Button
+                      type="button"
+                      variant={config.buttonStyle.icon === 'heart' ? 'default' : 'outline'}
+                      className={`flex items-center justify-center min-h-[44px] ${config.buttonStyle.icon === 'heart' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-800/50 border-slate-700 hover:bg-slate-700'}`}
+                      onClick={() => handleIconSelection("heart")}
+                    >
+                      <Heart size={18} />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={config.buttonStyle.icon === 'coffee' ? 'default' : 'outline'}
+                      className={`flex items-center justify-center min-h-[44px] ${config.buttonStyle.icon === 'coffee' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-800/50 border-slate-700 hover:bg-slate-700'}`}
+                      onClick={() => handleIconSelection("coffee")}
+                    >
+                      <Coffee size={18} />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={config.buttonStyle.icon === 'hand' ? 'default' : 'outline'}
+                      className={`flex items-center justify-center min-h-[44px] ${config.buttonStyle.icon === 'hand' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-800/50 border-slate-700 hover:bg-slate-700'}`}
+                      onClick={() => handleIconSelection("hand")}
+                    >
+                      <Hand size={18} />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={config.buttonStyle.icon === 'gift' ? 'default' : 'outline'}
+                      className={`flex items-center justify-center min-h-[44px] ${config.buttonStyle.icon === 'gift' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-800/50 border-slate-700 hover:bg-slate-700'}`}
+                      onClick={() => handleIconSelection("gift")}
+                    >
+                      <Gift size={18} />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={config.buttonStyle.icon === 'zap' ? 'default' : 'outline'}
+                      className={`flex items-center justify-center min-h-[44px] ${config.buttonStyle.icon === 'zap' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-800/50 border-slate-700 hover:bg-slate-700'}`}
+                      onClick={() => handleIconSelection("zap")}
+                    >
+                      <Zap size={18} />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={config.buttonStyle.icon === 'star' ? 'default' : 'outline'}
+                      className={`flex items-center justify-center min-h-[44px] ${config.buttonStyle.icon === 'star' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-800/50 border-slate-700 hover:bg-slate-700'}`}
+                      onClick={() => handleIconSelection("star")}
+                    >
+                      <Star size={18} />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={config.buttonStyle.icon === 'coins' ? 'default' : 'outline'}
+                      className={`flex items-center justify-center min-h-[44px] ${config.buttonStyle.icon === 'coins' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-800/50 border-slate-700 hover:bg-slate-700'}`}
+                      onClick={() => handleIconSelection("coins")}
+                    >
+                      <Coins size={18} />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={config.buttonStyle.icon === 'sparkles' ? 'default' : 'outline'}
+                      className={`flex items-center justify-center min-h-[44px] ${config.buttonStyle.icon === 'sparkles' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-800/50 border-slate-700 hover:bg-slate-700'}`}
+                      onClick={() => handleIconSelection("sparkles")}
+                    >
+                      <Sparkles size={18} />
+                    </Button>
+                  </div>
                 </div>
               </div>
 
@@ -698,7 +678,7 @@ const ConfigurationForm = ({
                   ) : (
                     <div className="space-y-3">
                       <Label className="text-xs text-slate-400 mb-1 block">Gradient Style</Label>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
                         {GRADIENT_OPTIONS.filter(option => option.value !== "none").map((gradient) => (
                           <button
                             key={gradient.value}
@@ -723,41 +703,87 @@ const ConfigurationForm = ({
             </TabsContent>
             
             <TabsContent value="thankYou" className="space-y-6">
-              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-4">
+              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-6">
                 <h3 className="text-lg font-semibold mb-4">Thank You Page Preview</h3>
-                <div 
-                  className="p-8 rounded-lg text-center"
-                  style={{
-                    background: config.thankYouPage.backgroundColor,
-                    color: config.thankYouPage.textColor
-                  }}
-                >
-                  <h4 className="text-2xl font-bold mb-4">Thank You!</h4>
-                  <p className="opacity-80">{config.thankYouPage.message}</p>
-                  {config.thankYouPage.showConfetti && (
-                    <div className="mt-4 text-sm">✨ Confetti will appear here ✨</div>
-                  )}
-                  {config.thankYouPage.socialLinks && (
-                    <div className="flex justify-center mt-4 space-x-3">
-                      {config.thankYouPage.socialLinks.twitter && <Twitter size={20} />}
-                      {config.thankYouPage.socialLinks.instagram && <Instagram size={20} />}
-                      {config.thankYouPage.socialLinks.github && <Github size={20} />}
-                      {config.thankYouPage.socialLinks.linkedin && <Linkedin size={20} />}
-                    </div>
-                  )}
-                  {config.thankYouPage.customLink && (
-                    <div className="mt-4">
-                      <div className="inline-flex items-center gap-1 text-sm px-4 py-2 rounded-full border border-current border-opacity-20">
-                        <ExternalLink size={14} />
-                        {config.thankYouPage.customLink.text}
+                <div className="rounded-lg shadow-lg overflow-hidden">
+                  <div 
+                    className="p-10 flex flex-col items-center justify-center"
+                    style={{
+                      background: config.thankYouPage.backgroundColor,
+                      color: config.thankYouPage.textColor,
+                      minHeight: "280px"
+                    }}
+                  >
+                    {config.thankYouPage.showConfetti && (
+                      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                        <div className="absolute top-0 left-1/4 w-3 h-10 bg-yellow-400 rotate-12 opacity-70 animate-fall-slow"></div>
+                        <div className="absolute top-0 left-1/2 w-4 h-4 bg-red-500 rounded-full opacity-70 animate-fall-medium"></div>
+                        <div className="absolute top-0 right-1/4 w-5 h-2 bg-green-400 -rotate-15 opacity-70 animate-fall-fast"></div>
+                        <div className="absolute top-0 right-1/3 w-3 h-3 bg-blue-500 rounded-full opacity-70 animate-fall-slow"></div>
+                        <div className="absolute top-0 left-1/3 w-4 h-4 bg-purple-400 rotate-45 opacity-70 animate-fall-medium"></div>
                       </div>
+                    )}
+                    
+                    <div className="text-center max-w-lg mx-auto">
+                      <h2 className="text-2xl font-bold mb-4">
+                        {config.thankYouPage.message || "Thank you for your support!"}
+                      </h2>
+                      <p className="opacity-80 mb-8 text-base">Your payment has been processed successfully.</p>
+                      
+                      {config.thankYouPage.socialLinks && Object.values(config.thankYouPage.socialLinks).some(link => link) && (
+                        <div className="flex justify-center space-x-6 mt-8">
+                          {config.thankYouPage.socialLinks.twitter && (
+                            <a href="#" className="hover:opacity-80 transition-opacity">
+                              <Twitter size={24} />
+                            </a>
+                          )}
+                          {config.thankYouPage.socialLinks.instagram && (
+                            <a href="#" className="hover:opacity-80 transition-opacity">
+                              <Instagram size={24} />
+                            </a>
+                          )}
+                          {config.thankYouPage.socialLinks.github && (
+                            <a href="#" className="hover:opacity-80 transition-opacity">
+                              <Github size={24} />
+                            </a>
+                          )}
+                          {config.thankYouPage.socialLinks.linkedin && (
+                            <a href="#" className="hover:opacity-80 transition-opacity">
+                              <Linkedin size={24} />
+                            </a>
+                          )}
+                        </div>
+                      )}
+                      
+                      {config.thankYouPage.customLink && (
+                        <div className="mt-8">
+                          <a href="#" className="inline-flex items-center gap-2 text-sm px-5 py-2 rounded-full border border-current border-opacity-20 hover:bg-slate-800/10 transition-colors">
+                            <ExternalLink size={16} />
+                            {config.thankYouPage.customLink.text || "Visit my website"}
+                          </a>
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
-            
+
               <div className="space-y-4">
-                <Label htmlFor="tyBackgroundColor" className="text-base flex items-center gap-2">
+                <Label htmlFor="tyMessage" className="text-base flex items-center gap-2">
+                  <MessageSquare size={18} className="text-indigo-400" />
+                  Thank You Message
+                </Label>
+                <Textarea
+                  id="tyMessage"
+                  value={config.thankYouPage.message}
+                  onChange={(e) => updateThankYouPage("message", e.target.value)}
+                  placeholder="Thank you for your support!"
+                  className="bg-slate-800/50 border-slate-700 min-h-[80px]"
+                />
+              </div>
+
+              <div className="space-y-4">
+                <Label className="text-base flex items-center gap-2">
                   <Palette size={18} className="text-indigo-400" />
                   Background Style
                 </Label>
@@ -769,7 +795,7 @@ const ConfigurationForm = ({
                       updateThankYouPage("backgroundColor", "#F9FAFB");
                     }
                   }}
-                  className="grid grid-cols-2 gap-2 mb-3"
+                  className="grid grid-cols-2 gap-2"
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="solid" id="ty-solid" />
@@ -781,145 +807,121 @@ const ConfigurationForm = ({
                   </div>
                 </RadioGroup>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {!useThankYouGradient ? (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-xs text-slate-400 mb-1 block">Background</Label>
+                      <ColorPicker
+                        color={config.thankYouPage.backgroundColor.includes("linear-gradient") ? "#F9FAFB" : config.thankYouPage.backgroundColor}
+                        onChange={(color) => updateThankYouPage("backgroundColor", color)}
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-slate-400 mb-1 block">Text</Label>
+                      <ColorPicker
+                        color={config.thankYouPage.textColor || '#000000'}
+                        onChange={(color) => updateThankYouPage("textColor", color)}
+                      />
+                    </div>
+                  </div>
+                ) : (
                   <div className="space-y-3">
-                    {!useThankYouGradient ? (
-                      <>
-                        <Label className="text-xs text-slate-400 mb-1 block">Background Color</Label>
-                        <ColorPicker 
-                          color={config.thankYouPage.backgroundColor.includes("linear-gradient") ? "#F9FAFB" : config.thankYouPage.backgroundColor} 
-                          onChange={(color) => updateThankYouPage("backgroundColor", color)}
+                    <Label className="text-xs text-slate-400 mb-1 block">Gradient Style</Label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {GRADIENT_OPTIONS.filter(option => option.value !== "none").map((gradient) => (
+                        <button
+                          key={gradient.value}
+                          type="button"
+                          className={`h-12 rounded-md border-2 transition-all ${selectedThankYouGradient === gradient.value ? 'border-white scale-105' : 'border-transparent opacity-80 hover:opacity-100'}`}
+                          style={{ background: gradient.value }}
+                          onClick={() => handleThankYouGradientChange(gradient.value)}
                         />
-                      </>
-                    ) : (
-                      <div className="space-y-3">
-                        <Label className="text-xs text-slate-400 mb-1 block">Gradient Style</Label>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                          {GRADIENT_OPTIONS.filter(option => option.value !== "none").map((gradient) => (
-                            <button
-                              key={gradient.value}
-                              type="button"
-                              className={`h-12 rounded-md border-2 transition-all ${selectedThankYouGradient === gradient.value ? 'border-white scale-105' : 'border-transparent opacity-80 hover:opacity-100'}`}
-                              style={{ background: gradient.value }}
-                              onClick={() => handleThankYouGradientChange(gradient.value)}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    
-                    {errors["thankYouPage.backgroundColor"] && (
-                      <div className="text-destructive text-sm flex items-center gap-1">
-                        <AlertCircle size={14} />
-                        {errors["thankYouPage.backgroundColor"]}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <Label className="text-xs text-slate-400 mb-1 block">Text Color</Label>
-                    <ColorPicker 
-                      color={config.thankYouPage.textColor} 
-                      onChange={(color) => updateThankYouPage("textColor", color)}
-                    />
-                    {errors["thankYouPage.textColor"] && (
-                      <div className="text-destructive text-sm flex items-center gap-1">
-                        <AlertCircle size={14} />
-                        {errors["thankYouPage.textColor"]}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-              
-              <div className="space-y-4">
-                <Label htmlFor="tyMessage" className="text-base flex items-center gap-2">
-                  <MessageSquare size={18} className="text-indigo-400" />
-                  Thank You Message
-                </Label>
-                <Textarea
-                  id="tyMessage"
-                  value={config.thankYouPage.message}
-                  onChange={(e) => updateThankYouPage("message", e.target.value)}
-                  placeholder="Thank you for your support!"
-                  className={`bg-slate-800/50 border-slate-700 ${errors["thankYouPage.message"] ? "border-destructive" : ""}`}
-                />
-                {errors["thankYouPage.message"] && (
-                  <div className="text-destructive text-sm flex items-center gap-1 mt-1">
-                    <AlertCircle size={14} />
-                    {errors["thankYouPage.message"]}
+                      ))}
+                    </div>
+                    <div>
+                      <Label className="text-xs text-slate-400 mb-1 block">Text Color</Label>
+                      <ColorPicker
+                        color={config.thankYouPage.textColor || '#000000'}
+                        onChange={(color) => updateThankYouPage("textColor", color)}
+                      />
+                    </div>
                   </div>
                 )}
               </div>
-              
-              <div className="flex items-center space-x-2">
-                <Switch 
-                  id="showConfetti" 
-                  checked={config.thankYouPage.showConfetti}
-                  onCheckedChange={(checked) => updateThankYouPage("showConfetti", checked)}
-                />
-                <Label htmlFor="showConfetti">Show Confetti Animation</Label>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label className="text-base flex items-center gap-2">
+                    <Sparkles size={18} className="text-indigo-400" />
+                    Show Confetti Animation
+                  </Label>
+                  <Switch
+                    checked={config.thankYouPage.showConfetti}
+                    onCheckedChange={(checked) => updateThankYouPage("showConfetti", checked)}
+                  />
+                </div>
               </div>
-              
+
               <div className="space-y-4 pt-4 border-t border-slate-700/50">
-                <h3 className="text-lg font-semibold">Social Media Links</h3>
-                <div className="space-y-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="twitterLink" className="flex items-center gap-2">
-                        <Twitter size={16} />
-                        Twitter Link
-                      </Label>
-                      <Input
-                        id="twitterLink"
-                        value={config.thankYouPage.socialLinks?.twitter || ""}
-                        onChange={(e) => updateSocialLinks("twitter", e.target.value)}
-                        placeholder="https://twitter.com/yourusername"
-                        className="bg-slate-800/50 border-slate-700"
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="instagramLink" className="flex items-center gap-2">
-                        <Instagram size={16} />
-                        Instagram Link
-                      </Label>
-                      <Input
-                        id="instagramLink"
-                        value={config.thankYouPage.socialLinks?.instagram || ""}
-                        onChange={(e) => updateSocialLinks("instagram", e.target.value)}
-                        placeholder="https://instagram.com/yourusername"
-                        className="bg-slate-800/50 border-slate-700"
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="githubLink" className="flex items-center gap-2">
-                        <Github size={16} />
-                        GitHub Link
-                      </Label>
-                      <Input
-                        id="githubLink"
-                        value={config.thankYouPage.socialLinks?.github || ""}
-                        onChange={(e) => updateSocialLinks("github", e.target.value)}
-                        placeholder="https://github.com/yourusername"
-                        className="bg-slate-800/50 border-slate-700"
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="linkedinLink" className="flex items-center gap-2">
-                        <Linkedin size={16} />
-                        LinkedIn Link
-                      </Label>
-                      <Input
-                        id="linkedinLink"
-                        value={config.thankYouPage.socialLinks?.linkedin || ""}
-                        onChange={(e) => updateSocialLinks("linkedin", e.target.value)}
-                        placeholder="https://linkedin.com/in/yourusername"
-                        className="bg-slate-800/50 border-slate-700"
-                      />
-                    </div>
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Share2 size={18} className="text-indigo-400" />
+                  Social Media Links
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="twitterLink" className="flex items-center gap-2">
+                      <Twitter size={16} />
+                      Twitter Link
+                    </Label>
+                    <Input
+                      id="twitterLink"
+                      value={config.thankYouPage.socialLinks?.twitter || ""}
+                      onChange={(e) => updateSocialLinks("twitter", e.target.value)}
+                      placeholder="https://twitter.com/yourusername"
+                      className="bg-slate-800/50 border-slate-700"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="instagramLink" className="flex items-center gap-2">
+                      <Instagram size={16} />
+                      Instagram Link
+                    </Label>
+                    <Input
+                      id="instagramLink"
+                      value={config.thankYouPage.socialLinks?.instagram || ""}
+                      onChange={(e) => updateSocialLinks("instagram", e.target.value)}
+                      placeholder="https://instagram.com/yourusername"
+                      className="bg-slate-800/50 border-slate-700"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="githubLink" className="flex items-center gap-2">
+                      <Github size={16} />
+                      GitHub Link
+                    </Label>
+                    <Input
+                      id="githubLink"
+                      value={config.thankYouPage.socialLinks?.github || ""}
+                      onChange={(e) => updateSocialLinks("github", e.target.value)}
+                      placeholder="https://github.com/yourusername"
+                      className="bg-slate-800/50 border-slate-700"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="linkedinLink" className="flex items-center gap-2">
+                      <Linkedin size={16} />
+                      LinkedIn Link
+                    </Label>
+                    <Input
+                      id="linkedinLink"
+                      value={config.thankYouPage.socialLinks?.linkedin || ""}
+                      onChange={(e) => updateSocialLinks("linkedin", e.target.value)}
+                      placeholder="https://linkedin.com/in/yourusername"
+                      className="bg-slate-800/50 border-slate-700"
+                    />
                   </div>
                 </div>
               </div>
@@ -963,22 +965,62 @@ const ConfigurationForm = ({
             </TabsContent>
             
             <TabsContent value="social" className="space-y-6">
-              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-4">
+              <div className="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 mb-6">
                 <h3 className="text-lg font-semibold mb-4">Social Preview</h3>
-                <SocialPreviewCard 
-                  ensNameOrAddress={config.ensNameOrAddress || "username.eth"} 
-                  socialPreview={config.socialPreview} 
-                />
+                <div className="rounded-lg overflow-hidden shadow-lg">
+                  <div className="relative">
+                    {config.socialPreview.useCustomImage && config.socialPreview.imageUrl ? (
+                      <div className="w-full" style={{ height: "300px" }}>
+                        <img 
+                          src={config.socialPreview.imageUrl} 
+                          alt="Preview" 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center" style={{ height: "300px" }}>
+                        <div className="bg-white/10 backdrop-blur-sm p-6 rounded-lg">
+                          <img 
+                            src="https://yodl.me/_next/static/media/new_logo.be0c2fdb.svg" 
+                            alt="Yodl"
+                            className="w-16 h-16 mx-auto drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                          />
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent h-32"></div>
+                  </div>
+                  
+                  <div className="bg-white dark:bg-slate-900 p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center flex-shrink-0">
+                        <span className="text-sm font-mono text-slate-300">{config.ensNameOrAddress.substring(0, 2)}</span>
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-slate-900 dark:text-white text-lg">{config.socialPreview.title}</h3>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 line-clamp-2">{config.socialPreview.description}</p>
+                        <div className="flex items-center gap-2 mt-3 text-sm text-slate-500">
+                          <Globe size={14} />
+                          <span>myyodlbutton.lovable.app</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            
-              <div className="space-y-2">
-                <Label htmlFor="previewTitle">Page Title</Label>
+
+              <div className="space-y-4">
+                <Label htmlFor="previewTitle" className="text-base flex items-center gap-2">
+                  <Type size={18} className="text-indigo-400" />
+                  Page Title
+                </Label>
                 <Input
                   id="previewTitle"
                   value={config.socialPreview.title}
                   onChange={(e) => updateSocialPreview("title", e.target.value)}
                   placeholder="Support My Work"
-                  className={errors["socialPreview.title"] ? "border-destructive" : ""}
+                  className={`bg-slate-800/50 border-slate-700 ${errors["socialPreview.title"] ? "border-destructive" : ""}`}
                 />
                 {errors["socialPreview.title"] && (
                   <div className="text-destructive text-sm flex items-center gap-1 mt-1">
@@ -988,14 +1030,17 @@ const ConfigurationForm = ({
                 )}
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="previewDescription">Description</Label>
+              <div className="space-y-4">
+                <Label htmlFor="previewDescription" className="text-base flex items-center gap-2">
+                  <AlignLeft size={18} className="text-indigo-400" />
+                  Description
+                </Label>
                 <Textarea
                   id="previewDescription"
                   value={config.socialPreview.description}
                   onChange={(e) => updateSocialPreview("description", e.target.value)}
                   placeholder="Every contribution helps me continue creating awesome content for you!"
-                  className={errors["socialPreview.description"] ? "border-destructive" : ""}
+                  className={`bg-slate-800/50 border-slate-700 min-h-[80px] ${errors["socialPreview.description"] ? "border-destructive" : ""}`}
                 />
                 {errors["socialPreview.description"] && (
                   <div className="text-destructive text-sm flex items-center gap-1 mt-1">
@@ -1007,7 +1052,10 @@ const ConfigurationForm = ({
               
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="customImage">Custom Preview Image</Label>
+                  <Label htmlFor="customImage" className="text-base flex items-center gap-2">
+                    <Image size={18} className="text-indigo-400" />
+                    Custom Preview Image
+                  </Label>
                   <Switch 
                     id="customImage" 
                     checked={config.socialPreview.useCustomImage}
@@ -1016,7 +1064,7 @@ const ConfigurationForm = ({
                 </div>
                 
                 {config.socialPreview.useCustomImage && (
-                  <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {config.socialPreview.imageUrl && (
                       <div className="relative w-full h-48 rounded-lg overflow-hidden border border-slate-700/50">
                         <img 
@@ -1027,8 +1075,8 @@ const ConfigurationForm = ({
                       </div>
                     )}
                     
-                    <div className="space-y-2">
-                      <Label htmlFor="imageUrl">Image URL</Label>
+                    <div className="space-y-4">
+                      <Label htmlFor="imageUrl" className="text-base">Image URL</Label>
                       <Input
                         id="imageUrl"
                         value={config.socialPreview.imageUrl || ""}
@@ -1045,7 +1093,10 @@ const ConfigurationForm = ({
               </div>
 
               <div className="space-y-4 pt-4 border-t border-slate-700/50">
-                <h3 className="text-lg font-semibold">Embed to your website</h3>
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Code2 size={18} className="text-indigo-400" />
+                  Embed to your website
+                </h3>
                 <div className="space-y-2">
                   <Label>HTML Embed Code</Label>
                   <div className="relative">
